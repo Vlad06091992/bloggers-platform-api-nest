@@ -1,8 +1,6 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Types, HydratedDocument, Model } from 'mongoose';
-import { pagination } from 'src/utils';
-
-export type CatDocument = HydratedDocument<User>;
+import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
+import { Model, Types } from "mongoose";
+import { pagination } from "src/utils";
 
 @Schema()
 export class RegistrationData {
