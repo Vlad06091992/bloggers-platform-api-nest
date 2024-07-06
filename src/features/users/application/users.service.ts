@@ -35,7 +35,7 @@ export class UsersService {
 
   async findAll(params: QueryParams) {
     // return params;
-    return await this.usersRepository.findAll(params);
+    return await this.usersQueryRepository.findAll(params);
   }
 
   async createHash(password: string) {

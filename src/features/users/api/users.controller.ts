@@ -48,23 +48,34 @@ export class UsersController {
   }
 
   @Get(':id')
-  async findOne(@isValidIdParam() id: string) {
-    return this.usersService.findOne(id);
+  async findOne(
+    @isValidIdParam() id: string,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const user = await this.usersService.findOne(id);
+    if (user) {
+      return user;
+    } else {
+      res.sendStatus(404);
+    }
   }
 
   @Delete(':id')
-  remove(@isValidIdParam() id: string, @Res() res: Response) {
+  async remove(@isValidIdParam() id: string, @Res() res: Response) {
     if (!id) {
       res.sendStatus(404);
       return;
     }
 
-    const isDeleted = this.usersService.remove(id);
+    const isDeleted = await this.usersService.remove(id);
 
     if (!isDeleted) {
-      throw new BadRequestException();
+      res.sendStatus(404);
     }
 
-    return res.status(HttpStatus.NOT_FOUND).send();
+    if (isDeleted) {
+      res.sendStatus(204);
+      return;
+    }
   }
 }

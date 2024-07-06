@@ -1,12 +1,12 @@
-import { Model, Types } from 'mongoose';
-import { User } from 'src/features/users/domain/user-schema';
+import { User, UserModel } from 'src/features/users/domain/user-schema';
 import { InjectModel } from '@nestjs/mongoose';
 import { Injectable } from '@nestjs/common';
 import { ObjectId } from 'mongodb';
+import { QueryParams } from 'src/shared/common-types';
 
 @Injectable()
 export class UsersQueryRepository {
-  constructor(@InjectModel(User.name) private userModel: Model<User>) {}
+  constructor(@InjectModel(User.name) private userModel: UserModel) {}
 
   async getUserById(id: string, isViewModel: boolean) {
     const projection = isViewModel
@@ -18,13 +18,9 @@ export class UsersQueryRepository {
         }
       : {};
 
-    if (!ObjectId.isValid(id)) {
-      return null;
-    }
-
-    const _id = new ObjectId(id);
-
-    return await this.userModel.findOne({ _id }, projection).exec();
+    return await this.userModel
+      .findOne({ _id: new ObjectId(id) }, projection)
+      .exec();
   }
 
   async removeUserById(id: string) {
@@ -38,7 +34,8 @@ export class UsersQueryRepository {
       $or: [{ email: emailOrLogin }, { login: emailOrLogin }],
     });
   }
-  async getUsers() {
-    return await this.userModel.find().exec();
+  async findAll(params: QueryParams) {
+    const projection = { _id: 0, password: 0, registrationData: 0, __v: 0 };
+    return this.userModel.pagination(params, projection);
   }
 }
