@@ -61,7 +61,7 @@ export class PostsController {
   async updateOne(
     @isValidIdParam() id: string,
     @Body() updatePostDto: UpdatePostDto,
-    @Res({ passthrough: true }) res: Response,
+    @Res() res: Response,
   ) {
     const isUpdated = await this.postsService.updateOne(id, updatePostDto);
     if (isUpdated) {
