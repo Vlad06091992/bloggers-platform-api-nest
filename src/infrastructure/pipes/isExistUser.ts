@@ -1,10 +1,8 @@
 import {
-  PipeTransform,
-  Injectable,
-  ArgumentMetadata,
-  BadRequestException,
-  HttpStatus,
   HttpException,
+  HttpStatus,
+  Injectable,
+  PipeTransform,
 } from '@nestjs/common';
 import { UsersService } from 'src/features/users/application/users.service';
 import { CreateUserDto } from 'src/features/users/api/models/create-user.dto';

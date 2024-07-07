@@ -4,6 +4,7 @@ export type ParamsValues =
   | 'pageNumber'
   | 'pageSize'
   | 'searchLoginTerm'
-  | 'searchEmailTerm';
+  | 'searchEmailTerm'
+  | 'searchNameTerm';
 
 export type QueryParams = Partial<Record<ParamsValues, string>>;

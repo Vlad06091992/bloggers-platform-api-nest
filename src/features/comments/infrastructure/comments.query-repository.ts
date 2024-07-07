@@ -20,4 +20,16 @@ export class CommentsQueryRepository {
       .exec();
     return result;
   }
+
+  async getCommentsForPost(postId: string, isViewModel: boolean) {
+    const projection = isViewModel
+      ? {
+          _id: 0,
+          __v: 0,
+        }
+      : {};
+
+    const result = await this.commentsModel.find({ postId }, projection).exec();
+    return result;
+  }
 }

@@ -1,17 +1,17 @@
 // import { Test, TestingModule } from '@nestjs/testing';
-// import { PostsController } from 'src/features/users/api/users.controller';
+// import { CommentsController } from 'src/features/users/api/users.controller';
 // import { TestingService } from 'src/features/users/application/users.service';
 //
-// describe('PostsController', () => {
-//   let controller: PostsController;
+// describe('CommentsController', () => {
+//   let controller: CommentsController;
 //
 //   beforeEach(async () => {
 //     const module: TestingModule = await Test.createTestingModule({
-//       controllers: [PostsController],
+//       controllers: [CommentsController],
 //       providers: [TestingService],
 //     }).compile();
 //
-//     controller = module.get<PostsController>(PostsController);
+//     controller = module.get<CommentsController>(CommentsController);
 //   });
 //
 //   it('should be defined', () => {

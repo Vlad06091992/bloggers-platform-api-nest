@@ -1,10 +1,8 @@
 import {
-  BadRequestException,
   Body,
   Controller,
   Delete,
   Get,
-  HttpStatus,
   Post,
   Query,
   Res,
@@ -43,6 +41,7 @@ export class UsersController {
       pageSize,
       sortBy,
     };
+
 
     return this.usersService.findAll(QueryParams);
   }

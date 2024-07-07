@@ -12,6 +12,8 @@ import {
 } from 'src/features/comments/domain/comments-schema';
 import { PostsRepository } from 'src/features/posts/infrastructure/posts-repository';
 import { Post, PostsSchema } from 'src/features/posts/domain/posts-schema';
+import { Blog, BlogsSchema } from 'src/features/blogs/domain/blogs-schema';
+import { BlogsRepository } from 'src/features/blogs/infrastructure/blogs-repository';
 
 @Module({
   imports: [
@@ -19,6 +21,7 @@ import { Post, PostsSchema } from 'src/features/posts/domain/posts-schema';
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
     MongooseModule.forFeature([{ name: Comment.name, schema: CommentsSchema }]),
     MongooseModule.forFeature([{ name: Post.name, schema: PostsSchema }]),
+    MongooseModule.forFeature([{ name: Blog.name, schema: BlogsSchema }]),
   ],
   controllers: [TestingController],
   providers: [
@@ -26,6 +29,7 @@ import { Post, PostsSchema } from 'src/features/posts/domain/posts-schema';
     UsersRepository,
     CommentsRepository,
     PostsRepository,
+    BlogsRepository,
   ],
 })
 export class TestModule {}

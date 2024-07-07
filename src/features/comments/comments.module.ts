@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { MongoModule } from 'src/mongo-module/mongo.module';
-import { CommentsController } from 'src/features/comments/api/comments.controller';
+import { CommentsController } from 'src/features/comments/api/commentsController';
 import { CommentsService } from 'src/features/comments/application/comments.service';
 import { CommentsRepository } from 'src/features/comments/infrastructure/comments-repository';
 import { CommentsQueryRepository } from 'src/features/comments/infrastructure/comments.query-repository';

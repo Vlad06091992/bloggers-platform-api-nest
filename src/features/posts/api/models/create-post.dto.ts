@@ -1,7 +1,6 @@
 import { IsString, Length } from 'class-validator';
 
-export class CreatePostDto {
-
+export class CreatePostDtoWithoutBlogId {
   @Length(1, 30)
   @IsString()
   title: string;
@@ -13,7 +12,9 @@ export class CreatePostDto {
   @Length(1, 1000)
   @IsString()
   content: string;
+}
 
+export class CreatePostDto extends CreatePostDtoWithoutBlogId {
   @Length(1, 1000)
   @IsString()
   blogId: string;

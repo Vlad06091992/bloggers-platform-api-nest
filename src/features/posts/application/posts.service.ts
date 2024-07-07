@@ -1,19 +1,21 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { ObjectId } from 'mongodb';
-import * as bcrypt from 'bcrypt';
 import { QueryParams } from '../../../shared/common-types';
 import { PostsRepository } from 'src/features/posts/infrastructure/posts-repository';
 import { PostsQueryRepository } from 'src/features/posts/infrastructure/posts.query-repository';
 import { CreatePostDto } from 'src/features/posts/api/models/create-post.dto';
 import { Post } from 'src/features/posts/domain/posts-schema';
 import { UpdatePostDto } from 'src/features/posts/api/models/update-post.dto';
+import { CommentsQueryRepository } from 'src/features/comments/infrastructure/comments.query-repository';
 
 @Injectable()
 export class PostsService {
   constructor(
     @Inject() protected postsRepository: PostsRepository,
+    @Inject() protected commentsQueryRepository: CommentsQueryRepository,
     @Inject() protected postsQueryRepository: PostsQueryRepository,
   ) {}
+
   async create(createPostDto: CreatePostDto) {
     const _id = new ObjectId();
     const blogName = 'blogName';
@@ -31,7 +33,7 @@ export class PostsService {
         likesCount: 0,
         dislikesCount: 0,
         myStatus: 'None',
-        newestLikes: [{ addedAt: 'addedAt', login: 'login', userId: 'userId' }],
+        newestLikes: [{ addedAt: new Date().toISOString(), login: 'login', userId: 'userId' }],
       },
     };
 
@@ -43,9 +45,8 @@ export class PostsService {
     return await this.postsQueryRepository.findAll(params);
   }
 
-  async createHash(password: string) {
-    const salt = await bcrypt.genSalt(10);
-    return await bcrypt.hash(password, salt);
+  async getCommentsForPost(postId: string) {
+    return this.commentsQueryRepository.getCommentsForPost(postId, true);
   }
 
   async findOne(id: string) {

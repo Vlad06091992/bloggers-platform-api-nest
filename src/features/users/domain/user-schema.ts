@@ -1,6 +1,6 @@
-import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
-import { Model, Types } from "mongoose";
-import { pagination } from "src/utils";
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Model, Types } from 'mongoose';
+import { pagination } from 'src/utils';
 
 @Schema()
 export class RegistrationData {

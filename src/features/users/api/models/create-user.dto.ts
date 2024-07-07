@@ -1,7 +1,6 @@
-import { IsEmail, IsString, Length, Matches } from "class-validator";
+import { IsEmail, IsString, Length, Matches } from 'class-validator';
 
 export class CreateUserDto {
-
   @IsEmail(undefined, {
     message: 'incorrect email',
   })

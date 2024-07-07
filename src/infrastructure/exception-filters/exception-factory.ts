@@ -1,7 +1,7 @@
 import { BadRequestException } from '@nestjs/common';
 
 export const exceptionFactory = (errors) => {
-  // console.log(error);
+
   const errorForResponse: { message: string; field: string }[] = [];
   errors.forEach((el) => {
     const constraintsKeys = Object.keys(el.constraints);

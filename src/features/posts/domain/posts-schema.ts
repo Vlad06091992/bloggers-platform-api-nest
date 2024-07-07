@@ -73,6 +73,7 @@ PostsSchema.statics = {
 PostsSchema.set('toObject', {
   transform: (doc, ret, options) => {
     delete ret.__v;
+    delete ret._id;
     return ret;
   },
 });

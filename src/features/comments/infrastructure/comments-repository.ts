@@ -9,12 +9,4 @@ export class CommentsRepository {
   async clearData() {
     await this.commentModel.deleteMany({});
   }
-
-  // async createUser(user: User) {
-  //   const res = await this.userModel.insertMany([user]);
-  //
-  //   const { email, id, login, createdAt } = res[0];
-  //
-  //   return { email, id, login, createdAt };
-  // }
 }

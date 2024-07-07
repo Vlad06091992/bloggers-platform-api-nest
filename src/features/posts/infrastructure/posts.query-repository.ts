@@ -29,13 +29,24 @@ export class PostsQueryRepository {
     return res.deletedCount === 1;
   }
 
-  // async findUserByEmailOrLogin(emailOrLogin: string) {
-  //   return this.postModel.findOne({
-  //     $or: [{ email: emailOrLogin }, { login: emailOrLogin }],
-  //   });
-  // }
-  async findAll(params: QueryParams) {
+  async findPostsForSpecificBlog(params: QueryParams, blogId: string) {
     const projection = { _id: 0, password: 0, registrationData: 0, __v: 0 };
-    return this.postModel.pagination(params, projection);
+    // const filter = {
+    //   $and: [
+    //     params.searchNameTerm
+    //       ? { name: { $regex: params.searchNameTerm, $options: 'i' } }
+    //       : {},
+    //     { blogId },
+    //   ],
+    // };
+
+    const filter = { blogId };
+
+    return this.postModel.pagination({ ...params, filter }, projection);
+  }
+  async findAll(params: QueryParams) {
+    const projection = { _id: 0, __v: 0 };
+    const filter = {};
+    return this.postModel.pagination({ ...params, filter }, projection);
   }
 }

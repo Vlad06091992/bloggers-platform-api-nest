@@ -1,8 +1,4 @@
-import {
-  createParamDecorator,
-  ExecutionContext,
-  NotFoundException,
-} from '@nestjs/common';
+import { createParamDecorator, ExecutionContext } from '@nestjs/common';
 import { ObjectId } from 'mongodb';
 
 export const isValidIdParam = createParamDecorator(

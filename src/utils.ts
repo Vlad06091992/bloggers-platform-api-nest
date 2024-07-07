@@ -2,32 +2,26 @@ export async function pagination(
   {
     pageNumber = 1,
     pageSize = 10,
-    sortBy,
-    sortDirection,
+    sortBy = 'createdAt',
+    sortDirection = 'desc',
     map_callback,
-    searchLoginTerm,
-    searchEmailTerm,
+    filter = {},
   },
   projection = {},
 ) {
-  const filter = {
-    $or: [
-      searchEmailTerm
-        ? { email: { $regex: searchEmailTerm, $options: 'i' } }
-        : searchLoginTerm
-          ? { login: { $regex: searchLoginTerm, $options: 'i' } }
-          : {},
-    ],
-  };
-
   const number = (+pageNumber - 1) * +pageSize;
   const res = await this.find(filter, projection)
     .skip(number)
     .limit(+pageSize)
-    .sort({ [sortBy]: sortDirection == 'asc' ? 1 : -1 })
+    // .sort({ createdAt: -1  })
+    .sort({
+      [sortBy]: sortDirection == 'asc' ? 1 : -1,
+      createdAt: sortDirection == 'asc' ? 1 : -1,
+    })
+    // .sort({ [sortBy === 'blogName' ? 'createdAt' : sortBy]: sortDirection == 'asc' ? 1 : -1 })
     .lean();
 
-  const totalCount = await this.countDocuments();
+  const totalCount = await this.countDocuments(filter);
 
   return {
     pagesCount: Math.ceil(+totalCount / +pageSize),

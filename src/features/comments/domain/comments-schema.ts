@@ -1,6 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Types, HydratedDocument, Model } from 'mongoose';
-import { pagination } from 'src/utils';
+import { HydratedDocument, Model, Types } from 'mongoose';
 
 export type CatDocument = HydratedDocument<Comment>;
 
@@ -50,6 +49,9 @@ export class Comment {
 
   @Prop()
   id: string;
+
+  @Prop()
+  postId: string;
 
   @Prop()
   content: string;

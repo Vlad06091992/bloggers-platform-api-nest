@@ -29,19 +29,20 @@ export class PostsController {
     @Query('sortDirection') sortDirection: string,
     @Query('pageNumber') pageNumber: string,
     @Query('pageSize') pageSize: string,
-    @Query('searchLoginTerm') searchLoginTerm: string,
-    @Query('searchEmailTerm') searchEmailTerm: string,
   ) {
     const QueryParams = {
       sortDirection,
-      searchEmailTerm,
-      searchLoginTerm,
       pageNumber,
       pageSize,
       sortBy,
     };
 
     return this.postsService.findAll(QueryParams);
+  }
+
+  @Get(':id/comments')
+  async findComments(@isValidIdParam() id: string) {
+    return this.postsService.getCommentsForPost(id);
   }
 
   @Get(':id')
