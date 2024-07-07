@@ -37,16 +37,29 @@ export class UsersQueryRepository {
   async findAll(params: QueryParams) {
     const projection = { _id: 0, password: 0, registrationData: 0, __v: 0 };
 
+    // const filter = {
+    //   $or: [
+    //     params.searchEmailTerm
+    //       ? { email: { $regex: params.searchEmailTerm, $options: 'i' } }
+    //       : params.searchLoginTerm
+    //         ? { login: { $regex: params.searchLoginTerm, $options: 'i' } }
+    //         : {},
+    //   ],
+    // };
+
+    // const filter = {};
+
     const filter = {
       $or: [
-        params.searchEmailTerm
-          ? { email: { $regex: params.searchEmailTerm, $options: 'i' } }
-          : params.searchLoginTerm
-            ? { login: { $regex: params.searchLoginTerm, $options: 'i' } }
-            : {},
+        {
+          login: {
+            $regex: params.searchLoginTerm,
+            $options: 'i',
+          },
+        },
+        { email: { $regex: params.searchEmailTerm, $options: 'i' } },
       ],
     };
-
 
     return this.userModel.pagination({ ...params, filter }, projection);
   }

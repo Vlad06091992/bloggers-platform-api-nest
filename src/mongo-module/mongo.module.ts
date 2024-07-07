@@ -23,7 +23,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({
         // uri: `${configService.get('MONGO_URI')}/${configService.get('DB_NAME')}`,
-        uri: "mongodb+srv://smirnovru92:ZPELzjX1CckwoEDw@cluster0.d3ysfam.mongodb.net/bloggers-api-prod?retryWrites=true&w=majority"
+        uri: 'mongodb+srv://smirnovru92:ZPELzjX1CckwoEDw@cluster0.d3ysfam.mongodb.net/bloggers-api-prod?retryWrites=true&w=majority',
       }),
       inject: [ConfigService],
     }),
