@@ -53,11 +53,11 @@ export class UsersQueryRepository {
       $or: [
         {
           login: {
-            $regex: params.searchLoginTerm,
+            $regex: params.searchLoginTerm ?? '',
             $options: 'i',
           },
         },
-        { email: { $regex: params.searchEmailTerm, $options: 'i' } },
+        { email: { $regex: params.searchEmailTerm ?? '', $options: 'i' } },
       ],
     };
 
