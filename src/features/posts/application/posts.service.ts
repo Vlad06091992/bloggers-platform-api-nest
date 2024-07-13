@@ -33,7 +33,13 @@ export class PostsService {
         likesCount: 0,
         dislikesCount: 0,
         myStatus: 'None',
-        newestLikes: [{ addedAt: new Date().toISOString(), login: 'login', userId: 'userId' }],
+        newestLikes: [
+          {
+            addedAt: new Date().toISOString(),
+            login: 'login',
+            userId: 'userId',
+          },
+        ],
       },
     };
 
