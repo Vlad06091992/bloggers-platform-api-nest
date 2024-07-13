@@ -8,9 +8,23 @@ import { CommentsModule } from 'src/features/comments/comments.module';
 import { TestModule } from 'src/features/testing/testing.module';
 import { PostsModule } from 'src/features/posts/posts.module';
 import { BlogsModule } from 'src/features/blogs/blogs.module';
+import { AuthModule } from './features/auth/auth.module';
+import { ThrottlerModule } from '@nestjs/throttler';
+import { MailerModule } from '@nestjs-modules/mailer';
+import { EmailModule } from 'src/email/email.module';
 
 @Module({
   imports: [
+    MailerModule.forRoot({
+      transport: {
+        service: 'Mail.ru',
+        auth: {
+          user: 'Smirnov.ru92@mail.ru', // generated ethereal user
+          pass: 'xqfWd2w5KfGyjPeuFfLD', // generated ethereal password
+        },
+      },
+    }),
+    EmailModule,
     ConfigModule.forRoot(),
     MongooseModule,
     BlogsModule,
@@ -18,6 +32,13 @@ import { BlogsModule } from 'src/features/blogs/blogs.module';
     CommentsModule,
     TestModule,
     PostsModule,
+    AuthModule,
+    ThrottlerModule.forRoot([
+      {
+        ttl: 10000,
+        limit: 5,
+      },
+    ]),
   ],
   controllers: [AppController],
   providers: [AppService],

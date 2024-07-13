@@ -16,6 +16,6 @@ export class UnauthorizedExceptionFilter implements ExceptionFilter {
     const request = ctx.getRequest<Request>();
     const status = exception.getStatus();
 
-    response.sendStatus(402);
+    response.sendStatus(401);
   }
 }

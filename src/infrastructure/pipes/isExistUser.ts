@@ -1,9 +1,4 @@
-import {
-  HttpException,
-  HttpStatus,
-  Injectable,
-  PipeTransform,
-} from '@nestjs/common';
+import { BadRequestException, Injectable, PipeTransform } from '@nestjs/common';
 import { UsersService } from 'src/features/users/application/users.service';
 import { CreateUserDto } from 'src/features/users/api/models/create-user.dto';
 
@@ -22,7 +17,9 @@ export class IsExistUserValidationPipe
     );
 
     if (isExistUserEmail || isExistUserLogin) {
-      throw new HttpException('User is already exist', HttpStatus.BAD_REQUEST);
+      throw new BadRequestException({
+        errorsMessages: [{ message: 'user is already exist', field: 'email' }],
+      });
     }
     return value;
   }

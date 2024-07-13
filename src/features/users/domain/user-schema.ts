@@ -8,7 +8,7 @@ export class RegistrationData {
   confirmationCode: string;
 
   @Prop({ required: true })
-  registrationData: string;
+  expirationDate: Date;
 
   @Prop({ required: true })
   isConfirmed: boolean;

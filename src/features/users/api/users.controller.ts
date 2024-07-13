@@ -6,24 +6,26 @@ import {
   Post,
   Query,
   Res,
+  UseGuards,
 } from '@nestjs/common';
 import { UsersService } from 'src/features/users/application/users.service';
 import { CreateUserDto } from 'src/features/users/api/models/create-user.dto';
 import { isValidIdParam } from 'src/infrastructure/decorators/isValidIdParam';
 import { Response } from 'express';
 import { IsExistUserValidationPipe } from 'src/infrastructure/pipes/isExistUser';
+import { BasicAuthGuard } from 'src/features/auth/guards/basic-auth.guard';
 
 // import { UpdateUserDto } from 'src/features/users/api/models/update-user.dto';
 
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
-
+  @UseGuards(BasicAuthGuard)
   @Post()
   create(@Body(IsExistUserValidationPipe) createUserDto: CreateUserDto) {
     return this.usersService.create(createUserDto);
   }
-
+  @UseGuards(BasicAuthGuard)
   @Get()
   findAll(
     @Query('sortBy') sortBy: string,
@@ -42,7 +44,6 @@ export class UsersController {
       sortBy,
     };
 
-
     return this.usersService.findAll(QueryParams);
   }
 
@@ -58,7 +59,7 @@ export class UsersController {
       res.sendStatus(404);
     }
   }
-
+  @UseGuards(BasicAuthGuard)
   @Delete(':id')
   async remove(@isValidIdParam() id: string, @Res() res: Response) {
     if (!id) {

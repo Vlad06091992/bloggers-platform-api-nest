@@ -30,10 +30,19 @@ export class UsersQueryRepository {
   }
 
   async findUserByEmailOrLogin(emailOrLogin: string) {
-    return this.userModel.findOne({
-      $or: [{ email: emailOrLogin }, { login: emailOrLogin }],
-    });
+    return await this.userModel
+      .findOne({
+        $or: [{ email: emailOrLogin }, { login: emailOrLogin }],
+      })
+      .exec();
   }
+
+  async findUserByConfirmationCode(code: string) {
+    return await this.userModel
+      .findOne({ 'registrationData.confirmationCode': code })
+      .exec();
+  }
+
   async findAll(params: QueryParams) {
     const projection = { _id: 0, password: 0, registrationData: 0, __v: 0 };
 
