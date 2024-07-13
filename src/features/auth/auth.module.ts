@@ -56,10 +56,6 @@ import { BasicStrategy } from 'src/features/auth/strategies/auth-basic.strategy'
     UsersRepository,
     RecoveryPasswordQueryRepository,
     RecoveryPasswordRepository,
-    {
-      provide: APP_GUARD,
-      useClass: ThrottlerGuard,
-    },
   ],
   exports: [AuthService],
 })
