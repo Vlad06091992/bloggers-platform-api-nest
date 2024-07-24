@@ -105,6 +105,14 @@ export class UsersService {
   async findUserByEmailOrLogin(emailOrLogin: string) {
     return await this.usersQueryRepository.findUserByEmailOrLogin(emailOrLogin);
   }
+
+  async findUserByEmail(email: string) {
+    return await this.usersQueryRepository.findUserByEmail(email);
+  }
+
+  async findUserByLogin(login: string) {
+    return await this.usersQueryRepository.findUserByLogin(login);
+  }
   remove(id: string) {
     return this.usersQueryRepository.removeUserById(id);
   }

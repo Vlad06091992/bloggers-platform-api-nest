@@ -1,29 +1,34 @@
+import { Body, Controller, Delete, Get, Post, Put, Query, Res } from "@nestjs/common";
+import { isValidIdParam } from "src/infrastructure/decorators/isValidIdParam";
+import { Response } from "express";
+import { UpdateBlogDto } from "src/features/blogs/api/models/update-blog.dto";
+import { CreateBlogDto } from "src/features/blogs/api/models/create-blog.dto";
+import { CreatePostDtoWithoutBlogId } from "src/features/posts/api/models/create-post.dto";
+import { CommandBus } from "@nestjs/cqrs";
+import { CreateBlogCommand } from "src/features/blogs/application/use-cases/create-blog";
+import { DeleteBlogCommand } from "src/features/blogs/application/use-cases/delete-blog";
+import { UpdateBlogCommand } from "src/features/blogs/application/use-cases/update-blog";
+import { FindBlogCommand } from "src/features/blogs/application/use-cases/find-blog";
+import { FindPostsForSpecificBlogCommand } from "src/features/blogs/application/use-cases/find-posts-for-specific-blog";
+import { FindBlogsCommand } from "src/features/blogs/application/use-cases/find-blogs";
 import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Post,
-  Put,
-  Query,
-  Req,
-  Res,
-} from '@nestjs/common';
-import { isValidIdParam } from 'src/infrastructure/decorators/isValidIdParam';
-import { Response } from 'express';
-import { UpdateBlogDto } from 'src/features/blogs/api/models/update-blog.dto';
-import { CreateBlogDto } from 'src/features/blogs/api/models/create-blog.dto';
-import { BlogsService } from 'src/features/blogs/application/blogs.service';
-import { CreatePostDtoWithoutBlogId } from 'src/features/posts/api/models/create-post.dto';
-import { Request } from 'express';
+  CreatePostsForSpecificBlogCommand
+} from "src/features/blogs/application/use-cases/create-post-for-specific-blog";
 
 @Controller('blogs')
 export class BlogsController {
-  constructor(private readonly blogsService: BlogsService) {}
+  constructor(
+    private commandBus: CommandBus,
+  ) {}
+
+  // @Post()
+  // create(@Body() createBlogDto: CreateBlogDto) {
+  //   return this.blogsService.create(createBlogDto);
+  // }
 
   @Post()
   create(@Body() createBlogDto: CreateBlogDto) {
-    return this.blogsService.create(createBlogDto);
+    return this.commandBus.execute(new CreateBlogCommand(createBlogDto));
   }
 
   @Get()
@@ -42,7 +47,7 @@ export class BlogsController {
       sortBy,
     };
 
-    return this.blogsService.findAll(QueryParams);
+    return this.commandBus.execute(new FindBlogsCommand(QueryParams));
   }
 
   @Get(':id')
@@ -50,7 +55,7 @@ export class BlogsController {
     @isValidIdParam() id: string,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const blog = await this.blogsService.findOne(id);
+    const blog = await this.commandBus.execute(new FindBlogCommand(id));
     if (blog) {
       return blog;
     } else {
@@ -67,7 +72,6 @@ export class BlogsController {
     @Query('searchNameTerm') searchNameTerm: string,
     @isValidIdParam() id: string,
     @Res({ passthrough: true }) res: Response,
-    @Req() req: Request,
   ) {
     const queryParams = {
       sortDirection,
@@ -77,14 +81,16 @@ export class BlogsController {
       sortBy,
     };
 
-    const blog = await this.blogsService.findOne(id);
+    const blog = await this.commandBus.execute(new FindBlogCommand(id));
 
     if (!blog) {
       res.sendStatus(404);
       return;
     }
 
-    return await this.blogsService.findPostsForSpecificBlog(queryParams, id);
+    return await this.commandBus.execute(
+      new FindPostsForSpecificBlogCommand(id, queryParams),
+    );
   }
 
   @Post(':id/posts')
@@ -93,16 +99,15 @@ export class BlogsController {
     @isValidIdParam() id: string,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const blog = await this.blogsService.findOne(id);
+    const blog = await this.commandBus.execute(new FindBlogCommand(id));
 
     if (!blog) {
       res.sendStatus(404);
       return;
     }
 
-    return await this.blogsService.createPostsForSpecificBlog(
-      createPostDto,
-      id,
+    return await this.commandBus.execute(
+      new CreatePostsForSpecificBlogCommand(createPostDto, id),
     );
   }
 
@@ -112,7 +117,9 @@ export class BlogsController {
     @Body() updateBlogDto: UpdateBlogDto,
     @Res() res: Response,
   ) {
-    const isUpdated = await this.blogsService.updateOne(id, updateBlogDto);
+    const isUpdated = await this.commandBus.execute(
+      new UpdateBlogCommand(updateBlogDto, id),
+    );
     if (isUpdated) {
       return res.sendStatus(204);
     } else {
@@ -127,10 +134,11 @@ export class BlogsController {
       return;
     }
 
-    const isDeleted = await this.blogsService.remove(id);
+    const isDeleted = await this.commandBus.execute(new DeleteBlogCommand(id));
 
     if (!isDeleted) {
       res.sendStatus(404);
+      return;
     }
 
     if (isDeleted) {

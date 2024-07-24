@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, UnauthorizedException } from "@nestjs/common";
 import { UsersService } from 'src/features/users/application/users.service';
 import { JwtService } from '@nestjs/jwt';
 import { User } from 'src/features/users/domain/user-schema';
@@ -28,8 +28,19 @@ export class AuthService {
   async validateUser(loginOrEmail: string, password: string): Promise<any> {
     const user = await this.usersService.findUserByEmailOrLogin(loginOrEmail);
 
+    // if (!user)
+    //   throw new BadRequestException({
+    //     errorsMessages: [
+    //       {
+    //         message: 'user not found',
+    //         field: 'emailOrLogin',
+    //       },
+    //     ],
+    //   });
+
+
     if (!user)
-      throw new BadRequestException({
+      throw new UnauthorizedException({
         errorsMessages: [
           {
             message: 'user not found',
@@ -59,8 +70,8 @@ export class AuthService {
   async login(user: User) {
     const payload = { username: user.login, sub: user.id };
     return {
-      access_token: this.generateJWT(payload, '10m'),
-      refresh_token: this.generateJWT(payload, '20m'),
+      accessToken: this.generateJWT(payload, '10m'),
+      // refreshToken: this.generateJWT(payload, '20m'),
     };
   }
 
@@ -92,11 +103,19 @@ export class AuthService {
   }
 
   async resendEmail(email: string) {
-    const user = await this.usersService.findUserByEmailOrLogin(email);
+    const user = await this.usersService.findUserByEmail(email);
 
     if (!user) {
       throw new BadRequestException({
         errorsMessages: [{ message: 'user not exist', field: 'email' }],
+      });
+    }
+
+    if (user.registrationData.isConfirmed) {
+      throw new BadRequestException({
+        errorsMessages: [
+          { message: 'email already confirmed', field: 'email' },
+        ],
       });
     }
 

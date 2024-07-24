@@ -37,6 +37,14 @@ export class UsersQueryRepository {
       .exec();
   }
 
+  async findUserByEmail(email: string) {
+    return await this.userModel.findOne({ email: email }).exec();
+  }
+
+  async findUserByLogin(login: string) {
+    return await this.userModel.findOne({ login: login }).exec();
+  }
+
   async findUserByConfirmationCode(code: string) {
     return await this.userModel
       .findOne({ 'registrationData.confirmationCode': code })
