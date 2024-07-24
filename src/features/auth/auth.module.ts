@@ -14,8 +14,6 @@ import { JwtModule, JwtService } from '@nestjs/jwt';
 import { jwtConstants } from 'src/features/auth/constants';
 import { JwtStrategy } from 'src/features/auth/strategies/jwt.strategy';
 import { ConfigService } from '@nestjs/config';
-import { ThrottlerGuard } from '@nestjs/throttler';
-import { APP_GUARD } from '@nestjs/core';
 import { EmailService } from 'src/email/email.service';
 import { RecoveryPasswordQueryRepository } from 'src/features/auth/infrastructure/recovery-password-query-repository';
 import { RecoveryPasswordRepository } from 'src/features/auth/infrastructure/recovery-password-repository';
@@ -24,9 +22,23 @@ import {
   RecoveryPasswordsCodesSchema,
 } from 'src/features/auth/domain/recovery-password-schema';
 import { BasicStrategy } from 'src/features/auth/strategies/auth-basic.strategy';
+import { CqrsModule } from '@nestjs/cqrs';
+import { ValidateUserHandler } from 'src/features/auth/application/use-cases/validate-user';
+import { GenerateJWTHandler } from 'src/features/auth/application/use-cases/generate-jwt';
+import { LoginHandler } from 'src/features/auth/application/use-cases/login';
+import { RecoveryPasswordHandler } from 'src/features/auth/application/use-cases/recovery-password';
+import { ResendEmailHandler } from 'src/features/auth/application/use-cases/resend-email';
+import { GetMeHandler } from 'src/features/auth/application/use-cases/get-me';
+import {
+  ConfirmEmailCommand,
+  ConfirmEmailHandler,
+} from 'src/features/auth/application/use-cases/confirm-email';
+import { FindUserByRecoveryCodeHandler } from 'src/features/auth/application/use-cases/find-user-by-recovery-code';
+import { UpdateUserPasswordHandler } from 'src/features/auth/application/use-cases/update-user-password';
 
 @Module({
   imports: [
+    CqrsModule,
     UsersModule,
     PassportModule,
     MongoModule,
@@ -56,6 +68,15 @@ import { BasicStrategy } from 'src/features/auth/strategies/auth-basic.strategy'
     UsersRepository,
     RecoveryPasswordQueryRepository,
     RecoveryPasswordRepository,
+    ValidateUserHandler,
+    FindUserByRecoveryCodeHandler,
+    GenerateJWTHandler,
+    LoginHandler,
+    RecoveryPasswordHandler,
+    UpdateUserPasswordHandler,
+    ResendEmailHandler,
+    GetMeHandler,
+    ConfirmEmailHandler,
   ],
   exports: [AuthService],
 })
