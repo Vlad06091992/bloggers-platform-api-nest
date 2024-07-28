@@ -48,6 +48,10 @@ export class CommentsController {
     @Body() { content }: CommentDto,
     @Res({ passthrough: true }) res: Response,
   ) {
+    const comment = await this.commandBus.execute(
+      new FindCommentByIdCommand(id, null),
+    );
+
     const isUpdated = await this.commandBus.execute(
       new UpdateCommentByIdCommand(id, content),
     );
@@ -70,6 +74,9 @@ export class CommentsController {
     const comment = await this.commandBus.execute(
       new FindCommentByIdCommand(id, userId),
     );
+
+    debugger;
+
     if (!comment) {
       throw new NotFoundException();
     } else {

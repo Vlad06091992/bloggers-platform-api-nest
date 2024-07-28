@@ -10,9 +10,9 @@ export class LikesQueryRepository {
   async getLikeRecord(userId: string | null, entityId: string) {
     if (!userId) return null;
 
-    console.log(entityId);
-
-    return await this.likesModel.findOne({ userId, entityId }).exec();
+    return await this.likesModel
+      .findOne({ $and: [{ userId }, { entityId }] })
+      .exec();
   }
 
   async getNewestLikes(entityId: string) {

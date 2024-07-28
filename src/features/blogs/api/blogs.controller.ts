@@ -64,7 +64,7 @@ export class BlogsController {
       res.sendStatus(404);
     }
   }
-  @UseGuards(BasicAuthGuard)
+  // @UseGuards(BasicAuthGuard)
   @Get(':id/posts')
   async findPostsForSpecificBlog(
     @Query('sortBy') sortBy: string,
@@ -94,7 +94,7 @@ export class BlogsController {
       new FindPostsForSpecificBlogCommand(id, queryParams),
     );
   }
-
+  @UseGuards(BasicAuthGuard)
   @Post(':id/posts')
   async createPostForSpecificBlog(
     @Body() createPostDto: CreatePostDtoWithoutBlogId,
