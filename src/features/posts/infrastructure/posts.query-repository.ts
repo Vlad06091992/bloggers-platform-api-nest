@@ -42,11 +42,11 @@ export class PostsQueryRepository {
 
     const filter = { blogId };
 
-    return this.postModel.pagination({ ...params, filter }, projection);
+    return this.postModel.pagination(params, filter, projection);
   }
   async findAll(params: QueryParams) {
     const projection = { _id: 0, __v: 0 };
     const filter = {};
-    return this.postModel.pagination({ ...params, filter }, projection);
+    return this.postModel.pagination(params, filter, projection);
   }
 }

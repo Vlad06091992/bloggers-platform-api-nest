@@ -10,7 +10,7 @@ import {
 } from '@nestjs/common';
 import { UsersService } from 'src/features/users/application/users.service';
 import { CreateUserDto } from 'src/features/users/api/models/create-user.dto';
-import { isValidIdParam } from 'src/infrastructure/decorators/isValidIdParam';
+import { IsValidIdParam } from 'src/infrastructure/decorators/isValidIdParam';
 import { Response } from 'express';
 import { IsExistUserValidationPipe } from 'src/infrastructure/pipes/isExistUser';
 import { BasicAuthGuard } from 'src/features/auth/guards/basic-auth.guard';
@@ -49,7 +49,7 @@ export class UsersController {
 
   @Get(':id')
   async findOne(
-    @isValidIdParam() id: string,
+    @IsValidIdParam() id: string,
     @Res({ passthrough: true }) res: Response,
   ) {
     const user = await this.usersService.findOne(id);
@@ -61,7 +61,7 @@ export class UsersController {
   }
   @UseGuards(BasicAuthGuard)
   @Delete(':id')
-  async remove(@isValidIdParam() id: string, @Res() res: Response) {
+  async remove(@IsValidIdParam() id: string, @Res() res: Response) {
     if (!id) {
       res.sendStatus(404);
       return;

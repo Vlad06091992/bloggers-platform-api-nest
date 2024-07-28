@@ -1,12 +1,23 @@
-import { Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { UsersService } from 'src/features/users/application/users.service';
 import { JwtService } from '@nestjs/jwt';
+import { User } from 'src/features/users/domain/user-schema';
 import { ConfigService } from '@nestjs/config';
 import { EmailService } from 'src/email/email.service';
 import { RecoveryPasswordRepository } from 'src/features/auth/infrastructure/recovery-password-repository';
+import { v4 as uuidv4 } from 'uuid';
+import { RecoveryPasswordsCode } from 'src/features/auth/domain/recovery-password-schema';
+import { ObjectId } from 'mongodb';
+import { add } from 'date-fns';
 import { RecoveryPasswordQueryRepository } from 'src/features/auth/infrastructure/recovery-password-query-repository';
 import { UsersRepository } from 'src/features/users/infrastructure/users-repository';
+import { NewPasswordDto } from 'src/features/auth/api/models/new-password.dto';
 import { CommandBus } from '@nestjs/cqrs';
+import { GenerateJWTCommand } from 'src/features/auth/application/use-cases/generate-jwt';
 
 @Injectable()
 export class AuthService {

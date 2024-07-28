@@ -19,11 +19,9 @@ import { CreateBlogHandler } from 'src/features/blogs/application/use-cases/crea
 import { DeleteBlogHandler } from 'src/features/blogs/application/use-cases/delete-blog';
 import { FindBlogHandler } from 'src/features/blogs/application/use-cases/find-blog';
 import { FindBlogsHandler } from 'src/features/blogs/application/use-cases/find-blogs';
-import { UpdateBlogHandler } from "src/features/blogs/application/use-cases/update-blog";
-import { FindBlogsForSpecificBlogHandler } from "src/features/blogs/application/use-cases/find-posts-for-specific-blog";
-import {
-  CreatePostForSpecificBlogHandler
-} from "src/features/blogs/application/use-cases/create-post-for-specific-blog";
+import { UpdateBlogHandler } from 'src/features/blogs/application/use-cases/update-blog';
+import { FindBlogsForSpecificBlogHandler } from 'src/features/blogs/application/use-cases/find-posts-for-specific-blog';
+import { CreatePostForSpecificBlogHandler } from 'src/features/blogs/application/use-cases/create-post-for-specific-blog';
 
 @Module({
   imports: [

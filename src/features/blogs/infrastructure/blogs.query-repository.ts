@@ -28,6 +28,6 @@ export class BlogsQueryRepository {
       ? { name: { $regex: params.searchNameTerm, $options: 'i' } }
       : {};
 
-    return this.blogModel.pagination({ ...params, filter }, projection);
+    return this.blogModel.pagination(params, filter, projection);
   }
 }

@@ -1,22 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { HydratedDocument, Model, Types } from 'mongoose';
-
-export type CatDocument = HydratedDocument<Comment>;
-
-// {
-//   "id": "string",
-//   "content": "string",
-//   "commentatorInfo": {
-//   "userId": "string",
-//     "userLogin": "string"
-// },
-//   "createdAt": "2024-07-05T08:56:17.899Z",
-//   "likesInfo": {
-//   "likesCount": 0,
-//     "dislikesCount": 0,
-//     "myStatus": "None"
-// }
-// }
+import { Model, Types } from 'mongoose';
+import { pagination } from 'src/utils';
 
 @Schema()
 export class LikesInfo {
@@ -38,10 +22,6 @@ export class CommentatorInfo {
   userLogin: string;
 }
 
-export const LikesInfoSchema = SchemaFactory.createForClass(LikesInfo);
-export const CommentatorInfoSchema =
-  SchemaFactory.createForClass(CommentatorInfo);
-
 @Schema()
 export class Comment {
   @Prop()
@@ -54,33 +34,49 @@ export class Comment {
   postId: string;
 
   @Prop()
+  userId: string;
+
+  @Prop()
   content: string;
 
   @Prop()
-  login: string;
+  userLogin: string;
 
   @Prop()
   createdAt: string;
-
-  @Prop()
-  password: string;
-
-  @Prop({ default: {}, required: true, type: LikesInfo })
-  likesInfo: LikesInfo;
-  @Prop({ default: {}, required: true, type: LikesInfo })
-  commentatorInfo: CommentatorInfo;
 }
 
-// interface CommentsStatics {
-//   pagination: (params: any, projection: any) => any;
-// }
-
 export const CommentsSchema = SchemaFactory.createForClass(Comment);
-//
-//
-// CommentsSchema.statics = {
-//   pagination: pagination,
-// };
-//
-export type CommentModel = Model<Comment>;
-// & CommentsStatics;
+
+interface CommentsStatics {
+  pagination: (
+    params: any,
+    filter: any,
+    projection: any,
+    map_callback: any,
+  ) => any;
+}
+
+CommentsSchema.statics = {
+  pagination: pagination,
+};
+
+CommentsSchema.virtual('commentatorInfo').get(function () {
+  return {
+    userId: this.userId,
+    userLogin: this.userLogin,
+  };
+});
+
+CommentsSchema.set('toObject', {
+  virtuals: true,
+  versionKey: false,
+  transform: function (doc, dataInMongoDb) {
+    delete dataInMongoDb._id;
+    delete dataInMongoDb.postId;
+    delete dataInMongoDb.userId;
+    delete dataInMongoDb.userLogin;
+  },
+});
+
+export type CommentModel = Model<Comment> & CommentsStatics;

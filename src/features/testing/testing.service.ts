@@ -3,6 +3,7 @@ import { CommentsRepository } from 'src/features/comments/infrastructure/comment
 import { UsersRepository } from 'src/features/users/infrastructure/users-repository';
 import { PostsRepository } from 'src/features/posts/infrastructure/posts-repository';
 import { BlogsRepository } from 'src/features/blogs/infrastructure/blogs-repository';
+import { LikesRepository } from 'src/features/likes/infrastructure/likes-repository';
 
 @Injectable()
 export class TestingService {
@@ -11,6 +12,7 @@ export class TestingService {
     @Inject() protected postsRepository: PostsRepository,
     @Inject() protected blogsRepository: BlogsRepository,
     @Inject() protected commentsRepository: CommentsRepository,
+    @Inject() protected likesRepository: LikesRepository,
   ) {}
 
   async clearDatabase() {
@@ -19,6 +21,7 @@ export class TestingService {
       await this.usersRepository.clearData();
       await this.postsRepository.clearData();
       await this.blogsRepository.clearData();
+      await this.likesRepository.clearData();
       return true;
     } catch (e) {
       return false;

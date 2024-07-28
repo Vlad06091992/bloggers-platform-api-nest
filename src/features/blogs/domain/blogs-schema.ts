@@ -27,12 +27,11 @@ export class Blog {
 }
 
 interface BlogStatics {
-  pagination: (params: any, projection: any) => any;
+  pagination: (params: any, filter: any, projection: any) => any;
 }
 
 export const BlogsSchema = SchemaFactory.createForClass(Blog);
-//
-//
+
 BlogsSchema.statics = {
   pagination: pagination,
 };

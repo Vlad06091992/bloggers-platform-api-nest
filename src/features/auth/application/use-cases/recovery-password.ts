@@ -1,9 +1,4 @@
-import { Inject } from '@nestjs/common';
-import { CommandBus, CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { ConfigService } from '@nestjs/config';
-import { JwtService } from '@nestjs/jwt';
-import { User } from 'src/features/users/domain/user-schema';
-import { GenerateJWTCommand } from 'src/features/auth/application/use-cases/generate-jwt';
+import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { v4 as uuidv4 } from 'uuid';
 import { ObjectId } from 'mongodb';
 import { RecoveryPasswordsCode } from 'src/features/auth/domain/recovery-password-schema';

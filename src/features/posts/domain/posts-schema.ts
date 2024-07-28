@@ -54,13 +54,10 @@ export class Post {
 
   @Prop()
   createdAt: string;
-
-  @Prop({ default: {}, required: true, type: ExtendedLikesInfo })
-  extendedLikesInfo: ExtendedLikesInfo;
 }
 
 interface PostStatics {
-  pagination: (params: any, projection: any) => any;
+  pagination: (params: any, filter: any, projection: any) => any;
 }
 
 export const PostsSchema = SchemaFactory.createForClass(Post);

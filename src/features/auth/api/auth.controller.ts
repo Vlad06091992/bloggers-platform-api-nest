@@ -5,6 +5,7 @@ import {
   HttpCode,
   Post,
   Request,
+  Res,
   UseGuards,
 } from '@nestjs/common';
 import { AuthService } from 'src/features/auth/application/auth.service';
@@ -26,6 +27,8 @@ import { GetMeHandler } from 'src/features/auth/application/use-cases/get-me';
 import { UpdateUserPasswordCommand } from 'src/features/auth/application/use-cases/update-user-password';
 import { ConfirmEmailCommand } from 'src/features/auth/application/use-cases/confirm-email';
 import { ResendEmailCommand } from 'src/features/auth/application/use-cases/resend-email';
+import { Response } from 'express';
+import { add } from 'date-fns';
 
 @Controller('auth')
 export class AuthController {
@@ -39,9 +42,23 @@ export class AuthController {
   @UseGuards(LocalAuthGuard)
   @HttpCode(200)
   @Post('login')
-  async login(@Body() loginDTO: LoginDTO, @Request() req) {
+  async login(
+    @Body() loginDTO: LoginDTO,
+    @Res({ passthrough: true }) res: Response,
+    @Request() req,
+  ) {
     // return this.authService.login(req.user);
-    return this.commandBus.execute(new LoginCommand(req.user));
+    const { refreshToken, accessToken } = await this.commandBus.execute(
+      new LoginCommand(req.user),
+    );
+
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      secure: true,
+      expires: add(new Date(), { months: 1 }),
+    });
+
+    return { accessToken };
   }
 
   @UseGuards(ThrottlerGuard)

@@ -66,6 +66,7 @@ export class UsersQueryRepository {
 
     // const filter = {};
 
+    //TODO Фильтр работает не совсем корректно как по мне
     const filter = {
       $or: [
         {
@@ -78,6 +79,6 @@ export class UsersQueryRepository {
       ],
     };
 
-    return this.userModel.pagination({ ...params, filter }, projection);
+    return this.userModel.pagination(params, filter, projection);
   }
 }

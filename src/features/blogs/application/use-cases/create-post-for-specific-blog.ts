@@ -1,7 +1,7 @@
-import { Inject } from "@nestjs/common";
-import { CommandHandler, ICommandHandler } from "@nestjs/cqrs";
-import { CreatePostDtoWithoutBlogId } from "src/features/posts/api/models/create-post.dto";
-import { PostsService } from "src/features/posts/application/posts.service";
+import { Inject } from '@nestjs/common';
+import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { CreatePostDtoWithoutBlogId } from 'src/features/posts/api/models/create-post.dto';
+import { PostsService } from 'src/features/posts/application/posts.service';
 
 export class CreatePostsForSpecificBlogCommand {
   constructor(

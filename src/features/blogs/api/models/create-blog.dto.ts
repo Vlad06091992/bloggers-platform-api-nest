@@ -1,5 +1,8 @@
 import { IsString, Length, Matches } from 'class-validator';
+import { IsNotOnlySpaces } from 'src/shared/validators/is-not-only-spaces';
+
 export class CreateBlogDto {
+  @IsNotOnlySpaces({ message: 'The string should not consist only of spaces' })
   @Length(1, 15)
   @IsString()
   name: string;

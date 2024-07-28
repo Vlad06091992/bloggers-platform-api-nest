@@ -44,7 +44,7 @@ export class User {
 }
 
 interface UserStatics {
-  pagination: (params: any, projection: any) => any;
+  pagination: (params: any, filter: any, projection: any) => any;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

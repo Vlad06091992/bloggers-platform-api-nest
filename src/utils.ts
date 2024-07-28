@@ -4,22 +4,20 @@ export async function pagination(
     pageSize = 10,
     sortBy = 'createdAt',
     sortDirection = 'desc',
-    map_callback,
-    filter = {},
   },
+  filter = {},
   projection = {},
+  map_callback = null,
 ) {
   const number = (+pageNumber - 1) * +pageSize;
   const res = await this.find(filter, projection)
     .skip(number)
     .limit(+pageSize)
-    // .sort({ createdAt: -1  })
     .sort({
       [sortBy]: sortDirection == 'asc' ? 1 : -1,
       createdAt: sortDirection == 'asc' ? 1 : -1,
-    })
-    // .sort({ [sortBy === 'blogName' ? 'createdAt' : sortBy]: sortDirection == 'asc' ? 1 : -1 })
-    .lean();
+    });
+  // .lean();
 
   const totalCount = await this.countDocuments(filter);
 

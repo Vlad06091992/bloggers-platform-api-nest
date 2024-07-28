@@ -1,7 +1,7 @@
-import { Inject } from "@nestjs/common";
-import { PostsQueryRepository } from "src/features/posts/infrastructure/posts.query-repository";
-import { CommandHandler, ICommandHandler } from "@nestjs/cqrs";
-import { QueryParams } from "src/shared/common-types";
+import { Inject } from '@nestjs/common';
+import { PostsQueryRepository } from 'src/features/posts/infrastructure/posts.query-repository';
+import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { QueryParams } from 'src/shared/common-types';
 
 export class FindPostsForSpecificBlogCommand {
   constructor(

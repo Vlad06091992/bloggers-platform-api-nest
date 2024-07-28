@@ -1,7 +1,7 @@
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
 import { ObjectId } from 'mongodb';
 
-export const isValidIdParam = createParamDecorator(
+export const IsValidIdParam = createParamDecorator(
   (data: unknown, ctx: ExecutionContext) => {
     const request = ctx.switchToHttp().getRequest();
     const response = ctx.switchToHttp().getResponse();

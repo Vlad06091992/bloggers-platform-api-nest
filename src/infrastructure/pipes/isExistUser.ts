@@ -18,7 +18,12 @@ export class IsExistUserValidationPipe
 
     if (isExistUserEmail || isExistUserLogin) {
       throw new BadRequestException({
-        errorsMessages: [{ message: 'user is already exist', field: isExistUserEmail ? "email" : "login" }],
+        errorsMessages: [
+          {
+            message: 'user is already exist',
+            field: isExistUserEmail ? 'email' : 'login',
+          },
+        ],
       });
     }
     return value;
