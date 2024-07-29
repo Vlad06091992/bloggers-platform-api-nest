@@ -42,9 +42,10 @@ export class CommentsController {
       return;
     }
   }
-
+  @UseGuards(JwtAuthGuard)
   @Put(':id')
   async updateOne(
+    @Request() req,
     @IsValidIdParam() id: string,
     @Body() { content }: CommentDto,
     @Res({ passthrough: true }) res: Response,
@@ -52,6 +53,12 @@ export class CommentsController {
     const comment = await this.commandBus.execute(
       new FindCommentByIdCommand(id, null),
     );
+
+    const { userId } = req.user;
+
+    if (comment.userId !== userId) {
+      return res.sendStatus(403);
+    }
 
     const isUpdated = await this.commandBus.execute(
       new UpdateCommentByIdCommand(id, content),
@@ -95,7 +102,7 @@ export class CommentsController {
       );
     }
   }
-
+  @UseGuards(JwtAuthGuard)
   @Delete(':id')
   @HttpCode(204)
   async deleteOne(@IsValidIdParam() id: string) {
