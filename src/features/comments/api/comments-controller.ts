@@ -38,7 +38,8 @@ export class CommentsController {
     if (comment) {
       return comment;
     } else {
-      return res.sendStatus(404);
+      res.sendStatus(404);
+      return;
     }
   }
 

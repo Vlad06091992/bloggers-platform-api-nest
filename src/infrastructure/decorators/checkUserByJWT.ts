@@ -10,15 +10,19 @@ export const CheckUserByJWT = createParamDecorator(
     const jwtService = new JwtService();
 
     if (token) {
-      const { sub: userId, userLogin } = jwtService.verify(token, {
-        secret: process.env.SECRET_KEY,
-      });
+      try {
+        const { sub: userId, userLogin } = jwtService.verify(token, {
+          secret: process.env.SECRET_KEY,
+        });
 
-      if (userId) {
-        return userId;
+        if (userId) {
+          return userId;
+        }
+
+        return null;
+      } catch (e) {
+        return null;
       }
-
-      return null;
     }
 
     if (!token) {

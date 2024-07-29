@@ -24,8 +24,10 @@ import {
 } from 'src/features/comments/domain/comments-schema';
 import { CommentsQueryRepository } from 'src/features/comments/infrastructure/comments.query-repository';
 import { PostsRepository } from 'src/features/posts/infrastructure/posts-repository';
-import { CommandBus } from '@nestjs/cqrs';
+import { CommandBus, CqrsModule } from '@nestjs/cqrs';
 import { Likes, LikesSchema } from 'src/features/likes/domain/likes-schema';
+import { UniqueValidator } from 'src/shared/validators/is-exist-blog';
+import { FindBlogHandler } from 'src/features/blogs/application/use-cases/find-blog';
 
 const useCases = [];
 const repositories = [
@@ -40,6 +42,7 @@ const services = [PostsService];
 
 @Module({
   imports: [
+    CqrsModule,
     MongooseModule.forFeature([{ name: Post.name, schema: PostsSchema }]),
     MongooseModule.forFeature([{ name: Blog.name, schema: BlogsSchema }]),
     MongooseModule.forFeature([{ name: Comment.name, schema: CommentsSchema }]),

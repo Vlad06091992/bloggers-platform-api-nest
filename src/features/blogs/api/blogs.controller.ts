@@ -23,6 +23,7 @@ import { FindPostsForSpecificBlogCommand } from 'src/features/blogs/application/
 import { FindBlogsCommand } from 'src/features/blogs/application/use-cases/find-blogs';
 import { CreatePostsForSpecificBlogCommand } from 'src/features/blogs/application/use-cases/create-post-for-specific-blog';
 import { BasicAuthGuard } from 'src/features/auth/guards/basic-auth.guard';
+import { CheckUserByJWT } from 'src/infrastructure/decorators/checkUserByJWT';
 
 @Controller('blogs')
 export class BlogsController {
@@ -67,6 +68,7 @@ export class BlogsController {
   // @UseGuards(BasicAuthGuard)
   @Get(':id/posts')
   async findPostsForSpecificBlog(
+    @CheckUserByJWT() userId: string | null,
     @Query('sortBy') sortBy: string,
     @Query('sortDirection') sortDirection: string,
     @Query('pageNumber') pageNumber: string,
@@ -91,7 +93,7 @@ export class BlogsController {
     }
 
     return await this.commandBus.execute(
-      new FindPostsForSpecificBlogCommand(id, queryParams),
+      new FindPostsForSpecificBlogCommand(id, userId, queryParams),
     );
   }
   @UseGuards(BasicAuthGuard)

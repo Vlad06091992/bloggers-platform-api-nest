@@ -55,8 +55,6 @@ export class PostsService {
     // return params;
     const posts = await this.postsQueryRepository.findAll(params);
 
-    // console.log(posts);
-
     const result = posts.items.map(async (el) => ({
       ...el.toObject(),
       extendedLikesInfo: {
@@ -70,13 +68,6 @@ export class PostsService {
     }));
     posts.items = await Promise.all(result);
 
-    const hz = await Promise.all(
-      await this.commandBus.execute(
-        new GetNewestLikesCommand('66a61c56800fc6b8294d55e9'),
-      ),
-    );
-
-    console.log(typeof hz);
     return posts;
   }
 

@@ -22,6 +22,7 @@ import { FindBlogsHandler } from 'src/features/blogs/application/use-cases/find-
 import { UpdateBlogHandler } from 'src/features/blogs/application/use-cases/update-blog';
 import { FindBlogsForSpecificBlogHandler } from 'src/features/blogs/application/use-cases/find-posts-for-specific-blog';
 import { CreatePostForSpecificBlogHandler } from 'src/features/blogs/application/use-cases/create-post-for-specific-blog';
+import { UniqueValidator } from 'src/shared/validators/is-exist-blog';
 
 @Module({
   imports: [
@@ -44,6 +45,7 @@ import { CreatePostForSpecificBlogHandler } from 'src/features/blogs/application
     UpdateBlogHandler,
     FindBlogsForSpecificBlogHandler,
     DeleteBlogHandler,
+    UniqueValidator,
     FindBlogHandler,
     FindBlogsHandler,
   ],
