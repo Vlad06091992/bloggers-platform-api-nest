@@ -73,6 +73,11 @@ export class PostsController {
       sortBy,
     };
 
+    const post = await this.postsService.findOne(id, userId);
+    if (!post) {
+      throw new NotFoundException();
+    }
+
     return this.postsService.getCommentsForPost(id, queryParams, userId);
   }
 
