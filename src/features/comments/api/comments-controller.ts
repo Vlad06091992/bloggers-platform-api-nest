@@ -42,6 +42,7 @@ export class CommentsController {
       return;
     }
   }
+
   @UseGuards(JwtAuthGuard)
   @Put(':id')
   async updateOne(
@@ -54,9 +55,14 @@ export class CommentsController {
       new FindCommentByIdCommand(id, null),
     );
 
+    if (!comment) {
+      res.sendStatus(404);
+      return;
+    }
+
     const { userId } = req.user;
 
-    if (comment.userId !== userId) {
+    if (comment.commentatorInfo.userId !== userId) {
       return res.sendStatus(403);
     }
 
@@ -102,10 +108,31 @@ export class CommentsController {
       );
     }
   }
+
   @UseGuards(JwtAuthGuard)
   @Delete(':id')
   @HttpCode(204)
-  async deleteOne(@IsValidIdParam() id: string) {
+  async deleteOne(
+    @IsValidIdParam() id: string,
+    @Request() req,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const { userId } = req.user;
+
+    const comment = await this.commandBus.execute(
+      new FindCommentByIdCommand(id, userId),
+    );
+
+    if (!comment) {
+      res.sendStatus(404);
+      return;
+    }
+
+    if (comment.commentatorInfo.userId !== userId) {
+      res.sendStatus(403);
+      return;
+    }
+
     const isDeleted = await this.commandBus.execute(
       new DeleteCommentByIdCommand(id),
     );
