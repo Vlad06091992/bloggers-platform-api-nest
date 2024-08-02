@@ -17,10 +17,10 @@ export class LoginHandler implements ICommandHandler<LoginCommand> {
     const payload = { userLogin: user.login, sub: user.id, deviceId };
     return {
       accessToken: await this.commandBus.execute(
-        new GenerateJWTCommand(payload, '12h'),
+        new GenerateJWTCommand(payload, '10s'),
       ),
       refreshToken: await this.commandBus.execute(
-        new GenerateJWTCommand(payload, '24h'),
+        new GenerateJWTCommand(payload, '20s'),
       ),
     };
   }

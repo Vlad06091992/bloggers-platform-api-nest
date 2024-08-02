@@ -21,10 +21,10 @@ export class RefreshJWTHandler implements ICommandHandler<RefreshJWTCommand> {
 
     return {
       accessToken: await this.commandBus.execute(
-        new GenerateJWTCommand(payload, '12h'),
+        new GenerateJWTCommand(payload, '10s'),
       ),
       refreshToken: await this.commandBus.execute(
-        new GenerateJWTCommand(payload, '24h'),
+        new GenerateJWTCommand(payload, '20s'),
       ),
     };
   }
