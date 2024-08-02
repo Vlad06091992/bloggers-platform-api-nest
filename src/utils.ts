@@ -1,3 +1,5 @@
+import { ExecutionContext } from '@nestjs/common';
+
 export async function pagination(
   {
     pageNumber = 1,
@@ -29,3 +31,30 @@ export async function pagination(
     items: map_callback ? res.map(await map_callback) : res,
   };
 }
+
+export const getRefreshTokenFromContextOrRequest = (
+  context: ExecutionContext | null,
+  req: any,
+) => {
+  let request;
+
+  if (context) {
+    request = context.switchToHttp().getRequest();
+  } else {
+    request = req;
+  }
+
+  const {
+    headers: { cookie: cookiesString },
+  } = request;
+
+  const cookies = cookiesString.split('; ').reduce((acc, el) => {
+    const key = el.split('=')[0];
+    const value = el.split('=')[1];
+    acc[key] = value;
+    return acc;
+  }, {});
+
+  const { refreshToken } = cookies;
+  return refreshToken;
+};

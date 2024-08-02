@@ -12,8 +12,6 @@ export class ConfirmEmailHandler
   constructor(protected usersService: UsersService) {}
 
   async execute({ recoveryCode }: ConfirmEmailCommand) {
-    console.log(recoveryCode);
-
     await this.usersService.confirmUserByConfirmationCode(recoveryCode);
     return true;
   }

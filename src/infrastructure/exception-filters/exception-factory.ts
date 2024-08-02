@@ -12,7 +12,7 @@ export const exceptionFactory = (errors) => {
     });
   });
 
-  console.log(errorForResponse);
+  // console.log(errorForResponse);
 
   throw new BadRequestException({ errorsMessages: errorForResponse });
 };

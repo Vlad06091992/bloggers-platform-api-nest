@@ -35,10 +35,25 @@ import {
 } from 'src/features/auth/application/use-cases/confirm-email';
 import { FindUserByRecoveryCodeHandler } from 'src/features/auth/application/use-cases/find-user-by-recovery-code';
 import { UpdateUserPasswordHandler } from 'src/features/auth/application/use-cases/update-user-password';
+import { RefreshJWTHandler } from 'src/features/auth/application/use-cases/refresh-tokens';
+import {
+  CreateSessionCommand,
+  CreateSessionlHandler,
+} from 'src/features/auth/application/use-cases/create-session';
+import { AuthDevicesRepository } from 'src/features/auth/infrastructure/auth-devices-repository';
+import { AuthDevicesQueryRepository } from 'src/features/auth/infrastructure/auth-devices-query-repository';
+import {
+  AuthDevices,
+  AuthDevicesSchema,
+} from 'src/features/auth/domain/devices-schema';
+import { IsActiveDeviceHandler } from 'src/features/auth/application/use-cases/is-active-device';
+import { LogoutHandler } from 'src/features/auth/application/use-cases/logout';
+import { SecurityModule } from 'src/features/security/security.module';
 
 @Module({
   imports: [
     CqrsModule,
+    SecurityModule,
     UsersModule,
     PassportModule,
     MongoModule,
@@ -47,6 +62,12 @@ import { UpdateUserPasswordHandler } from 'src/features/auth/application/use-cas
       {
         name: RecoveryPasswordsCode.name,
         schema: RecoveryPasswordsCodesSchema,
+      },
+    ]),
+    MongooseModule.forFeature([
+      {
+        name: AuthDevices.name,
+        schema: AuthDevicesSchema,
       },
     ]),
     JwtModule.register({
@@ -65,6 +86,8 @@ import { UpdateUserPasswordHandler } from 'src/features/auth/application/use-cas
     LocalStrategy,
     UsersService,
     UsersQueryRepository,
+    AuthDevicesRepository,
+    AuthDevicesQueryRepository,
     UsersRepository,
     RecoveryPasswordQueryRepository,
     RecoveryPasswordRepository,
@@ -77,6 +100,11 @@ import { UpdateUserPasswordHandler } from 'src/features/auth/application/use-cas
     ResendEmailHandler,
     GetMeHandler,
     ConfirmEmailHandler,
+    RefreshJWTHandler,
+    CreateSessionlHandler,
+    IsActiveDeviceHandler,
+    LoginHandler,
+    LogoutHandler,
   ],
   exports: [AuthService],
 })

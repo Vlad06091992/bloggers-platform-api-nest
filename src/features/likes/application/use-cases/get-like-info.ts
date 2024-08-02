@@ -17,8 +17,6 @@ export class GetLikeInfoHandler {
   ) {}
 
   async execute({ entityId, userId }: GetLikeInfoCommand) {
-    console.log(entityId);
-
     const likeRecord = await this.likesQueryRepository.getLikeRecord(
       userId,
       entityId,

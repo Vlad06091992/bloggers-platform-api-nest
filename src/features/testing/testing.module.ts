@@ -16,6 +16,11 @@ import { Blog, BlogsSchema } from 'src/features/blogs/domain/blogs-schema';
 import { BlogsRepository } from 'src/features/blogs/infrastructure/blogs-repository';
 import { Likes, LikesSchema } from 'src/features/likes/domain/likes-schema';
 import { LikesRepository } from 'src/features/likes/infrastructure/likes-repository';
+import {
+  AuthDevices,
+  AuthDevicesSchema,
+} from 'src/features/auth/domain/devices-schema';
+import { AuthDevicesRepository } from 'src/features/auth/infrastructure/auth-devices-repository';
 
 @Module({
   imports: [
@@ -25,6 +30,9 @@ import { LikesRepository } from 'src/features/likes/infrastructure/likes-reposit
     MongooseModule.forFeature([{ name: Post.name, schema: PostsSchema }]),
     MongooseModule.forFeature([{ name: Blog.name, schema: BlogsSchema }]),
     MongooseModule.forFeature([{ name: Likes.name, schema: LikesSchema }]),
+    MongooseModule.forFeature([
+      { name: AuthDevices.name, schema: AuthDevicesSchema },
+    ]),
   ],
   controllers: [TestingController],
   providers: [
@@ -34,6 +42,7 @@ import { LikesRepository } from 'src/features/likes/infrastructure/likes-reposit
     PostsRepository,
     BlogsRepository,
     LikesRepository,
+    AuthDevicesRepository,
   ],
 })
 export class TestModule {}

@@ -14,8 +14,6 @@ export class GetNewestLikesHandler {
   ) {}
 
   async execute({ entityId }: GetNewestLikesCommand) {
-    console.log(entityId);
-
     return await this.likesQueryRepository.getNewestLikes(entityId);
   }
 }

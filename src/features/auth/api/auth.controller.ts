@@ -29,6 +29,11 @@ import { ConfirmEmailCommand } from 'src/features/auth/application/use-cases/con
 import { ResendEmailCommand } from 'src/features/auth/application/use-cases/resend-email';
 import { Response } from 'express';
 import { add } from 'date-fns';
+import { RefreshTokenGuard } from 'src/features/auth/guards/refresh-token-guard';
+import { RefreshJWTCommand } from 'src/features/auth/application/use-cases/refresh-tokens';
+import { CreateSessionCommand } from 'src/features/auth/application/use-cases/create-session';
+import { v4 as uuidv4 } from 'uuid';
+import { LogoutCommand } from 'src/features/auth/application/use-cases/logout';
 
 @Controller('auth')
 export class AuthController {
@@ -47,9 +52,17 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
     @Request() req,
   ) {
-    // return this.authService.login(req.user);
+    const deviceId = uuidv4();
+    const ip = req.ip;
+    const title = req.headers['user-agent'];
+    const userId = req.user.id;
+
+    const result = await this.commandBus.execute(
+      new CreateSessionCommand({ userId, ip, title, deviceId }),
+    );
+
     const { refreshToken, accessToken } = await this.commandBus.execute(
-      new LoginCommand(req.user),
+      new LoginCommand(req.user, deviceId),
     );
 
     res.cookie('refreshToken', refreshToken, {
@@ -59,6 +72,38 @@ export class AuthController {
     });
 
     return { accessToken };
+  }
+
+  @UseGuards(RefreshTokenGuard)
+  @HttpCode(200)
+  @Post('refresh-token')
+  async refreshToken(
+    @Res({ passthrough: true }) res: Response,
+    @Request() req,
+  ) {
+    const { refreshToken: oldToken } = req.cookies;
+
+    const { refreshToken, accessToken } = await this.commandBus.execute(
+      new RefreshJWTCommand(oldToken),
+    );
+
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      secure: true,
+      expires: add(new Date(), { months: 1 }),
+    });
+
+    return { accessToken };
+
+    return true;
+  }
+
+  @UseGuards(RefreshTokenGuard)
+  @HttpCode(204)
+  @Post('logout')
+  async logout(@Res({ passthrough: true }) res: Response, @Request() req) {
+    const { refreshToken } = req.cookies;
+    await this.commandBus.execute(new LogoutCommand(refreshToken));
   }
 
   @UseGuards(ThrottlerGuard)

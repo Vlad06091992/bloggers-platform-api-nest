@@ -17,7 +17,6 @@ export class EmailService {
   }
 
   async registrationConfirmation(email: string, confirmationCode: string) {
-    console.log(email, confirmationCode);
     const text = `<h1>Thank for your registration</h1>
     <p>To finish registration please follow the link below:
       <a href='https://some-front.com/confirm-registration?code=${confirmationCode}'>complete registration</a>
