@@ -31,13 +31,10 @@ export class UpdateLikeStatusHandler
     entityId,
     likedEntity,
   }: UpdateLikeStatusCommand) {
-    // console.log();
-    debugger;
     const statusRecord = await this.likesQueryRepository.getLikeRecord(
       userId,
       entityId,
     );
-    debugger;
 
     if (likeStatus === 'None' && !statusRecord) return true;
     if (likeStatus === 'None' && statusRecord) {

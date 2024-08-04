@@ -3,6 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 import { AuthDevicesRepository } from 'src/features/auth/infrastructure/auth-devices-repository';
 import { AuthDevicesQueryRepository } from 'src/features/auth/infrastructure/auth-devices-query-repository';
 import { ForbiddenException, NotFoundException } from '@nestjs/common';
+import { decodeToken } from 'src/utils';
 
 export class DeleteDevice {
   constructor(
@@ -20,9 +21,8 @@ export class DeleteSessionHandler implements ICommandHandler<DeleteDevice> {
   ) {}
 
   async execute({ refreshToken, id }: DeleteDevice) {
-    console.log(refreshToken);
-    const { sub, deviceId } = this.jwtService.decode(refreshToken);
-    // console.log(userId);
+    const { sub, deviceId } = decodeToken(refreshToken);
+
     const session = await this.authDevicesQueryRepository
       .getDeviceByDeviceId(id)
       .exec();

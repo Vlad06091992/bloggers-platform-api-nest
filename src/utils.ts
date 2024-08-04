@@ -48,7 +48,12 @@ export const getRefreshTokenFromContextOrRequest = (
     headers: { cookie: cookiesString },
   } = request;
 
-  const cookies = cookiesString.split('; ').reduce((acc, el) => {
+  console.log(request.headers.cookies);
+  console.log(request.headers.cookie);
+
+  if (!cookiesString) return false;
+
+  const cookies = cookiesString?.split('; ').reduce((acc, el) => {
     const key = el.split('=')[0];
     const value = el.split('=')[1];
     acc[key] = value;
@@ -57,4 +62,10 @@ export const getRefreshTokenFromContextOrRequest = (
 
   const { refreshToken } = cookies;
   return refreshToken;
+};
+
+export const decodeToken = (token) => {
+  const base64Payload = token.split('.')[1];
+  const payloadBuffer = Buffer.from(base64Payload, 'base64');
+  return JSON.parse(payloadBuffer.toString()) as any;
 };

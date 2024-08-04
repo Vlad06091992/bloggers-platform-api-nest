@@ -4,6 +4,7 @@ import { ValidationPipe } from '@nestjs/common';
 import { exceptionFactory } from 'src/infrastructure/exception-filters/exception-factory';
 import { useContainer } from 'class-validator';
 import cookieParser from 'cookie-parser';
+import { decode } from 'jsonwebtoken';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);

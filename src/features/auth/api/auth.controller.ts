@@ -23,7 +23,10 @@ import { JwtAuthGuard } from 'src/features/auth/guards/jwt-auth.guard';
 import { CommandBus } from '@nestjs/cqrs';
 import { LoginCommand } from 'src/features/auth/application/use-cases/login';
 import { RecoveryPasswordCommand } from 'src/features/auth/application/use-cases/recovery-password';
-import { GetMeHandler } from 'src/features/auth/application/use-cases/get-me';
+import {
+  GetMeCommand,
+  GetMeHandler,
+} from 'src/features/auth/application/use-cases/get-me';
 import { UpdateUserPasswordCommand } from 'src/features/auth/application/use-cases/update-user-password';
 import { ConfirmEmailCommand } from 'src/features/auth/application/use-cases/confirm-email';
 import { ResendEmailCommand } from 'src/features/auth/application/use-cases/resend-email';
@@ -34,6 +37,7 @@ import { RefreshJWTCommand } from 'src/features/auth/application/use-cases/refre
 import { CreateSessionCommand } from 'src/features/auth/application/use-cases/create-session';
 import { v4 as uuidv4 } from 'uuid';
 import { LogoutCommand } from 'src/features/auth/application/use-cases/logout';
+import { decodeToken, getRefreshTokenFromContextOrRequest } from 'src/utils';
 
 @Controller('auth')
 export class AuthController {
@@ -150,11 +154,12 @@ export class AuthController {
     return this.commandBus.execute(new ConfirmEmailCommand(code));
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(RefreshTokenGuard)
   @Get('me')
   @HttpCode(200)
   getUserInfo(@Request() req) {
-    const { userId } = req.user;
-    return this.commandBus.execute(new GetMeHandler(userId));
+    const refreshToken = getRefreshTokenFromContextOrRequest(null, req);
+    const { sub } = decodeToken(refreshToken);
+    return this.commandBus.execute(new GetMeCommand(sub));
   }
 }

@@ -22,8 +22,6 @@ export class GetLikeInfoHandler {
       entityId,
     );
 
-    debugger;
-
     const likesInfo = {
       likesCount: await this.likesQueryRepository.getLikesCount(entityId),
       dislikesCount: await this.likesQueryRepository.getDislikesCount(entityId),

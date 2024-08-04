@@ -3,6 +3,7 @@ import { GenerateJWTCommand } from 'src/features/auth/application/use-cases/gene
 import { JwtService } from '@nestjs/jwt';
 import { v4 as uuidv4 } from 'uuid';
 import { AuthDevicesRepository } from 'src/features/auth/infrastructure/auth-devices-repository';
+import { decodeToken } from 'src/utils';
 
 export class LogoutCommand {
   constructor(public oldToken: string) {}
@@ -16,7 +17,7 @@ export class LogoutHandler implements ICommandHandler<LogoutCommand> {
   ) {}
 
   async execute({ oldToken }: LogoutCommand) {
-    const { deviceId } = this.jwtService.decode(oldToken) || null;
+    const { deviceId } = decodeToken(oldToken) || null;
     await this.authDevicesRepository.deactivateDevice(deviceId);
     return true;
   }

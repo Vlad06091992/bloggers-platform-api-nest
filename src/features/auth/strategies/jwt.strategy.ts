@@ -18,17 +18,15 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
   }
   async validate(req, payload: any) {
-    // const token = req.headers.authorization.split(' ')[1];
-    //
-    // console.log(token);
-    //
-    // const isActiveDevice = await this.commandBus.execute(
-    //   new IsActiveDeviceCommand(token),
-    // );
-    //
-    // console.log(isActiveDevice);
-    //
-    // if (!isActiveDevice) return false;
+    const token = req.headers.authorization?.split(' ')[1];
+
+    if (token) return false;
+
+    const isActiveDevice = await this.commandBus.execute(
+      new IsActiveDeviceCommand(token),
+    );
+
+    if (!isActiveDevice) return false;
 
     return { userId: payload.sub, userLogin: payload.userLogin };
   }

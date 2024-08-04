@@ -14,15 +14,13 @@ export class IsActiveDeviceHandler
   ) {}
 
   async execute({ deviceId }: IsActiveDeviceCommand) {
-    // console.log(deviceId);
+    if (!deviceId) return false;
 
     const device = await this.authDevicesQueryRepository
       .getDeviceByDeviceId(deviceId)
       .exec();
 
-    // console.log(device);
-
-    if (device === null || device.isActive === false) return false;
+    if (!device || device.isActive === false) return false;
     return true;
   }
 }

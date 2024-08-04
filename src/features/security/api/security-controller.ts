@@ -53,7 +53,6 @@ export class SecurityController {
     @Res({ passthrough: true }) res: Response,
     @Request() req,
   ) {
-    console.log(id);
     const refreshToken = getRefreshTokenFromContextOrRequest(null, req);
 
     return await this.commandBus.execute(new DeleteDevice(refreshToken, id));

@@ -89,13 +89,10 @@ export class CommentsController {
       new FindCommentByIdCommand(id, userId),
     );
 
-    debugger;
-
     if (!comment) {
       throw new NotFoundException();
     } else {
       const likedEntity = 'comment';
-      debugger;
 
       await this.commandBus.execute(
         new UpdateLikeStatusCommand(

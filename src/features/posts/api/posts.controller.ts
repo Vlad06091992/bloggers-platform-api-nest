@@ -106,7 +106,6 @@ export class PostsController {
       }),
     );
 
-    debugger;
     return comment;
   }
 

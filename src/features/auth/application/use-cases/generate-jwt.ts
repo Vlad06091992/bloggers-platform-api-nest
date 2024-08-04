@@ -1,6 +1,7 @@
 import { Inject } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { ConfigService } from '@nestjs/config';
+// import { JwtService } from '@nestjs/jwt';
 import { JwtService } from '@nestjs/jwt';
 
 export class GenerateJWTCommand {

@@ -26,8 +26,6 @@ export class FindCommentByIdHandler {
       true,
     );
 
-    debugger;
-
     const likesInfo = await this.commandBus.execute(
       new GetLikeInfoCommand(commentId, userId),
     );

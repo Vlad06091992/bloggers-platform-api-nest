@@ -9,7 +9,6 @@ export class LikesRepository {
     private likesModel: LikesModel,
   ) {}
   async createLikeStatus(record: Likes) {
-    debugger;
     return (await this.likesModel.create(record)).toObject();
   }
 

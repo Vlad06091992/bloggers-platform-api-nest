@@ -17,8 +17,6 @@ export class AuthDevicesRepository {
   }
 
   async deactivateDevice(deviceId: string) {
-    // console.log(deviceId);
-
     const res = await this.authDevicesModel
       .updateOne({ deviceId }, { $set: { isActive: false } })
       .exec();
