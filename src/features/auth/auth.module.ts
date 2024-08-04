@@ -49,6 +49,14 @@ import {
 import { IsActiveDeviceHandler } from 'src/features/auth/application/use-cases/is-active-device';
 import { LogoutHandler } from 'src/features/auth/application/use-cases/logout';
 import { SecurityModule } from 'src/features/security/security.module';
+import {
+  OldTokensIds,
+  OldTokensIdsSchema,
+} from 'src/features/auth/domain/old-tokens-id-schema';
+import { WriteOldTokenHandler } from 'src/features/auth/application/use-cases/write-old-token';
+import { IsOldTokenHandler } from 'src/features/auth/application/use-cases/is-old-token';
+import { OldTokensIdsQueryRepository } from 'src/features/auth/infrastructure/old-tokens-ids-query-repository';
+import { OldTokensIdsRepository } from 'src/features/auth/infrastructure/old-tokens-ids-repository';
 
 @Module({
   imports: [
@@ -68,6 +76,12 @@ import { SecurityModule } from 'src/features/security/security.module';
       {
         name: AuthDevices.name,
         schema: AuthDevicesSchema,
+      },
+    ]),
+    MongooseModule.forFeature([
+      {
+        name: OldTokensIds.name,
+        schema: OldTokensIdsSchema,
       },
     ]),
     JwtModule.register({
@@ -91,6 +105,8 @@ import { SecurityModule } from 'src/features/security/security.module';
     UsersRepository,
     RecoveryPasswordQueryRepository,
     RecoveryPasswordRepository,
+    OldTokensIdsRepository,
+    OldTokensIdsQueryRepository,
     ValidateUserHandler,
     FindUserByRecoveryCodeHandler,
     GenerateJWTHandler,
@@ -105,6 +121,8 @@ import { SecurityModule } from 'src/features/security/security.module';
     IsActiveDeviceHandler,
     LoginHandler,
     LogoutHandler,
+    WriteOldTokenHandler,
+    IsOldTokenHandler,
   ],
   exports: [AuthService],
 })

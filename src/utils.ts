@@ -48,8 +48,8 @@ export const getRefreshTokenFromContextOrRequest = (
     headers: { cookie: cookiesString },
   } = request;
 
-  console.log(request.headers.cookies);
-  console.log(request.headers.cookie);
+  // console.log(request.headers.cookies);
+  // console.log(request.headers.cookie);
 
   if (!cookiesString) return false;
 
@@ -60,7 +60,13 @@ export const getRefreshTokenFromContextOrRequest = (
     return acc;
   }, {});
 
-  const { refreshToken } = cookies;
+  let { refreshToken } = cookies;
+
+  if (refreshToken[refreshToken.length - 1] === ';') {
+    refreshToken = refreshToken.slice(0, -1);
+  }
+
+  console.log(refreshToken);
   return refreshToken;
 };
 

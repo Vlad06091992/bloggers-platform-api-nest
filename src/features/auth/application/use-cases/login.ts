@@ -14,7 +14,9 @@ export class LoginHandler implements ICommandHandler<LoginCommand> {
   constructor(protected commandBus: CommandBus) {}
 
   async execute({ user, deviceId }: LoginCommand) {
-    const payload = { userLogin: user.login, sub: user.id, deviceId };
+    const tokenId = uuidv4();
+
+    const payload = { userLogin: user.login, sub: user.id, deviceId, tokenId };
     return {
       accessToken: await this.commandBus.execute(
         new GenerateJWTCommand(payload, '10s'),

@@ -11,6 +11,7 @@ import { IsActiveDeviceCommand } from 'src/features/auth/application/use-cases/i
 import { CommandBus } from '@nestjs/cqrs';
 import { decodeToken, getRefreshTokenFromContextOrRequest } from 'src/utils';
 import { decode, verify } from 'jsonwebtoken';
+import { IsOldTokenCommand } from 'src/features/auth/application/use-cases/is-old-token';
 @Injectable()
 export class RefreshTokenGuard implements CanActivate {
   constructor(
@@ -21,6 +22,7 @@ export class RefreshTokenGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext) {
     const refreshToken = getRefreshTokenFromContextOrRequest(context, null);
+    debugger;
 
     // console.log(refreshToken);
 
@@ -34,6 +36,16 @@ export class RefreshTokenGuard implements CanActivate {
       new IsActiveDeviceCommand(res.deviceId),
     );
 
+    const isOldToken = await this.commandBus.execute(
+      new IsOldTokenCommand(res.tokenId),
+    );
+
+    debugger;
+
+    if (isOldToken) {
+      throw new UnauthorizedException();
+    }
+
     if (!isActiveDevice) {
       throw new UnauthorizedException();
     }
@@ -43,7 +55,7 @@ export class RefreshTokenGuard implements CanActivate {
       //   refreshToken,
       //   this.configService.get('SECRET_KEY') as string,
       // );
-      // debugger;
+      debugger;
 
       const result = this.jwtService.verify(
         refreshToken,
@@ -58,7 +70,7 @@ export class RefreshTokenGuard implements CanActivate {
     } catch (e) {
       debugger;
 
-      return false;
+      throw new UnauthorizedException();
     }
   }
 }

@@ -47,7 +47,7 @@ export class AuthController {
     private readonly usersService: UsersService,
     private readonly emailService: EmailService,
   ) {}
-
+  @UseGuards(ThrottlerGuard)
   @UseGuards(LocalAuthGuard)
   @HttpCode(200)
   @Post('login')

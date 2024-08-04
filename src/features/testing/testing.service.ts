@@ -5,6 +5,7 @@ import { PostsRepository } from 'src/features/posts/infrastructure/posts-reposit
 import { BlogsRepository } from 'src/features/blogs/infrastructure/blogs-repository';
 import { LikesRepository } from 'src/features/likes/infrastructure/likes-repository';
 import { AuthDevicesRepository } from 'src/features/auth/infrastructure/auth-devices-repository';
+import { OldTokensIdsRepository } from 'src/features/auth/infrastructure/old-tokens-ids-repository';
 
 @Injectable()
 export class TestingService {
@@ -15,6 +16,7 @@ export class TestingService {
     @Inject() protected commentsRepository: CommentsRepository,
     @Inject() protected likesRepository: LikesRepository,
     @Inject() protected authDevicesRepository: AuthDevicesRepository,
+    @Inject() protected oldTokensIdsRepository: OldTokensIdsRepository,
   ) {}
 
   async clearDatabase() {
@@ -25,6 +27,7 @@ export class TestingService {
       await this.postsRepository.clearData();
       await this.blogsRepository.clearData();
       await this.likesRepository.clearData();
+      await this.oldTokensIdsRepository.clearData();
       return true;
     } catch (e) {
       return false;

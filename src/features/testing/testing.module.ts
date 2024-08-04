@@ -21,6 +21,11 @@ import {
   AuthDevicesSchema,
 } from 'src/features/auth/domain/devices-schema';
 import { AuthDevicesRepository } from 'src/features/auth/infrastructure/auth-devices-repository';
+import { OldTokensIdsRepository } from 'src/features/auth/infrastructure/old-tokens-ids-repository';
+import {
+  OldTokensIds,
+  OldTokensIdsSchema,
+} from 'src/features/auth/domain/old-tokens-id-schema';
 
 @Module({
   imports: [
@@ -30,6 +35,9 @@ import { AuthDevicesRepository } from 'src/features/auth/infrastructure/auth-dev
     MongooseModule.forFeature([{ name: Post.name, schema: PostsSchema }]),
     MongooseModule.forFeature([{ name: Blog.name, schema: BlogsSchema }]),
     MongooseModule.forFeature([{ name: Likes.name, schema: LikesSchema }]),
+    MongooseModule.forFeature([
+      { name: OldTokensIds.name, schema: OldTokensIdsSchema },
+    ]),
     MongooseModule.forFeature([
       { name: AuthDevices.name, schema: AuthDevicesSchema },
     ]),
@@ -43,6 +51,7 @@ import { AuthDevicesRepository } from 'src/features/auth/infrastructure/auth-dev
     BlogsRepository,
     LikesRepository,
     AuthDevicesRepository,
+    OldTokensIdsRepository,
   ],
 })
 export class TestModule {}
