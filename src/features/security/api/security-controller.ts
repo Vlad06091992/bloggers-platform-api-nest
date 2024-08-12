@@ -4,7 +4,6 @@ import {
   Get,
   HttpCode,
   Param,
-  Request,
   Res,
   UseGuards,
 } from '@nestjs/common';
@@ -12,19 +11,25 @@ import { CommandBus } from '@nestjs/cqrs';
 import { Response } from 'express';
 import { RefreshTokenGuard } from 'src/features/auth/guards/refresh-token-guard';
 import { GetUserDevicesByUserIdCommand } from 'src/features/security/application/use-cases/get-devices-by-user-id';
-import { decodeToken, getRefreshTokenFromContextOrRequest } from 'src/utils';
 import { DeleteOtherDevicesCommand } from 'src/features/security/application/use-cases/delete-other-devices';
 import { DeleteDevice } from 'src/features/security/application/use-cases/delete-session';
+import { JwtService } from '@nestjs/jwt';
+import { GetRefreshToken } from 'src/infrastructure/decorators/getRefreshToken';
 
 @Controller('security')
 export class SecurityController {
-  constructor(private readonly commandBus: CommandBus) {}
+  constructor(
+    private readonly commandBus: CommandBus,
+    private readonly jwtService: JwtService,
+  ) {}
 
   @UseGuards(RefreshTokenGuard)
   @HttpCode(200)
   @Get('devices')
-  async getDevices(@Res({ passthrough: true }) res: Response, @Request() req) {
-    const refreshToken = getRefreshTokenFromContextOrRequest(null, req);
+  async getDevices(
+    @Res({ passthrough: true }) res: Response,
+    @GetRefreshToken() refreshToken: string,
+  ) {
     return await this.commandBus.execute(
       new GetUserDevicesByUserIdCommand(refreshToken),
     );
@@ -35,10 +40,8 @@ export class SecurityController {
   @Delete('devices')
   async deleteOtherDevices(
     @Res({ passthrough: true }) res: Response,
-    @Request() req,
+    @GetRefreshToken() refreshToken: string,
   ) {
-    const refreshToken = getRefreshTokenFromContextOrRequest(null, req);
-
     return await this.commandBus.execute(
       new DeleteOtherDevicesCommand(refreshToken),
     );
@@ -50,11 +53,9 @@ export class SecurityController {
   async deleteDevice(
     @Param('id') id: string,
     @Res({ passthrough: true }) res: Response,
-    @Request() req,
+    @GetRefreshToken() refreshToken: string, //декоратор
   ) {
-    const refreshToken = getRefreshTokenFromContextOrRequest(null, req);
-
-    const { sub } = decodeToken(refreshToken);
+    const { sub } = this.jwtService.decode(refreshToken);
     await this.commandBus.execute(new DeleteDevice(id, sub));
   }
 }

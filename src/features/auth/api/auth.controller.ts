@@ -35,6 +35,9 @@ import { CreateSessionCommand } from 'src/features/auth/application/use-cases/cr
 import { v4 as uuidv4 } from 'uuid';
 import { LogoutCommand } from 'src/features/auth/application/use-cases/logout';
 import { decodeToken } from 'src/utils';
+import { GetRefreshToken } from 'src/infrastructure/decorators/getRefreshToken';
+import { GetAccessToken } from 'src/infrastructure/decorators/getAccessToken';
+import { JwtService } from '@nestjs/jwt';
 
 @Controller('auth')
 export class AuthController {
@@ -42,7 +45,7 @@ export class AuthController {
     private readonly authService: AuthService,
     private readonly commandBus: CommandBus,
     private readonly usersService: UsersService,
-    private readonly emailService: EmailService,
+    private readonly jwtService: JwtService,
   ) {}
   @UseGuards(LocalAuthGuard)
   @UseGuards(ThrottlerGuard)
@@ -121,15 +124,14 @@ export class AuthController {
   @HttpCode(204)
   @Post('registration')
   registration(@Body(IsExistUserValidationPipe) createUserDto: CreateUserDto) {
+    //pipe
     return this.usersService.create(createUserDto, true);
   }
 
   @UseGuards(ThrottlerGuard)
   @Post('registration-email-resending')
   @HttpCode(204)
-  registrationEmailResending(
-    @Body() @Body() emailResendingDto: EmailResendingDto,
-  ) {
+  registrationEmailResending(@Body() emailResendingDto: EmailResendingDto) {
     const { email } = emailResendingDto;
     return this.commandBus.execute(new ResendEmailCommand(email));
   }
@@ -155,10 +157,8 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   @Get('me')
   @HttpCode(200)
-  getUserInfo(@Request() req) {
-    //TODO get token
-    const token = req.headers.authorization?.split(' ')[1];
-    const { sub } = decodeToken(token);
+  getUserInfo(@Request() req, @GetAccessToken() accessToken: string) {
+    const { sub } = this.jwtService.decode(accessToken);
     return this.commandBus.execute(new GetMeCommand(sub));
   }
 }
