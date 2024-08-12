@@ -8,7 +8,6 @@ import { ValidateUserCommand } from 'src/features/auth/application/use-cases/val
 export class LocalStrategy extends PassportStrategy(Strategy) {
   constructor(private commandBus: CommandBus) {
     super({ usernameField: 'loginOrEmail' });
-    // super();
   }
 
   async validate(loginOrEmail: string, password: string): Promise<any> {

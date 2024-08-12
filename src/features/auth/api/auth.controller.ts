@@ -16,7 +16,6 @@ import { LoginDTO } from 'src/features/auth/api/models/login-dto';
 import { CreateUserDto } from 'src/features/users/api/models/create-user.dto';
 import { IsExistUserValidationPipe } from 'src/infrastructure/pipes/isExistUser';
 import { UsersService } from 'src/features/users/application/users.service';
-import { EmailService } from 'src/email/email.service';
 import { NewPasswordDto } from 'src/features/auth/api/models/new-password.dto';
 import { EmailResendingDto } from 'src/features/auth/api/models/email-resending-dto';
 import { JwtAuthGuard } from 'src/features/auth/guards/jwt-auth.guard';
@@ -34,8 +33,6 @@ import { RefreshJWTCommand } from 'src/features/auth/application/use-cases/refre
 import { CreateSessionCommand } from 'src/features/auth/application/use-cases/create-session';
 import { v4 as uuidv4 } from 'uuid';
 import { LogoutCommand } from 'src/features/auth/application/use-cases/logout';
-import { decodeToken } from 'src/utils';
-import { GetRefreshToken } from 'src/infrastructure/decorators/getRefreshToken';
 import { GetAccessToken } from 'src/infrastructure/decorators/getAccessToken';
 import { JwtService } from '@nestjs/jwt';
 
@@ -98,8 +95,6 @@ export class AuthController {
     });
 
     return { accessToken };
-
-    return true;
   }
 
   @UseGuards(RefreshTokenGuard)
@@ -114,7 +109,6 @@ export class AuthController {
   @HttpCode(204)
   @Post('password-recovery')
   async recoveryPassword(@Body() recoveryPasswordDTO: RecoveryPasswordDto) {
-    // return this.authService.recoveryPassword(recoveryPasswordDTO.email);
     return this.commandBus.execute(
       new RecoveryPasswordCommand(recoveryPasswordDTO.email),
     );
@@ -140,7 +134,6 @@ export class AuthController {
   @Post('new-password')
   @HttpCode(204)
   newPassword(@Body() { newPassword, recoveryCode }: NewPasswordDto) {
-    // return this.authService.updateUserPassword(newPasswordDto);
     return this.commandBus.execute(
       new UpdateUserPasswordCommand(recoveryCode, newPassword),
     );
@@ -153,7 +146,6 @@ export class AuthController {
     return this.commandBus.execute(new ConfirmEmailCommand(code));
   }
 
-  // @UseGuards(RefreshTokenGuard)
   @UseGuards(JwtAuthGuard)
   @Get('me')
   @HttpCode(200)
