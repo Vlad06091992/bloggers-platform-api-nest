@@ -1,9 +1,9 @@
 import { CommandBus, CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { GenerateJWTCommand } from 'src/features/auth/application/use-cases/generate-jwt';
 import { JwtService } from '@nestjs/jwt';
-import { v4 as uuidv4 } from 'uuid';
 import { decodeToken } from 'src/utils';
 import { WriteOldTokenCommand } from 'src/features/auth/application/use-cases/write-old-token';
+import { UpdateSessionComamnd } from 'src/features/security/application/use-cases/update-session';
 
 export class RefreshJWTCommand {
   constructor(public oldToken: string) {}
@@ -20,6 +20,7 @@ export class RefreshJWTHandler implements ICommandHandler<RefreshJWTCommand> {
     const { userLogin, sub, deviceId, tokenId } = decodeToken(oldToken) || null;
     const payload = { userLogin, sub, deviceId };
 
+    await this.commandBus.execute(new UpdateSessionComamnd(deviceId));
     await this.commandBus.execute(new WriteOldTokenCommand(tokenId));
 
     return {

@@ -1,8 +1,4 @@
-import {
-  BadRequestException,
-  Inject,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { BadRequestException, Inject } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { UsersService } from 'src/features/users/application/users.service';
 import { v4 as uuidv4 } from 'uuid';

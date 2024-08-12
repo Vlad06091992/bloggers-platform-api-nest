@@ -1,5 +1,4 @@
 import { IsString, Length, Validate } from 'class-validator';
-import { IsExistUserValidationPipe } from 'src/infrastructure/pipes/isExistUser';
 import { UniqueValidator } from 'src/shared/validators/is-exist-blog';
 import { IsNotOnlySpaces } from 'src/shared/validators/is-not-only-spaces';
 

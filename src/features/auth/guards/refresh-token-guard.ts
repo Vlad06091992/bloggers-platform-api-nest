@@ -10,8 +10,8 @@ import { ConfigService } from '@nestjs/config';
 import { IsActiveDeviceCommand } from 'src/features/auth/application/use-cases/is-active-device';
 import { CommandBus } from '@nestjs/cqrs';
 import { decodeToken, getRefreshTokenFromContextOrRequest } from 'src/utils';
-import { decode, verify } from 'jsonwebtoken';
 import { IsOldTokenCommand } from 'src/features/auth/application/use-cases/is-old-token';
+
 @Injectable()
 export class RefreshTokenGuard implements CanActivate {
   constructor(
@@ -22,16 +22,12 @@ export class RefreshTokenGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext) {
     const refreshToken = getRefreshTokenFromContextOrRequest(context, null);
-    debugger;
-
-    // console.log(refreshToken);
-
     if (!refreshToken) {
       throw new UnauthorizedException();
     }
-    debugger;
+
     const res = decodeToken(refreshToken);
-    // const res2 = verify(refreshToken, 'SECRET');
+
     const isActiveDevice = await this.commandBus.execute(
       new IsActiveDeviceCommand(res.deviceId),
     );
@@ -40,10 +36,13 @@ export class RefreshTokenGuard implements CanActivate {
       new IsOldTokenCommand(res.tokenId),
     );
 
-    debugger;
-
     if (isOldToken) {
       throw new UnauthorizedException();
+    }
+    if (context.switchToHttp().getRequest().url.includes('security')) {
+      if (!isActiveDevice) {
+        return true;
+      }
     }
 
     if (!isActiveDevice) {
@@ -51,24 +50,18 @@ export class RefreshTokenGuard implements CanActivate {
     }
 
     try {
-      // const result = verify(
-      //   refreshToken,
-      //   this.configService.get('SECRET_KEY') as string,
-      // );
-      debugger;
-
-      const result = this.jwtService.verify(
-        refreshToken,
-        {
-          secret: this.configService.get('SECRET_KEY'),
-        },
-        // this.configService.get('SECRET_KEY') as string,
-      );
-      // debugger;
+      this.jwtService.verify(refreshToken, {
+        secret: this.configService.get('SECRET_KEY'),
+      });
 
       return true;
     } catch (e) {
-      debugger;
+      if (
+        e.name === 'TokenExpiredError' &&
+        context.switchToHttp().getRequest().url.includes('security')
+      ) {
+        return true;
+      }
 
       throw new UnauthorizedException();
     }

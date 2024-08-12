@@ -1,6 +1,5 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { RecoveryPasswordQueryRepository } from 'src/features/auth/infrastructure/recovery-password-query-repository';
-import { NewPasswordDto } from 'src/features/auth/api/models/new-password.dto';
 import { BadRequestException } from '@nestjs/common';
 import { UsersRepository } from 'src/features/users/infrastructure/users-repository';
 import { UsersService } from 'src/features/users/application/users.service';

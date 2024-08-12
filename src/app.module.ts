@@ -26,8 +26,6 @@ import { CommentsQueryRepository } from 'src/features/comments/infrastructure/co
 import { PostsRepository } from 'src/features/posts/infrastructure/posts-repository';
 import { CommandBus, CqrsModule } from '@nestjs/cqrs';
 import { Likes, LikesSchema } from 'src/features/likes/domain/likes-schema';
-import { UniqueValidator } from 'src/shared/validators/is-exist-blog';
-import { FindBlogHandler } from 'src/features/blogs/application/use-cases/find-blog';
 
 const useCases = [];
 const repositories = [

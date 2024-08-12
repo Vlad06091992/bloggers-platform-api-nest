@@ -20,7 +20,7 @@ export class IsActiveDeviceHandler
       .getDeviceByDeviceId(deviceId)
       .exec();
 
-    if (!device || device.isActive === false) return false;
+    if (device === null || device.isActive === false) return false;
     return true;
   }
 }

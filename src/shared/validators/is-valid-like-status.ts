@@ -1,21 +1,17 @@
-import {
-  registerDecorator,
-  ValidationArguments,
-  ValidationOptions,
-} from 'class-validator';
+import { registerDecorator, ValidationOptions } from 'class-validator';
 
 export function IsValidLikeStatus(validationOptions?: ValidationOptions) {
-  return function (object: Object, propertyName: string) {
+  return function (object: NonNullable<unknown>, propertyName: string) {
     registerDecorator({
       name: 'isValidLikeStatus',
       target: object.constructor,
       propertyName: propertyName,
       options: validationOptions,
       validator: {
-        validate(value: any, args: ValidationArguments) {
+        validate(value: string) {
           return value === 'None' || value === 'Like' || value === 'Dislike';
         },
-        defaultMessage(args: ValidationArguments) {
+        defaultMessage() {
           return 'likes value should be equal None|Like|Dislike';
         },
       },

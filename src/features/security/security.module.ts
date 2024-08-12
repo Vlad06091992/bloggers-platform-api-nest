@@ -12,12 +12,15 @@ import { AuthDevicesQueryRepository } from 'src/features/auth/infrastructure/aut
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { SecurityController } from 'src/features/security/api/security-controller';
-import {
-  DeleteOtherDevicesCommand,
-  DeleteOtherDevicesHandler,
-} from 'src/features/security/application/use-cases/delete-other-devices';
+import { DeleteOtherDevicesHandler } from 'src/features/security/application/use-cases/delete-other-devices';
 import { AuthDevicesRepository } from 'src/features/auth/infrastructure/auth-devices-repository';
 import { DeleteSessionHandler } from 'src/features/security/application/use-cases/delete-session';
+import { OldTokensIdsQueryRepository } from 'src/features/auth/infrastructure/old-tokens-ids-query-repository';
+import { OldTokensIdsRepository } from 'src/features/auth/infrastructure/old-tokens-ids-repository';
+import {
+  OldTokensIds,
+  OldTokensIdsSchema,
+} from 'src/features/auth/domain/old-tokens-id-schema';
 
 @Module({
   imports: [
@@ -29,6 +32,12 @@ import { DeleteSessionHandler } from 'src/features/security/application/use-case
         schema: AuthDevicesSchema,
       },
     ]),
+    MongooseModule.forFeature([
+      {
+        name: OldTokensIds.name,
+        schema: OldTokensIdsSchema,
+      },
+    ]),
   ],
   controllers: [SecurityController],
   providers: [
@@ -36,6 +45,8 @@ import { DeleteSessionHandler } from 'src/features/security/application/use-case
     DeleteOtherDevicesHandler,
     DeleteSessionHandler,
     AuthDevicesQueryRepository,
+    OldTokensIdsRepository,
+    OldTokensIdsQueryRepository,
     AuthDevicesRepository,
     JwtService,
     ConfigService,

@@ -1,5 +1,4 @@
 import { Inject } from '@nestjs/common';
-import { CommentsQueryRepository } from 'src/features/comments/infrastructure/comments.query-repository';
 import { CommandHandler } from '@nestjs/cqrs';
 import { CommentsRepository } from 'src/features/comments/infrastructure/comments-repository';
 

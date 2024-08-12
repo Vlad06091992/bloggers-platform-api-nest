@@ -1,13 +1,8 @@
-import { InjectModel } from '@nestjs/mongoose';
 import {
-  ValidationArguments,
   ValidatorConstraint,
   ValidatorConstraintInterface,
 } from 'class-validator';
-import { Model } from 'mongoose';
-import { Blog } from 'src/features/blogs/domain/blogs-schema';
 import { CommandBus } from '@nestjs/cqrs';
-import { FindBlogsCommand } from 'src/features/blogs/application/use-cases/find-blogs';
 import { Inject } from '@nestjs/common';
 import { FindBlogCommand } from 'src/features/blogs/application/use-cases/find-blog';
 
@@ -22,7 +17,7 @@ export class UniqueValidator implements ValidatorConstraintInterface {
     return !!isExistBlog;
   }
 
-  defaultMessage(args: ValidationArguments) {
+  defaultMessage() {
     return 'blog is not exist';
   }
 }

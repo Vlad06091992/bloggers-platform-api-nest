@@ -12,11 +12,11 @@ export class AuthDevicesRepository {
     private authDevicesModel: AuthDevicesModel,
   ) {}
 
-  async addDevice(record: AuthDevices) {
+  async addSession(record: AuthDevices) {
     return (await this.authDevicesModel.create(record)).toObject();
   }
 
-  async deactivateDevice(deviceId: string) {
+  async deactivateSessionByDeviceId(deviceId: string) {
     const res = await this.authDevicesModel
       .updateOne({ deviceId }, { $set: { isActive: false } })
       .exec();
@@ -26,6 +26,16 @@ export class AuthDevicesRepository {
   async deleteSession(deviceId: string) {
     const res = await this.authDevicesModel.deleteOne({ deviceId }).exec();
     return res.deletedCount == 1;
+  }
+
+  async updateSessionByDeviceId(deviceId: string) {
+    const res = await this.authDevicesModel
+      .updateOne(
+        { deviceId },
+        { $set: { lastActiveDate: new Date().toISOString() } },
+      )
+      .exec();
+    return res.matchedCount == 1;
   }
 
   async deactivateAllDevicesExceptThisOne(deviceId: string, userId: string) {

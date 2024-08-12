@@ -1,4 +1,4 @@
-import { IsEmail, IsString, Matches } from 'class-validator';
+import { IsEmail, Matches } from 'class-validator';
 
 export class RecoveryPasswordDto {
   @IsEmail(undefined, {

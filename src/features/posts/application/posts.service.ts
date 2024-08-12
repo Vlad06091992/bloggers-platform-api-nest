@@ -8,10 +8,7 @@ import { Post } from 'src/features/posts/domain/posts-schema';
 import { UpdatePostDto } from 'src/features/posts/api/models/update-post.dto';
 import { CommentsQueryRepository } from 'src/features/comments/infrastructure/comments.query-repository';
 import { CommandBus } from '@nestjs/cqrs';
-import {
-  GetLikeInfoCommand,
-  GetLikeInfoHandler,
-} from 'src/features/likes/application/use-cases/get-like-info';
+import { GetLikeInfoCommand } from 'src/features/likes/application/use-cases/get-like-info';
 import { GetNewestLikesCommand } from 'src/features/likes/application/use-cases/get-newest-likes';
 
 @Injectable()

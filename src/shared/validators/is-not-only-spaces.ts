@@ -1,21 +1,17 @@
-import {
-  registerDecorator,
-  ValidationOptions,
-  ValidationArguments,
-} from 'class-validator';
+import { registerDecorator, ValidationOptions } from 'class-validator';
 
 export function IsNotOnlySpaces(validationOptions?: ValidationOptions) {
-  return function (object: Object, propertyName: string) {
+  return function (object: NonNullable<unknown>, propertyName: string) {
     registerDecorator({
       name: 'isNotOnlySpaces',
       target: object.constructor,
       propertyName: propertyName,
       options: validationOptions,
       validator: {
-        validate(value: any, args: ValidationArguments) {
+        validate(value: string) {
           return typeof value === 'string' && !/^\s*$/.test(value);
         },
-        defaultMessage(args: ValidationArguments) {
+        defaultMessage() {
           return 'String should not consist only of spaces';
         },
       },

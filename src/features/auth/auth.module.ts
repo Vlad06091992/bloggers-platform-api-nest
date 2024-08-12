@@ -29,17 +29,11 @@ import { LoginHandler } from 'src/features/auth/application/use-cases/login';
 import { RecoveryPasswordHandler } from 'src/features/auth/application/use-cases/recovery-password';
 import { ResendEmailHandler } from 'src/features/auth/application/use-cases/resend-email';
 import { GetMeHandler } from 'src/features/auth/application/use-cases/get-me';
-import {
-  ConfirmEmailCommand,
-  ConfirmEmailHandler,
-} from 'src/features/auth/application/use-cases/confirm-email';
+import { ConfirmEmailHandler } from 'src/features/auth/application/use-cases/confirm-email';
 import { FindUserByRecoveryCodeHandler } from 'src/features/auth/application/use-cases/find-user-by-recovery-code';
 import { UpdateUserPasswordHandler } from 'src/features/auth/application/use-cases/update-user-password';
 import { RefreshJWTHandler } from 'src/features/auth/application/use-cases/refresh-tokens';
-import {
-  CreateSessionCommand,
-  CreateSessionlHandler,
-} from 'src/features/auth/application/use-cases/create-session';
+import { CreateSessionlHandler } from 'src/features/auth/application/use-cases/create-session';
 import { AuthDevicesRepository } from 'src/features/auth/infrastructure/auth-devices-repository';
 import { AuthDevicesQueryRepository } from 'src/features/auth/infrastructure/auth-devices-query-repository';
 import {
@@ -57,6 +51,7 @@ import { WriteOldTokenHandler } from 'src/features/auth/application/use-cases/wr
 import { IsOldTokenHandler } from 'src/features/auth/application/use-cases/is-old-token';
 import { OldTokensIdsQueryRepository } from 'src/features/auth/infrastructure/old-tokens-ids-query-repository';
 import { OldTokensIdsRepository } from 'src/features/auth/infrastructure/old-tokens-ids-repository';
+import { UpdateSessionHandler } from 'src/features/security/application/use-cases/update-session';
 
 @Module({
   imports: [
@@ -123,6 +118,7 @@ import { OldTokensIdsRepository } from 'src/features/auth/infrastructure/old-tok
     LogoutHandler,
     WriteOldTokenHandler,
     IsOldTokenHandler,
+    UpdateSessionHandler,
   ],
   exports: [AuthService],
 })

@@ -1,10 +1,7 @@
 import { InjectModel } from '@nestjs/mongoose';
-import { Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { Comment, CommentModel } from '../domain/comments-schema';
 import { QueryParams } from 'src/shared/common-types';
-import { ObjectId } from 'mongodb';
-import { CommandBus } from '@nestjs/cqrs';
-import { GetLikeInfoCommand } from 'src/features/likes/application/use-cases/get-like-info';
 
 @Injectable()
 export class CommentsQueryRepository {

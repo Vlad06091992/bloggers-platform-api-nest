@@ -12,7 +12,7 @@ import { CommandBus } from '@nestjs/cqrs';
 import { Response } from 'express';
 import { RefreshTokenGuard } from 'src/features/auth/guards/refresh-token-guard';
 import { GetUserDevicesByUserIdCommand } from 'src/features/security/application/use-cases/get-devices-by-user-id';
-import { getRefreshTokenFromContextOrRequest } from 'src/utils';
+import { decodeToken, getRefreshTokenFromContextOrRequest } from 'src/utils';
 import { DeleteOtherDevicesCommand } from 'src/features/security/application/use-cases/delete-other-devices';
 import { DeleteDevice } from 'src/features/security/application/use-cases/delete-session';
 
@@ -25,7 +25,6 @@ export class SecurityController {
   @Get('devices')
   async getDevices(@Res({ passthrough: true }) res: Response, @Request() req) {
     const refreshToken = getRefreshTokenFromContextOrRequest(null, req);
-
     return await this.commandBus.execute(
       new GetUserDevicesByUserIdCommand(refreshToken),
     );
@@ -55,6 +54,7 @@ export class SecurityController {
   ) {
     const refreshToken = getRefreshTokenFromContextOrRequest(null, req);
 
-    return await this.commandBus.execute(new DeleteDevice(refreshToken, id));
+    const { sub } = decodeToken(refreshToken);
+    await this.commandBus.execute(new DeleteDevice(id, sub));
   }
 }

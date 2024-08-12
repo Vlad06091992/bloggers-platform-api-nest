@@ -23,7 +23,6 @@ import { CommentDto } from 'src/features/comments/api/models/comment-dto';
 import { CommandBus } from '@nestjs/cqrs';
 import { CreateCommentForPostCommand } from 'src/features/comments/application/use-cases/create-comment-for-post';
 import { LikeStatusDto } from 'src/features/likes/api/models/like-status-dto';
-import { FindCommentByIdCommand } from 'src/features/comments/application/use-cases/find-comment-by-id';
 import { UpdateLikeStatusCommand } from 'src/features/likes/application/use-cases/update-like-status';
 import { CheckUserByJWT } from 'src/infrastructure/decorators/checkUserByJWT';
 

@@ -19,7 +19,6 @@ export async function pagination(
       [sortBy]: sortDirection == 'asc' ? 1 : -1,
       createdAt: sortDirection == 'asc' ? 1 : -1,
     });
-  // .lean();
 
   const totalCount = await this.countDocuments(filter);
 
@@ -48,9 +47,6 @@ export const getRefreshTokenFromContextOrRequest = (
     headers: { cookie: cookiesString },
   } = request;
 
-  // console.log(request.headers.cookies);
-  // console.log(request.headers.cookie);
-
   if (!cookiesString) return false;
 
   const cookies = cookiesString?.split('; ').reduce((acc, el) => {
@@ -65,8 +61,6 @@ export const getRefreshTokenFromContextOrRequest = (
   if (refreshToken[refreshToken.length - 1] === ';') {
     refreshToken = refreshToken.slice(0, -1);
   }
-
-  console.log(refreshToken);
   return refreshToken;
 };
 

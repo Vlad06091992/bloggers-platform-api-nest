@@ -1,5 +1,4 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { UsersService } from 'src/features/users/application/users.service';
 import { CreateSessionDto } from 'src/features/auth/api/models/create-session-dto';
 import { AuthDevices } from 'src/features/auth/domain/devices-schema';
 import { ObjectId } from 'mongodb';
@@ -26,7 +25,7 @@ export class CreateSessionlHandler
       isActive: true,
     };
 
-    await this.authDevicesRepository.addDevice(device);
+    await this.authDevicesRepository.addSession(device);
     return true;
   }
 }

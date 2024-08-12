@@ -23,10 +23,7 @@ import { JwtAuthGuard } from 'src/features/auth/guards/jwt-auth.guard';
 import { CommandBus } from '@nestjs/cqrs';
 import { LoginCommand } from 'src/features/auth/application/use-cases/login';
 import { RecoveryPasswordCommand } from 'src/features/auth/application/use-cases/recovery-password';
-import {
-  GetMeCommand,
-  GetMeHandler,
-} from 'src/features/auth/application/use-cases/get-me';
+import { GetMeCommand } from 'src/features/auth/application/use-cases/get-me';
 import { UpdateUserPasswordCommand } from 'src/features/auth/application/use-cases/update-user-password';
 import { ConfirmEmailCommand } from 'src/features/auth/application/use-cases/confirm-email';
 import { ResendEmailCommand } from 'src/features/auth/application/use-cases/resend-email';
@@ -37,7 +34,7 @@ import { RefreshJWTCommand } from 'src/features/auth/application/use-cases/refre
 import { CreateSessionCommand } from 'src/features/auth/application/use-cases/create-session';
 import { v4 as uuidv4 } from 'uuid';
 import { LogoutCommand } from 'src/features/auth/application/use-cases/logout';
-import { decodeToken, getRefreshTokenFromContextOrRequest } from 'src/utils';
+import { decodeToken } from 'src/utils';
 
 @Controller('auth')
 export class AuthController {
@@ -47,8 +44,8 @@ export class AuthController {
     private readonly usersService: UsersService,
     private readonly emailService: EmailService,
   ) {}
-  @UseGuards(ThrottlerGuard)
   @UseGuards(LocalAuthGuard)
+  @UseGuards(ThrottlerGuard)
   @HttpCode(200)
   @Post('login')
   async login(
@@ -61,7 +58,7 @@ export class AuthController {
     const title = req.headers['user-agent'];
     const userId = req.user.id;
 
-    const result = await this.commandBus.execute(
+    await this.commandBus.execute(
       new CreateSessionCommand({ userId, ip, title, deviceId }),
     );
 
@@ -154,12 +151,14 @@ export class AuthController {
     return this.commandBus.execute(new ConfirmEmailCommand(code));
   }
 
-  @UseGuards(RefreshTokenGuard)
+  // @UseGuards(RefreshTokenGuard)
+  @UseGuards(JwtAuthGuard)
   @Get('me')
   @HttpCode(200)
   getUserInfo(@Request() req) {
-    const refreshToken = getRefreshTokenFromContextOrRequest(null, req);
-    const { sub } = decodeToken(refreshToken);
+    //TODO get token
+    const token = req.headers.authorization?.split(' ')[1];
+    const { sub } = decodeToken(token);
     return this.commandBus.execute(new GetMeCommand(sub));
   }
 }
