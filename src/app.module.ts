@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UsersModule } from './features/users/users.module';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { CommentsModule } from 'src/features/comments/comments.module';
 import { TestModule } from 'src/features/testing/testing.module';
@@ -17,14 +17,18 @@ import { CqrsModule } from '@nestjs/cqrs';
 @Module({
   imports: [
     CqrsModule,
-    MailerModule.forRoot({
-      transport: {
-        service: 'Mail.ru',
-        auth: {
-          user: 'Smirnov.ru92@mail.ru',
-          pass: 'xqfWd2w5KfGyjPeuFfLD', // generated ethereal password
+    MailerModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        transport: {
+          service: `${configService.get('MAILER_SERVICE')}`,
+          auth: {
+            user: `${configService.get('MAILER_USER')}`,
+            pass: `${configService.get('MAILER_PASS')}`, // generated ethereal password
+          },
         },
-      },
+      }),
     }),
     EmailModule,
     ConfigModule.forRoot(),
