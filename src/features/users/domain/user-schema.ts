@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Model, Types } from 'mongoose';
+import mongoose, { Model, Types } from 'mongoose';
 import { pagination } from 'src/utils';
-
+import ObjectId = mongoose.Types.ObjectId;
 @Schema()
 export class RegistrationData {
   @Prop({ required: true })
@@ -20,7 +20,7 @@ export const RegistrationDataSchema =
 @Schema()
 export class User {
   @Prop()
-  _id: Types.ObjectId;
+  _id: ObjectId;
 
   @Prop()
   id: string;

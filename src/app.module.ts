@@ -13,9 +13,22 @@ import { ThrottlerModule } from '@nestjs/throttler';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { EmailModule } from 'src/email/email.module';
 import { CqrsModule } from '@nestjs/cqrs';
+import { WalletsModule } from 'src/wallets/wallets.module';
+import { TypeOrmModule } from '@nestjs/typeorm';
 
 @Module({
   imports: [
+    TypeOrmModule.forRoot({
+      type: 'postgres',
+      host: 'localhost',
+      port: 5432,
+      username: 'nest_dev',
+      password: 'nest',
+      database: 'BankSystem',
+      entities: [],
+      autoLoadEntities: false,
+      synchronize: false,
+    }),
     CqrsModule,
     MailerModule.forRootAsync({
       imports: [ConfigModule],
@@ -39,6 +52,7 @@ import { CqrsModule } from '@nestjs/cqrs';
     TestModule,
     PostsModule,
     AuthModule,
+    WalletsModule,
     ThrottlerModule.forRoot([
       {
         ttl: 10000,
