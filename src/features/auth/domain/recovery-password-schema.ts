@@ -4,9 +4,6 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 @Schema()
 export class RecoveryPasswordsCode {
   @Prop()
-  _id: Types.ObjectId;
-
-  @Prop()
   id: string;
 
   @Prop()

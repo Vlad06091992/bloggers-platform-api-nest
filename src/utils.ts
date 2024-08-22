@@ -71,4 +71,10 @@ export const decodeToken = (token) => {
   return JSON.parse(payloadBuffer.toString()) as any;
 };
 
+export const addHours = (date, hours) => {
+  const hoursToAdd = hours * 60 * 60 * 1000;
+  date.setTime(date.getTime() + hoursToAdd);
+  return date;
+};
+
 export const generateUuid = () => uuidv4();

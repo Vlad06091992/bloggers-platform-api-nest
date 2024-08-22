@@ -1,16 +1,14 @@
-import { InjectModel } from '@nestjs/mongoose';
-import {
-  RecoveryPasswordsCode,
-  RecoveryPasswordsCodeModel,
-} from 'src/features/auth/domain/recovery-password-schema';
+import { InjectDataSource } from '@nestjs/typeorm';
+import { DataSource } from 'typeorm';
 
 export class RecoveryPasswordQueryRepository {
-  constructor(
-    @InjectModel(RecoveryPasswordsCode.name)
-    private recoveryPasswordsCodeModel: RecoveryPasswordsCodeModel,
-  ) {}
+  constructor(@InjectDataSource() protected dataSource: DataSource) {}
 
   async findUserByRecoveryCode(recoveryCode: string) {
-    return this.recoveryPasswordsCodeModel.findOne({ recoveryCode }).exec();
+    const query = `SELECT id, "userId", email, "recoveryCode", "expirationDate"
+   FROM public."RecoveryPasswordCodes"
+   WHERE "recoveryCode" = $1`;
+    const result = await this.dataSource.query(query, [recoveryCode]);
+    return result.length ? result[0] : null;
   }
 }

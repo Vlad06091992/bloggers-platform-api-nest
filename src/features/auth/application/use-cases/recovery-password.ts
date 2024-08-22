@@ -2,10 +2,11 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { v4 as uuidv4 } from 'uuid';
 import { ObjectId } from 'mongodb';
 import { RecoveryPasswordsCode } from 'src/features/auth/domain/recovery-password-schema';
-import { add } from 'date-fns';
+import { add, addHours } from 'date-fns';
 import { RecoveryPasswordRepository } from 'src/features/auth/infrastructure/recovery-password-repository';
 import { EmailService } from 'src/email/email.service';
 import { UsersService } from 'src/features/users/application/users.service';
+import { generateUuid } from 'src/utils';
 
 export class RecoveryPasswordCommand {
   constructor(public email: string) {}
@@ -25,18 +26,20 @@ export class RecoveryPasswordHandler
     const user = await this.usersService.findUserByEmailOrLogin(email);
 
     if (user) {
-      const recoveryCode = uuidv4();
+      const recoveryCode = generateUuid();
+      const id = generateUuid();
       await this.emailService.recoveryPassword(email, recoveryCode);
-      const _id = new ObjectId();
 
       const record: RecoveryPasswordsCode = {
-        _id,
-        id: _id.toString(),
+        id,
         recoveryCode,
         email: user.email,
-        expirationDate: add(new Date(), { hours: 1 }),
+        expirationDate: addHours(new Date(), 2),
         userId: user.id,
       };
+
+      console.log(typeof record.expirationDate);
+      console.log(typeof new Date());
 
       await this.recoveryPasswordRepository.createRecord(record);
 
