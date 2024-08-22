@@ -1,53 +1,78 @@
 import { InjectModel } from '@nestjs/mongoose';
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import {
   AuthDevices,
   AuthDevicesModel,
 } from 'src/features/auth/domain/devices-schema';
+import { InjectDataSource } from '@nestjs/typeorm';
+import { DataSource } from 'typeorm';
 
 @Injectable()
 export class AuthDevicesRepository {
   constructor(
+    @InjectDataSource() protected dataSource: DataSource,
     @InjectModel(AuthDevices.name)
     private authDevicesModel: AuthDevicesModel,
   ) {}
 
   async addSession(record: AuthDevices) {
-    return (await this.authDevicesModel.create(record)).toObject();
+    const { ip, title, deviceId, userId, isActive, lastActiveDate } = record;
+
+    const query = `INSERT INTO public."AuthDevices"(
+        "ip", "title", "deviceId", "userId","isActive","lastActiveDate")
+       VALUES ($1, $2, $3, $4, $5,$6);`;
+    await this.dataSource.query(query, [
+      ip,
+      title,
+      deviceId,
+      userId,
+      isActive,
+      lastActiveDate,
+    ]);
   }
 
   async deactivateSessionByDeviceId(deviceId: string) {
-    const res = await this.authDevicesModel
-      .updateOne({ deviceId }, { $set: { isActive: false } })
-      .exec();
-    return res.matchedCount == 1;
+    const query = `UPDATE "AuthDevices" 
+       SET  "isActive" ='false'
+       WHERE "deviceId" = $1;`;
+    const result = await this.dataSource.query(query, [deviceId]);
+    return result[1] == 1;
   }
 
   async deleteSession(deviceId: string) {
-    const res = await this.authDevicesModel.deleteOne({ deviceId }).exec();
-    return res.deletedCount == 1;
+    const query = `DELETE FROM public."AuthDevices"
+     WHERE "deviceId" = $1;`;
+    try {
+      const result = await this.dataSource.query(query, [deviceId]);
+      return result[1] == 1;
+    } catch (e) {
+      throw new NotFoundException();
+    }
   }
 
   async updateSessionByDeviceId(deviceId: string) {
-    const res = await this.authDevicesModel
-      .updateOne(
-        { deviceId },
-        { $set: { lastActiveDate: new Date().toISOString() } },
-      )
-      .exec();
-    return res.matchedCount == 1;
+    const lastActiveDate = new Date();
+
+    const query = `UPDATE "AuthDevices" 
+       SET  "lastActiveDate" = $2
+       WHERE "deviceId" = $1;`;
+    const result = await this.dataSource.query(query, [
+      deviceId,
+      lastActiveDate,
+    ]);
+    return result[1] == 1;
   }
 
   async deactivateAllDevicesExceptThisOne(deviceId: string, userId: string) {
-    const res = await this.authDevicesModel
-      .deleteMany({
-        $and: [{ userId: userId }, { deviceId: { $ne: deviceId } }],
-      })
-      .exec();
-    return res.deletedCount > 0;
+    const query = `DELETE FROM public."AuthDevices"
+         WHERE "userId" = $2 
+         AND "deviceId" != $1`;
+    const result = await this.dataSource.query(query, [deviceId, userId]);
+    return result[1] > 0;
   }
 
   async clearData() {
-    await this.authDevicesModel.deleteMany({});
+    const query = `TRUNCATE TABLE public."AuthDevices"`;
+    return this.dataSource.query(query, []);
   }
 }

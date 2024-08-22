@@ -39,7 +39,7 @@ export class WalletsRepository {
     //   `%${firstName}%`,
     //   `%${lastName}%`,
     // ]);
-    console.log(queryWallets);
+    // console.log(queryWallets);
 
     // const result = await this.dataSource.query(queryUsers);
     const result = await this.dataSource.query(queryWallets, []);
@@ -57,7 +57,7 @@ export class WalletsRepository {
   }
 
   async findOne(id: string) {
-    console.log(id);
+    // console.log(id);
 
     // return `This action returns all wallets`;
     const result = await this.dataSource.query(

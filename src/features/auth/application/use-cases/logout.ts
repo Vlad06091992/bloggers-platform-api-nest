@@ -17,7 +17,7 @@ export class LogoutHandler implements ICommandHandler<LogoutCommand> {
   ) {}
 
   async execute({ oldToken }: LogoutCommand) {
-    const { deviceId, tokenId } = decodeToken(oldToken) || null;
+    const { deviceId, tokenId } = this.jwtService.decode(oldToken) || null;
     await this.authDevicesRepository.deactivateSessionByDeviceId(deviceId);
     await this.commandBus.execute(new WriteOldTokenCommand(tokenId));
 

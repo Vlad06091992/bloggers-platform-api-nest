@@ -1,4 +1,5 @@
 import { ExecutionContext } from '@nestjs/common';
+import { v4 as uuidv4 } from 'uuid';
 
 export async function pagination(
   {
@@ -69,3 +70,5 @@ export const decodeToken = (token) => {
   const payloadBuffer = Buffer.from(base64Payload, 'base64');
   return JSON.parse(payloadBuffer.toString()) as any;
 };
+
+export const generateUuid = () => uuidv4();

@@ -16,6 +16,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
   async validate(req, payload: any) {
     const token = req.headers.authorization?.split(' ')[1];
+    // console.log(token);
     if (!token) return false;
     return { userId: payload.sub, userLogin: payload.userLogin };
   }

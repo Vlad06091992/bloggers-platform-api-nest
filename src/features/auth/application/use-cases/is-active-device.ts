@@ -16,9 +16,10 @@ export class IsActiveDeviceHandler
   async execute({ deviceId }: IsActiveDeviceCommand) {
     if (!deviceId) return false;
 
-    const device = await this.authDevicesQueryRepository
-      .getDeviceByDeviceId(deviceId)
-      .exec();
+    const device =
+      await this.authDevicesQueryRepository.getDeviceByDeviceId(deviceId);
+
+    debugger;
 
     if (device === null || device.isActive === false) return false;
     return true;

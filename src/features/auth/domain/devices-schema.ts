@@ -4,12 +4,6 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 @Schema()
 export class AuthDevices {
   @Prop()
-  _id: Types.ObjectId;
-
-  @Prop()
-  id: string;
-
-  @Prop()
   ip: string;
 
   @Prop()
@@ -22,7 +16,7 @@ export class AuthDevices {
   deviceId: string;
 
   @Prop()
-  lastActiveDate: string;
+  lastActiveDate: Date;
 
   @Prop()
   isActive: boolean;

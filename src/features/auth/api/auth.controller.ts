@@ -35,6 +35,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { LogoutCommand } from 'src/features/auth/application/use-cases/logout';
 import { GetAccessToken } from 'src/infrastructure/decorators/getAccessToken';
 import { JwtService } from '@nestjs/jwt';
+import { GetRefreshToken } from 'src/infrastructure/decorators/getRefreshToken';
 
 @Controller('auth')
 export class AuthController {
@@ -100,8 +101,11 @@ export class AuthController {
   @UseGuards(RefreshTokenGuard)
   @HttpCode(204)
   @Post('logout')
-  async logout(@Res({ passthrough: true }) res: Response, @Request() req) {
-    const { refreshToken } = req.cookies;
+  async logout(
+    @Res({ passthrough: true }) res: Response,
+    @Request() req,
+    @GetRefreshToken() refreshToken: string,
+  ) {
     await this.commandBus.execute(new LogoutCommand(refreshToken));
   }
 

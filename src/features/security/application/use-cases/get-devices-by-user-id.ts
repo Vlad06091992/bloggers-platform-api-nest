@@ -18,9 +18,6 @@ export class GetUserDevicesByUserIdHandler
 
   async execute({ refreshToken }: GetUserDevicesByUserIdCommand) {
     const { sub } = decodeToken(refreshToken);
-    const devices = await this.authDevicesQueryRepository
-      .getDevicesByUserId(sub)
-      .exec();
-    return devices.map((el) => el.toObject());
+    return await this.authDevicesQueryRepository.getDevicesByUserId(sub);
   }
 }

@@ -22,17 +22,31 @@ export class DeleteSessionHandler implements ICommandHandler<DeleteDevice> {
   ) {}
 
   async execute({ deviceId, userId }: DeleteDevice) {
-    const session = await this.authDevicesQueryRepository
-      .getDeviceByDeviceId(deviceId)
-      .exec();
-    if (!session) throw new NotFoundException();
-    if (session.isActive === false) {
-      await this.authDevicesRepository.deleteSession(deviceId);
-      throw new NotFoundException();
-    }
-    if (session.userId !== userId) {
+    try {
+      const session =
+        await this.authDevicesQueryRepository.getDeviceByDeviceId(deviceId);
+      // debugger;
+      if (!session) throw new NotFoundException();
+      if (session.isActive === false) {
+        await this.authDevicesRepository.deleteSession(deviceId);
+        throw new NotFoundException();
+      }
+      // debugger;
+      if (session.userId !== userId) {
+        throw new ForbiddenException();
+      }
+    } catch (e) {
+      if (e.message.includes('неверный синтаксис для типа uuid:')) {
+        throw new NotFoundException();
+      }
+
+      if (e.name === 'NotFoundException') {
+        throw new NotFoundException();
+      }
+
       throw new ForbiddenException();
     }
+
     await this.authDevicesRepository.deactivateSessionByDeviceId(deviceId);
     return true;
   }

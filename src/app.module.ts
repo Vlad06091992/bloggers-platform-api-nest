@@ -24,7 +24,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
       port: 5432,
       username: 'nest_dev',
       password: 'nest',
-      database: 'BankSystem',
+      database: 'bloggers_dev',
       entities: [],
       autoLoadEntities: false,
       synchronize: false,

@@ -21,24 +21,33 @@ export class RefreshTokenGuard implements CanActivate {
   ) {}
 
   async canActivate(context: ExecutionContext) {
+    debugger;
     const refreshToken = getRefreshTokenFromContextOrRequest(context, null);
     if (!refreshToken) {
       throw new UnauthorizedException();
     }
 
+    // console.log(refreshToken);
+
     const res = this.jwtService.decode(refreshToken);
+
+    // console.log(res);
 
     const isActiveDevice = await this.commandBus.execute(
       new IsActiveDeviceCommand(res.deviceId),
     );
 
+    // console.log('isActiveDevice', isActiveDevice);
+
     const isOldToken = await this.commandBus.execute(
       new IsOldTokenCommand(res.tokenId),
     );
-
+    debugger;
+    // console.log(isOldToken);
     if (isOldToken) {
       throw new UnauthorizedException();
     }
+
     if (!isActiveDevice) {
       throw new UnauthorizedException();
     }

@@ -3,6 +3,8 @@ import { CreateSessionDto } from 'src/features/auth/api/models/create-session-dt
 import { AuthDevices } from 'src/features/auth/domain/devices-schema';
 import { ObjectId } from 'mongodb';
 import { AuthDevicesRepository } from 'src/features/auth/infrastructure/auth-devices-repository';
+import { generateUuid } from 'src/utils';
+import { Prop } from '@nestjs/mongoose';
 
 export class CreateSessionCommand {
   constructor(public sessionDTO: CreateSessionDto) {}
@@ -15,13 +17,9 @@ export class CreateSessionlHandler
   constructor(protected authDevicesRepository: AuthDevicesRepository) {}
 
   async execute({ sessionDTO }: CreateSessionCommand) {
-    const _id = new ObjectId();
-
     const device: AuthDevices = {
       ...sessionDTO,
-      _id,
-      id: _id.toString(),
-      lastActiveDate: new Date().toISOString(),
+      lastActiveDate: new Date(),
       isActive: true,
     };
 
