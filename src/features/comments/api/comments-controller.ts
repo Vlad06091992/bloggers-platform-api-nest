@@ -10,7 +10,7 @@ import {
   Res,
   UseGuards,
 } from '@nestjs/common';
-import { IsValidIdParam } from 'src/infrastructure/decorators/isValidIdParam';
+import { getIdFromParams } from 'src/infrastructure/decorators/getIdFromParams';
 import { Response } from 'express';
 import { CommandBus } from '@nestjs/cqrs';
 import { FindCommentByIdCommand } from 'src/features/comments/application/use-cases/find-comment-by-id';
@@ -28,7 +28,7 @@ export class CommentsController {
 
   @Get(':id')
   async findOne(
-    @IsValidIdParam() id: string,
+    @getIdFromParams() id: string,
     @CheckUserByJWT() userId: string | null,
     @Res({ passthrough: true }) res: Response,
   ) {
@@ -47,7 +47,7 @@ export class CommentsController {
   @Put(':id')
   async updateOne(
     @Request() req,
-    @IsValidIdParam() id: string,
+    @getIdFromParams() id: string,
     @Body() { content }: CommentDto,
     @Res({ passthrough: true }) res: Response,
   ) {
@@ -80,7 +80,7 @@ export class CommentsController {
   @HttpCode(204)
   @Put(':id/like-status')
   async updateCommentLikeStatus(
-    @IsValidIdParam() id: string,
+    @getIdFromParams() id: string,
     @Body() { likeStatus }: LikeStatusDto,
     @Request() req,
   ) {
@@ -110,7 +110,7 @@ export class CommentsController {
   @Delete(':id')
   @HttpCode(204)
   async deleteOne(
-    @IsValidIdParam() id: string,
+    @getIdFromParams() id: string,
     @Request() req,
     @Res({ passthrough: true }) res: Response,
   ) {

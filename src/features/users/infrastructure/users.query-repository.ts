@@ -1,84 +1,108 @@
 import { User, UserModel } from 'src/features/users/domain/user-schema';
 import { InjectModel } from '@nestjs/mongoose';
-import { Injectable } from '@nestjs/common';
-import { ObjectId } from 'mongodb';
-import { QueryParams } from 'src/shared/common-types';
+import { BadRequestException, Injectable } from '@nestjs/common';
+import { RequiredParamsValuesForUsers } from 'src/shared/common-types';
+import { InjectDataSource } from '@nestjs/typeorm';
+import { DataSource } from 'typeorm';
+import { mapRawUserToExtendedModel } from 'src/utils';
 
 @Injectable()
 export class UsersQueryRepository {
-  constructor(@InjectModel(User.name) private userModel: UserModel) {}
+  constructor(
+    @InjectModel(User.name) private userModel: UserModel,
+    @InjectDataSource() protected dataSource: DataSource,
+  ) {}
 
-  async getUserById(id: string, isViewModel: boolean) {
-    const projection = isViewModel
-      ? {
-          _id: 0,
-          password: 0,
-          registrationData: 0,
-          __v: 0,
-        }
-      : {};
-
-    return await this.userModel
-      .findOne({ _id: new ObjectId(id) }, projection)
-      .exec();
-  }
-
-  async removeUserById(id: string) {
-    const _id = new ObjectId(id);
-    const res = await this.userModel.deleteOne({ _id }).exec();
-    return res.deletedCount === 1;
+  async getUserById(id: string) {
+    const query = `SELECT u."id",u."password",u."createdAt",u."login",u."email",ur."confirmationCode",ur."expirationDate",ur."isConfirmed"
+    FROM public."UserRegistrationData" as ur
+    JOIN public."User" as u
+    ON u."id" = ur."userId"
+    WHERE u."id" = $1`;
+    const rawResult = (await this.dataSource.query(query, [id]))[0];
+    return mapRawUserToExtendedModel(rawResult);
   }
 
   async findUserByEmailOrLogin(emailOrLogin: string) {
-    return await this.userModel
-      .findOne({
-        $or: [{ email: emailOrLogin }, { login: emailOrLogin }],
-      })
-      .exec();
+    const query = `SELECT u."id",u."password",u."login",u."email",ur."confirmationCode",ur."expirationDate",ur."isConfirmed"
+    FROM public."UserRegistrationData" as ur
+    JOIN public."User" as u
+    ON u."id" = ur."userId"
+    WHERE u."email" = $1 OR u."login" = $1`;
+    const rawResult = (await this.dataSource.query(query, [emailOrLogin]))[0];
+    return rawResult ? mapRawUserToExtendedModel(rawResult) : null;
   }
 
   async findUserByEmail(email: string) {
-    return await this.userModel.findOne({ email: email }).exec();
+    const query = `SELECT u."id",u."password",u."login",u."email",ur."confirmationCode",ur."expirationDate",ur."isConfirmed"
+    FROM public."UserRegistrationData" as ur
+    JOIN public."User" as u
+    ON u."id" = ur."userId"
+    WHERE u."email" = $1;`;
+    const rawResult = (await this.dataSource.query(query, [email]))[0];
+
+    return rawResult ? mapRawUserToExtendedModel(rawResult) : null;
   }
 
   async findUserByLogin(login: string) {
-    return await this.userModel.findOne({ login: login }).exec();
+    const query = `SELECT u."id",u."password",u."login",u."email",ur."confirmationCode",ur."expirationDate",ur."isConfirmed"
+    FROM public."UserRegistrationData" as ur
+    JOIN public."User" as u
+    ON u."id" = ur."userId"
+    WHERE u."login" = $1;`;
+    const rawResult = (await this.dataSource.query(query, [login]))[0];
+
+    return rawResult ? mapRawUserToExtendedModel(rawResult) : null;
   }
 
   async findUserByConfirmationCode(code: string) {
-    return await this.userModel
-      .findOne({ 'registrationData.confirmationCode': code })
-      .exec();
+    try {
+      const query = `SELECT u."id",u."password",u."login",u."email",ur."confirmationCode",ur."expirationDate",ur."isConfirmed"
+    FROM public."UserRegistrationData" as ur
+    JOIN public."User" as u
+    ON u."id" = ur."userId"
+    WHERE ur."confirmationCode" = $1;`;
+      const rawResult = (await this.dataSource.query(query, [code]))[0];
+      return rawResult ? mapRawUserToExtendedModel(rawResult) : null;
+    } catch (e) {
+      throw new BadRequestException({
+        errorsMessages: [{ message: 'user not exist', field: 'code' }],
+      });
+    }
   }
 
-  async findAll(params: QueryParams) {
-    const projection = { _id: 0, password: 0, registrationData: 0, __v: 0 };
+  async findAll(params: RequiredParamsValuesForUsers) {
+    const {
+      pageNumber,
+      pageSize,
+      sortBy,
+      sortDirection,
+      searchEmailTerm,
+      searchLoginTerm,
+    } = params;
 
-    // const filter = {
-    //   $or: [
-    //     params.searchEmailTerm
-    //       ? { email: { $regex: params.searchEmailTerm, $options: 'i' } }
-    //       : params.searchLoginTerm
-    //         ? { login: { $regex: params.searchLoginTerm, $options: 'i' } }
-    //         : {},
-    //   ],
-    // };
+    const countQuery = `SELECT COUNT(*) FROM public."User"
+  WHERE email ILIKE '%${searchEmailTerm}%' OR  login ILIKE '%${searchLoginTerm}%'`;
+    const [{ count: totalCount }] = await this.dataSource.query(countQuery, []);
+    // const totalCount = await this.dataSource.query(countQuery, []);
+    const skip = (+pageNumber - 1) * +pageSize;
 
-    // const filter = {};
+    const query = `
+  SELECT "id", "email", "login", "createdAt"
+  FROM public."User"
+  WHERE  login ILIKE '%${searchLoginTerm}%'  OR email ILIKE '%${searchEmailTerm}%'
+  ORDER BY "${sortBy}" ${sortDirection}
+   LIMIT ${+pageSize} OFFSET ${+skip}
+`;
 
-    //TODO Фильтр работает не совсем корректно как по мне
-    const filter = {
-      $or: [
-        {
-          login: {
-            $regex: params.searchLoginTerm ?? '',
-            $options: 'i',
-          },
-        },
-        { email: { $regex: params.searchEmailTerm ?? '', $options: 'i' } },
-      ],
+    const items = await this.dataSource.query(query);
+
+    return {
+      pagesCount: Math.ceil(+totalCount / +pageSize),
+      page: +pageNumber,
+      pageSize: +pageSize,
+      totalCount: +totalCount,
+      items,
     };
-
-    return this.userModel.pagination(params, filter, projection);
   }
 }

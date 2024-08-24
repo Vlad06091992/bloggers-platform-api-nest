@@ -1,15 +1,14 @@
 import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { CreateUserDto } from 'src/features/users/api/models/create-user.dto';
-import { User } from 'src/features/users/domain/user-schema';
-import { ObjectId } from 'mongodb';
+import { RegistrationData, User } from 'src/features/users/domain/user-schema';
 import { UsersRepository } from 'src/features/users/infrastructure/users-repository';
 import * as bcrypt from 'bcrypt';
 import { UsersQueryRepository } from 'src/features/users/infrastructure/users.query-repository';
-import { QueryParams } from 'src/shared/common-types';
-import { v4 as uuidv4 } from 'uuid';
+import { RequiredParamsValuesForUsers } from 'src/shared/common-types';
 import { EmailService } from 'src/email/email.service';
 import { add, isBefore } from 'date-fns';
 import { RecoveryPasswordQueryRepository } from 'src/features/auth/infrastructure/recovery-password-query-repository';
+import { generateUuid } from 'src/utils';
 
 @Injectable()
 export class UsersService {
@@ -21,22 +20,22 @@ export class UsersService {
     protected recoveryPasswordQueryRepository: RecoveryPasswordQueryRepository,
   ) {}
   async create(createUserDto: CreateUserDto, isRegistration: boolean = false) {
-    const _id = new ObjectId();
-
-    const confirmationCode = uuidv4();
+    const id = generateUuid();
+    const confirmationCode = generateUuid();
 
     const newUser: User = {
       createdAt: new Date().toISOString(),
-      _id,
-      id: _id.toString(),
+      id,
       email: createUserDto.email,
       login: createUserDto.login,
       password: await this.createHash(createUserDto.password),
-      registrationData: {
-        expirationDate: add(new Date(), { hours: 1 }),
-        confirmationCode: confirmationCode,
-        isConfirmed: !isRegistration,
-      },
+    };
+
+    const registrationData: RegistrationData = {
+      userId: id,
+      expirationDate: add(new Date(), { hours: 1 }),
+      confirmationCode: confirmationCode,
+      isConfirmed: !isRegistration,
     };
 
     if (isRegistration) {
@@ -46,11 +45,10 @@ export class UsersService {
       );
     }
 
-    return await this.usersRepository.createUser(newUser);
+    return await this.usersRepository.createUser({ newUser, registrationData });
   }
 
-  async findAll(params: QueryParams) {
-    // return params;
+  async findAll(params: RequiredParamsValuesForUsers) {
     return await this.usersQueryRepository.findAll(params);
   }
 
@@ -64,7 +62,13 @@ export class UsersService {
   }
 
   async findOne(id: string) {
-    return await this.usersQueryRepository.getUserById(id, true);
+    const extendedUser = await this.usersQueryRepository.getUserById(id, true);
+    return {
+      id: extendedUser.id,
+      login: extendedUser.login,
+      email: extendedUser.email,
+      createdAt: extendedUser.createdAt,
+    };
   }
 
   async confirmUserByConfirmationCode(code: string) {
@@ -87,13 +91,8 @@ export class UsersService {
         errorsMessages: [{ message: 'code is expired', field: 'code' }],
       });
 
-    return this.usersRepository.confirmUserByConfirmationCode(code);
+    return this.usersRepository.confirmUserByUserId(user.id);
   }
-
-  // async changePassword(userid:string, newPassword:string){
-  //
-  //
-  // }
 
   async updateConfirmationCode(userId: string, confirmationCode: string) {
     return this.usersRepository.updateConfirmationCode(
@@ -114,6 +113,6 @@ export class UsersService {
     return await this.usersQueryRepository.findUserByLogin(login);
   }
   remove(id: string) {
-    return this.usersQueryRepository.removeUserById(id);
+    return this.usersRepository.removeUserById(id);
   }
 }

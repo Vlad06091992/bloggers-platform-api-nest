@@ -71,10 +71,23 @@ export const decodeToken = (token) => {
   return JSON.parse(payloadBuffer.toString()) as any;
 };
 
-export const addHours = (date, hours) => {
-  const hoursToAdd = hours * 60 * 60 * 1000;
-  date.setTime(date.getTime() + hoursToAdd);
-  return date;
-};
+export const mapRawUserToExtendedModel = (rawResult) => ({
+  id: rawResult.id,
+  login: rawResult.login,
+  email: rawResult.email,
+  createdAt: rawResult.createdAt,
+  password: rawResult.password,
+  registrationData: {
+    confirmationCode: rawResult.confirmationCode,
+    isConfirmed: rawResult.isConfirmed,
+    expirationDate: rawResult.expirationDate,
+  },
+});
 
 export const generateUuid = () => uuidv4();
+
+export function isValidUUIDv4(uuid) {
+  const uuidv4Regex =
+    /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+  return uuidv4Regex.test(uuid);
+}

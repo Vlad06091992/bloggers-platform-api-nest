@@ -3,21 +3,20 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
+  NotFoundException,
   Post,
-  Query,
-  Res,
   UseGuards,
 } from '@nestjs/common';
 import { UsersService } from 'src/features/users/application/users.service';
 import { CreateUserDto } from 'src/features/users/api/models/create-user.dto';
-import { IsValidIdParam } from 'src/infrastructure/decorators/isValidIdParam';
-import { Response } from 'express';
+import { getIdFromParams } from 'src/infrastructure/decorators/getIdFromParams';
 import { IsExistUserValidationPipe } from 'src/infrastructure/pipes/isExistUser';
 import { BasicAuthGuard } from 'src/features/auth/guards/basic-auth.guard';
+import { getValidQueryParamsForUsers } from 'src/infrastructure/decorators/getValidQueryParamsForUsers';
+import { RequiredParamsValuesForUsers } from 'src/shared/common-types';
 
-// import { UpdateUserDto } from 'src/features/users/api/models/update-user.dto';
-
-@Controller('users')
+@Controller('/sa/users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
   @UseGuards(BasicAuthGuard)
@@ -27,55 +26,36 @@ export class UsersController {
   }
   @UseGuards(BasicAuthGuard)
   @Get()
-  findAll(
-    @Query('sortBy') sortBy: string,
-    @Query('sortDirection') sortDirection: string,
-    @Query('pageNumber') pageNumber: string,
-    @Query('pageSize') pageSize: string,
-    @Query('searchLoginTerm') searchLoginTerm: string,
-    @Query('searchEmailTerm') searchEmailTerm: string,
-  ) {
-    const QueryParams = {
-      sortDirection,
-      searchEmailTerm,
-      searchLoginTerm,
-      pageNumber,
-      pageSize,
-      sortBy,
-    };
-
-    return this.usersService.findAll(QueryParams);
+  findAll(@getValidQueryParamsForUsers() params: RequiredParamsValuesForUsers) {
+    return this.usersService.findAll(params);
   }
 
   @Get(':id')
-  async findOne(
-    @IsValidIdParam() id: string,
-    @Res({ passthrough: true }) res: Response,
-  ) {
+  async findOne(@getIdFromParams() id: string) {
     const user = await this.usersService.findOne(id);
+
+    if (!id) {
+      throw new NotFoundException();
+    }
+
     if (user) {
       return user;
     } else {
-      res.sendStatus(404);
+      throw new NotFoundException();
     }
   }
   @UseGuards(BasicAuthGuard)
+  @HttpCode(204)
   @Delete(':id')
-  async remove(@IsValidIdParam() id: string, @Res() res: Response) {
+  async remove(@getIdFromParams() id: string) {
     if (!id) {
-      res.sendStatus(404);
-      return;
+      throw new NotFoundException();
     }
 
     const isDeleted = await this.usersService.remove(id);
 
     if (!isDeleted) {
-      res.sendStatus(404);
-    }
-
-    if (isDeleted) {
-      res.sendStatus(204);
-      return;
+      throw new NotFoundException();
     }
   }
 }

@@ -9,7 +9,7 @@ import {
   Res,
   UseGuards,
 } from '@nestjs/common';
-import { IsValidIdParam } from 'src/infrastructure/decorators/isValidIdParam';
+import { getIdFromParams } from 'src/infrastructure/decorators/getIdFromParams';
 import { Response } from 'express';
 import { UpdateBlogDto } from 'src/features/blogs/api/models/update-blog.dto';
 import { CreateBlogDto } from 'src/features/blogs/api/models/create-blog.dto';
@@ -55,7 +55,7 @@ export class BlogsController {
 
   @Get(':id')
   async findOne(
-    @IsValidIdParam() id: string,
+    @getIdFromParams() id: string,
     @Res({ passthrough: true }) res: Response,
   ) {
     const blog = await this.commandBus.execute(new FindBlogCommand(id));
@@ -74,7 +74,7 @@ export class BlogsController {
     @Query('pageNumber') pageNumber: string,
     @Query('pageSize') pageSize: string,
     @Query('searchNameTerm') searchNameTerm: string,
-    @IsValidIdParam() id: string,
+    @getIdFromParams() id: string,
     @Res({ passthrough: true }) res: Response,
   ) {
     const queryParams = {
@@ -100,7 +100,7 @@ export class BlogsController {
   @Post(':id/posts')
   async createPostForSpecificBlog(
     @Body() createPostDto: CreatePostDtoWithoutBlogId,
-    @IsValidIdParam() id: string,
+    @getIdFromParams() id: string,
     @Res({ passthrough: true }) res: Response,
   ) {
     const blog = await this.commandBus.execute(new FindBlogCommand(id));
@@ -117,7 +117,7 @@ export class BlogsController {
   @UseGuards(BasicAuthGuard)
   @Put(':id')
   async updateOne(
-    @IsValidIdParam() id: string,
+    @getIdFromParams() id: string,
     @Body() updateBlogDto: UpdateBlogDto,
     @Res() res: Response,
   ) {
@@ -132,7 +132,7 @@ export class BlogsController {
   }
   @UseGuards(BasicAuthGuard)
   @Delete(':id')
-  async remove(@IsValidIdParam() id: string, @Res() res: Response) {
+  async remove(@getIdFromParams() id: string, @Res() res: Response) {
     if (!id) {
       res.sendStatus(404);
       return;

@@ -4,6 +4,9 @@ import { pagination } from 'src/utils';
 import ObjectId = mongoose.Types.ObjectId;
 @Schema()
 export class RegistrationData {
+  @Prop()
+  userId: string;
+
   @Prop({ required: true })
   confirmationCode: string;
 
@@ -20,9 +23,6 @@ export const RegistrationDataSchema =
 @Schema()
 export class User {
   @Prop()
-  _id: ObjectId;
-
-  @Prop()
   id: string;
 
   @Prop()
@@ -36,9 +36,6 @@ export class User {
 
   @Prop()
   password: string;
-
-  @Prop({ default: {}, required: true, type: RegistrationData })
-  registrationData: RegistrationData;
 
   // static pagination = pagination;
 }
