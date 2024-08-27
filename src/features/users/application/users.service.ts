@@ -62,7 +62,7 @@ export class UsersService {
   }
 
   async findOne(id: string) {
-    const extendedUser = await this.usersQueryRepository.getUserById(id, true);
+    const extendedUser = await this.usersQueryRepository.getUserById(id);
     return {
       id: extendedUser.id,
       login: extendedUser.login,

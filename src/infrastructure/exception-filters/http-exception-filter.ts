@@ -8,6 +8,8 @@ import { Response } from 'express';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 
+//Недоделанный логгер ощибок в БД
+
 @Catch()
 export class GlobalExceptionFilter implements ExceptionFilter {
   constructor(@InjectDataSource() protected dataSource: DataSource) {}
@@ -46,7 +48,6 @@ export class GlobalExceptionFilter implements ExceptionFilter {
       }
       return;
     } else {
-      // Получаем текущую дату и время
       const timestamp = new Date().toISOString();
       const statusCode = 500;
       //@ts-ignore
@@ -68,7 +69,6 @@ export class GlobalExceptionFilter implements ExceptionFilter {
 
       await this.dataSource.query(query, values);
 
-      // Возврат ответа клиенту
       if (!response.headersSent) {
         response.status(statusCode).send({
           statusCode,

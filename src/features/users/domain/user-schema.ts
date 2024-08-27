@@ -1,8 +1,6 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import mongoose, { Model, Types } from 'mongoose';
-import { pagination } from 'src/utils';
-import ObjectId = mongoose.Types.ObjectId;
-@Schema()
+import { Prop, Schema } from '@nestjs/mongoose';
+
+@Schema() //TODO убрать монгусовский функционал
 export class RegistrationData {
   @Prop()
   userId: string;
@@ -17,10 +15,7 @@ export class RegistrationData {
   isConfirmed: boolean;
 }
 
-export const RegistrationDataSchema =
-  SchemaFactory.createForClass(RegistrationData);
-
-@Schema()
+@Schema() //TODO убрать монгусовский функционал
 export class User {
   @Prop()
   id: string;
@@ -36,19 +31,4 @@ export class User {
 
   @Prop()
   password: string;
-
-  // static pagination = pagination;
 }
-
-interface UserStatics {
-  pagination: (params: any, filter: any, projection: any) => any;
-}
-
-export const UserSchema = SchemaFactory.createForClass(User);
-//
-//
-UserSchema.statics = {
-  pagination: pagination,
-};
-//
-export type UserModel = Model<User> & UserStatics;

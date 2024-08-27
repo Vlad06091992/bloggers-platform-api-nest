@@ -1,5 +1,3 @@
-import { User, UserModel } from 'src/features/users/domain/user-schema';
-import { InjectModel } from '@nestjs/mongoose';
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { RequiredParamsValuesForUsers } from 'src/shared/common-types';
 import { InjectDataSource } from '@nestjs/typeorm';
@@ -8,10 +6,7 @@ import { mapRawUserToExtendedModel } from 'src/utils';
 
 @Injectable()
 export class UsersQueryRepository {
-  constructor(
-    @InjectModel(User.name) private userModel: UserModel,
-    @InjectDataSource() protected dataSource: DataSource,
-  ) {}
+  constructor(@InjectDataSource() protected dataSource: DataSource) {}
 
   async getUserById(id: string) {
     const query = `SELECT u."id",u."password",u."createdAt",u."login",u."email",ur."confirmationCode",ur."expirationDate",ur."isConfirmed"

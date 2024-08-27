@@ -1,8 +1,6 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { v4 as uuidv4 } from 'uuid';
-import { ObjectId } from 'mongodb';
 import { RecoveryPasswordsCode } from 'src/features/auth/domain/recovery-password-schema';
-import { add, addHours } from 'date-fns';
+import { addHours } from 'date-fns';
 import { RecoveryPasswordRepository } from 'src/features/auth/infrastructure/recovery-password-repository';
 import { EmailService } from 'src/email/email.service';
 import { UsersService } from 'src/features/users/application/users.service';

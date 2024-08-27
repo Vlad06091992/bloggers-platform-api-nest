@@ -122,7 +122,6 @@ export class AuthController {
   @HttpCode(204)
   @Post('registration')
   registration(@Body(IsExistUserValidationPipe) createUserDto: CreateUserDto) {
-    //pipe
     return this.usersService.create(createUserDto, true);
   }
 

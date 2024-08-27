@@ -3,7 +3,6 @@ import { createParamDecorator, ExecutionContext } from '@nestjs/common';
 export const getValidQueryParamsForUsers = createParamDecorator(
   (data: unknown, ctx: ExecutionContext) => {
     const request = ctx.switchToHttp().getRequest();
-    // debugger;
     const isValidSortValues = (value) => {
       const validSortValues = ['email', 'login', 'createdAt'];
       return validSortValues.includes(value);
@@ -33,6 +32,5 @@ export const getValidQueryParamsForUsers = createParamDecorator(
       searchEmailTerm,
       searchLoginTerm,
     };
-    // }
   },
 );

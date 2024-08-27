@@ -19,8 +19,6 @@ export class IsActiveDeviceHandler
     const device =
       await this.authDevicesQueryRepository.getDeviceByDeviceId(deviceId);
 
-    debugger;
-
     if (device === null || device.isActive === false) return false;
     return true;
   }

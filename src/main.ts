@@ -17,8 +17,8 @@ async function bootstrap() {
       stopAtFirstError: true,
     }),
   );
-  // const dataSource = app.get(DataSource);
-  // app.useGlobalFilters(new GlobalExceptionFilter(dataSource));
+  // const dataSource = app.get(DataSource); //Костыль который включает/выключает логгер
+  // app.useGlobalFilters(new GlobalExceptionFilter(dataSource)); //TODO когда-нибудь доделаю)))
   await app.listen(3000);
 }
 
