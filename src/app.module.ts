@@ -7,7 +7,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { CommentsModule } from 'src/features/comments/comments.module';
 import { TestModule } from 'src/features/testing/testing.module';
 import { PostsModule } from 'src/features/posts/posts.module';
-import { BlogsModule } from 'src/features/blogs/blogs.module';
+import { SaBlogsModule } from 'src/features/sa_blogs/sa_blogs_module';
 import { AuthModule } from './features/auth/auth.module';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { MailerModule } from '@nestjs-modules/mailer';
@@ -15,6 +15,7 @@ import { EmailModule } from 'src/email/email.module';
 import { CqrsModule } from '@nestjs/cqrs';
 import { WalletsModule } from 'src/wallets/wallets.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { BlogsModule } from 'src/features/blogs/blogs.module';
 
 @Module({
   imports: [
@@ -46,6 +47,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
     EmailModule,
     ConfigModule.forRoot(),
     MongooseModule,
+    SaBlogsModule,
     BlogsModule,
     UsersModule,
     CommentsModule,

@@ -32,9 +32,6 @@ export class ExtendedLikesInfo {
 @Schema()
 export class Post {
   @Prop()
-  _id: Types.ObjectId;
-
-  @Prop()
   id: string;
 
   @Prop()

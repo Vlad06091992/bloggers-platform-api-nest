@@ -12,8 +12,6 @@ export class WriteOldTokenHandler
   constructor(protected oldTokensIdsRepository: OldTokensIdsRepository) {}
 
   async execute({ tokenId }: WriteOldTokenCommand) {
-    console.log(tokenId);
-
     await this.oldTokensIdsRepository.createRecord(tokenId);
     return true;
   }

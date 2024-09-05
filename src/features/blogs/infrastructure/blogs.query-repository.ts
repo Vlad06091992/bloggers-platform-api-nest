@@ -1,33 +1,54 @@
-import { InjectModel } from '@nestjs/mongoose';
 import { Injectable } from '@nestjs/common';
-import { ObjectId } from 'mongodb';
-import { QueryParams } from 'src/shared/common-types';
-import { Blog, BlogModel } from 'src/features/blogs/domain/blogs-schema';
+import { RequiredParamsValuesForBlogs } from 'src/shared/common-types';
+import { InjectDataSource } from '@nestjs/typeorm';
+import { DataSource } from 'typeorm';
 
 @Injectable()
 export class BlogsQueryRepository {
-  constructor(@InjectModel(Blog.name) private blogModel: BlogModel) {}
+  constructor(@InjectDataSource() protected dataSource: DataSource) {}
 
-  async getBlogById(id: string, isViewModel: boolean) {
-    const projection = isViewModel
-      ? {
-          _id: 0,
-          __v: 0,
-        }
-      : {};
-
-    return await this.blogModel
-      .findOne({ _id: new ObjectId(id) }, projection)
-      .exec();
+  async getBlogById(id: string) {
+    const query = `SELECT id, name, description, "websiteUrl", "createdAt", "isMembership"
+     FROM public."Blogs"
+     WHERE "id" = $1`;
+    return (await this.dataSource.query(query, [id]))[0];
   }
 
-  async findAll(params: QueryParams) {
-    const projection = { _id: 0, password: 0, registrationData: 0, __v: 0 };
+  async findAll(params: RequiredParamsValuesForBlogs) {
+    const { pageNumber, pageSize, sortBy, sortDirection, searchNameTerm } =
+      params;
 
-    const filter = params.searchNameTerm
-      ? { name: { $regex: params.searchNameTerm, $options: 'i' } }
-      : {};
+    const countQuery = `SELECT COUNT(*) FROM public."Blogs"
+  WHERE name ILIKE '%${searchNameTerm}%'`;
+    const [{ count: totalCount }] = await this.dataSource.query(countQuery, []);
+    // const totalCount = await this.dataSource.query(countQuery, []);
+    const skip = (+pageNumber - 1) * +pageSize;
 
-    return this.blogModel.pagination(params, filter, projection);
+    const query = `
+ SELECT id, name, description, "websiteUrl", "createdAt", "isMembership"
+  FROM public."Blogs"
+  WHERE  name ILIKE '%${searchNameTerm}%'
+  ORDER BY "${sortBy}" ${sortDirection}
+   LIMIT ${+pageSize} OFFSET ${+skip}
+`;
+
+    const items = await this.dataSource.query(query);
+
+    return {
+      pagesCount: Math.ceil(+totalCount / +pageSize),
+      page: +pageNumber,
+      pageSize: +pageSize,
+      totalCount: +totalCount,
+      items,
+    };
+  }
+
+  getBlogNameById(id: string) {
+    const query = `
+    SELECT name
+    FROM public."Blogs"
+    WHERE "id" = $1
+`;
+    return this.dataSource.query(query, [id]);
   }
 }

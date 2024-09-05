@@ -19,6 +19,7 @@ import { Likes, LikesSchema } from 'src/features/likes/domain/likes-schema';
 import { LikesQueryRepository } from 'src/features/likes/infrastructure/likes-query-repository';
 import { LikesRepository } from 'src/features/likes/infrastructure/likes-repository';
 import { GetNewestLikesHandler } from 'src/features/likes/application/use-cases/get-newest-likes';
+import { BlogsQueryRepository } from 'src/features/blogs/infrastructure/blogs.query-repository';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { GetNewestLikesHandler } from 'src/features/likes/application/use-cases/
   ],
   controllers: [PostsController],
   providers: [
+    BlogsQueryRepository,
     PostsService,
     PostsRepository,
     LikesRepository,

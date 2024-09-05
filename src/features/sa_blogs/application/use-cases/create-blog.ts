@@ -1,12 +1,14 @@
 import { Inject } from '@nestjs/common';
 import { ObjectId } from 'mongodb';
-import { BlogsRepository } from 'src/features/blogs/infrastructure/blogs-repository';
-import { BlogsQueryRepository } from 'src/features/blogs/infrastructure/blogs.query-repository';
-import { CreateBlogDto } from 'src/features/blogs/api/models/create-blog.dto';
-import { Blog } from 'src/features/blogs/domain/blogs-schema';
+import { BlogsRepository } from 'src/features/sa_blogs/infrastructure/blogs-repository';
+
+import { CreateBlogDto } from 'src/features/sa_blogs/api/models/create-blog.dto';
+import { Blog } from 'src/features/sa_blogs/domain/blogs-schema';
 import { PostsQueryRepository } from 'src/features/posts/infrastructure/posts.query-repository';
 import { PostsService } from 'src/features/posts/application/posts.service';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { generateUuidV4 } from 'src/utils';
+import { BlogsQueryRepository } from 'src/features/blogs/infrastructure/blogs.query-repository';
 
 export class CreateBlogCommand {
   constructor(public createBlogDto: CreateBlogDto) {}
@@ -23,11 +25,8 @@ export class CreateBlogHandler implements ICommandHandler<CreateBlogCommand> {
 
   async execute(command: CreateBlogCommand) {
     const { createBlogDto } = command;
-
-    const _id = new ObjectId();
     const newBlog: Blog = {
-      _id,
-      id: _id.toString(),
+      id: generateUuidV4(),
       createdAt: new Date().toISOString(),
       isMembership: false,
       websiteUrl: createBlogDto.websiteUrl,

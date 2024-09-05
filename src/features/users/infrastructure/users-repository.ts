@@ -1,9 +1,4 @@
-import {
-  RegistrationData,
-  User,
-  UserModel,
-} from 'src/features/users/domain/user-schema';
-import { InjectModel } from '@nestjs/mongoose';
+import { RegistrationData, User } from 'src/features/users/domain/user-schema';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
@@ -15,10 +10,7 @@ type CreateUser = {
 
 @Injectable()
 export class UsersRepository {
-  constructor(
-    @InjectModel(User.name) private userModel: UserModel,
-    @InjectDataSource() protected dataSource: DataSource,
-  ) {}
+  constructor(@InjectDataSource() protected dataSource: DataSource) {}
 
   async createUser({ newUser, registrationData }: CreateUser) {
     const { id, email, login, createdAt, password } = newUser;

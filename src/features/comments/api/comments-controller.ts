@@ -20,7 +20,7 @@ import { UpdateCommentByIdCommand } from 'src/features/comments/application/use-
 import { JwtAuthGuard } from 'src/features/auth/guards/jwt-auth.guard';
 import { UpdateLikeStatusCommand } from 'src/features/likes/application/use-cases/update-like-status';
 import { LikeStatusDto } from 'src/features/likes/api/models/like-status-dto';
-import { CheckUserByJWT } from 'src/infrastructure/decorators/checkUserByJWT';
+import { CheckUserByJWTAccessToken } from 'src/infrastructure/decorators/checkUserByJWTAccessToken';
 
 @Controller('comments')
 export class CommentsController {
@@ -29,7 +29,7 @@ export class CommentsController {
   @Get(':id')
   async findOne(
     @getIdFromParams() id: string,
-    @CheckUserByJWT() userId: string | null,
+    @CheckUserByJWTAccessToken() userId: string | null,
     @Res({ passthrough: true }) res: Response,
   ) {
     const comment = await this.commandBus.execute(

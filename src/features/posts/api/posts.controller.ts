@@ -24,9 +24,11 @@ import { CommandBus } from '@nestjs/cqrs';
 import { CreateCommentForPostCommand } from 'src/features/comments/application/use-cases/create-comment-for-post';
 import { LikeStatusDto } from 'src/features/likes/api/models/like-status-dto';
 import { UpdateLikeStatusCommand } from 'src/features/likes/application/use-cases/update-like-status';
-import { CheckUserByJWT } from 'src/infrastructure/decorators/checkUserByJWT';
+import { CheckUserByJWTAccessToken } from 'src/infrastructure/decorators/checkUserByJWTAccessToken';
+import { RequiredParamsValuesForPosts } from 'src/shared/common-types';
+import { getValidQueryParamsForPosts } from 'src/infrastructure/decorators/getValidQueryParamsForPosts';
 
-@Controller('posts')
+@Controller('/posts')
 export class PostsController {
   constructor(
     private readonly postsService: PostsService,
@@ -34,31 +36,22 @@ export class PostsController {
   ) {}
   @UseGuards(BasicAuthGuard)
   @Post()
+
   createPost(@Body() createPostDto: CreatePostDto) {
     return this.postsService.create(createPostDto);
   }
 
   @Get()
   findAll(
-    @CheckUserByJWT() userId: string | null,
-    @Query('sortBy') sortBy: string,
-    @Query('sortDirection') sortDirection: string,
-    @Query('pageNumber') pageNumber: string,
-    @Query('pageSize') pageSize: string,
+    @CheckUserByJWTAccessToken() userId: string | null,
+    @getValidQueryParamsForPosts() params: RequiredParamsValuesForPosts,
   ) {
-    const QueryParams = {
-      sortDirection,
-      pageNumber,
-      pageSize,
-      sortBy,
-    };
-
-    return this.postsService.findAll(QueryParams, userId);
+    return this.postsService.findAll(params, userId);
   }
 
   @Get(':id/comments')
   async findComments(
-    @CheckUserByJWT() userId: string | null,
+    @CheckUserByJWTAccessToken() userId: string | null,
     @getIdFromParams() id: string,
     @Query('sortBy') sortBy: string,
     @Query('sortDirection') sortDirection: string,
@@ -138,7 +131,7 @@ export class PostsController {
   @Get(':id')
   async findOne(
     @getIdFromParams() id: string,
-    @CheckUserByJWT() userId: string | null,
+    @CheckUserByJWTAccessToken() userId: string | null,
     @Res({ passthrough: true }) res: Response,
   ) {
     const post = await this.postsService.findOne(id, userId);

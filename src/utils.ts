@@ -84,7 +84,7 @@ export const mapRawUserToExtendedModel = (rawResult) => ({
   },
 });
 
-export const generateUuid = () => uuidv4();
+export const generateUuidV4 = () => uuidv4();
 
 export function isValidUUIDv4(uuid) {
   const uuidv4Regex =
