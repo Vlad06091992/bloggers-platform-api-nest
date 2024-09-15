@@ -3,16 +3,16 @@ import { PostsQueryRepository } from 'src/features/posts/infrastructure/posts.qu
 import { CommandBus, CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import {
   QueryParams,
-  RequiredParamsValuesForPosts,
+  RequiredParamsValuesForPostsOrComments,
 } from 'src/shared/common-types';
-import { GetLikeInfoCommand } from 'src/features/likes/application/use-cases/get-like-info';
-import { GetNewestLikesCommand } from 'src/features/likes/application/use-cases/get-newest-likes';
+import { GetLikeInfoCommand } from 'src/features/comments-likes/application/use-cases/get-like-info';
+import { GetNewestLikesCommand } from 'src/features/comments-likes/application/use-cases/get-newest-likes';
 
 export class FindPostsForSpecificBlogCommand {
   constructor(
     public blogId: string,
     public userId: string | null,
-    public params: RequiredParamsValuesForPosts,
+    public params: RequiredParamsValuesForPostsOrComments,
   ) {}
 }
 

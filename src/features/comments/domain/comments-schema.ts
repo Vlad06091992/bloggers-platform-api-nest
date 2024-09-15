@@ -25,9 +25,6 @@ export class CommentatorInfo {
 @Schema()
 export class Comment {
   @Prop()
-  _id: Types.ObjectId;
-
-  @Prop()
   id: string;
 
   @Prop()
@@ -38,9 +35,6 @@ export class Comment {
 
   @Prop()
   content: string;
-
-  @Prop()
-  userLogin: string;
 
   @Prop()
   createdAt: string;
@@ -61,12 +55,12 @@ CommentsSchema.statics = {
   pagination: pagination,
 };
 
-CommentsSchema.virtual('commentatorInfo').get(function () {
-  return {
-    userId: this.userId,
-    userLogin: this.userLogin,
-  };
-});
+// CommentsSchema.virtual('commentatorInfo').get(function () {
+//   return {
+//     userId: this.userId,
+//     userLogin: this.userLogin,
+//   };
+// });
 
 CommentsSchema.set('toObject', {
   virtuals: true,
@@ -79,4 +73,4 @@ CommentsSchema.set('toObject', {
   },
 });
 
-export type CommentModel = Model<Comment> & CommentsStatics;
+export type CommentsModel = Model<Comment> & CommentsStatics;

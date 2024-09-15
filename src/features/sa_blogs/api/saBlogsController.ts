@@ -30,7 +30,7 @@ import { BasicAuthGuard } from "src/features/auth/guards/basic-auth.guard";
 import { CheckUserByJWTAccessToken } from "src/infrastructure/decorators/checkUserByJWTAccessToken";
 import {
   RequiredParamsValuesForBlogs,
-  RequiredParamsValuesForPosts
+  RequiredParamsValuesForPostsOrComments
 } from "src/shared/common-types";
 import { getValidQueryParamsForBlogs } from "src/infrastructure/decorators/getValidQueryParamsForBlogs";
 import { getValidQueryParamsForPosts } from "src/infrastructure/decorators/getValidQueryParamsForPosts";
@@ -75,7 +75,7 @@ export class SaBlogsController {
   @Get(":id/posts")
   async findPostsForSpecificBlog(
     @CheckUserByJWTAccessToken() userId: string | null,
-    @getValidQueryParamsForPosts() params: RequiredParamsValuesForPosts,
+    @getValidQueryParamsForPosts() params: RequiredParamsValuesForPostsOrComments,
     @getIdFromParams() id: string,
     @Res({ passthrough: true }) res: Response
   ) {

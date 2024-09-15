@@ -12,7 +12,7 @@ export function IsValidLikeStatus(validationOptions?: ValidationOptions) {
           return value === 'None' || value === 'Like' || value === 'Dislike';
         },
         defaultMessage() {
-          return 'likes value should be equal None|Like|Dislike';
+          return 'comments-likes value should be equal None|Like|Dislike';
         },
       },
     });

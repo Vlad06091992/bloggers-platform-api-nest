@@ -8,10 +8,7 @@ import { mapRawUserToExtendedModel } from 'src/utils';
 
 @Injectable()
 export class UsersQueryRepository {
-  constructor(
-    @InjectModel(User.name) private userModel: UserModel,
-    @InjectDataSource() protected dataSource: DataSource,
-  ) {}
+  constructor(@InjectDataSource() protected dataSource: DataSource) {}
 
   async getUserById(id: string) {
     const query = `SELECT u."id",u."password",u."createdAt",u."login",u."email",ur."confirmationCode",ur."expirationDate",ur."isConfirmed"
@@ -20,7 +17,7 @@ export class UsersQueryRepository {
     ON u."id" = ur."userId"
     WHERE u."id" = $1`;
     const rawResult = (await this.dataSource.query(query, [id]))[0];
-    return mapRawUserToExtendedModel(rawResult);
+    return rawResult ? mapRawUserToExtendedModel(rawResult) : null;
   }
 
   async findUserByEmailOrLogin(emailOrLogin: string) {

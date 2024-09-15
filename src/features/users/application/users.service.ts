@@ -63,12 +63,14 @@ export class UsersService {
 
   async findOne(id: string) {
     const extendedUser = await this.usersQueryRepository.getUserById(id);
-    return {
-      id: extendedUser.id,
-      login: extendedUser.login,
-      email: extendedUser.email,
-      createdAt: extendedUser.createdAt,
-    };
+    return extendedUser
+      ? {
+          id: extendedUser.id,
+          login: extendedUser.login,
+          email: extendedUser.email,
+          createdAt: extendedUser.createdAt,
+        }
+      : null;
   }
 
   async confirmUserByConfirmationCode(code: string) {

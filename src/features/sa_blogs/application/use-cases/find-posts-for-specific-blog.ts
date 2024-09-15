@@ -3,16 +3,18 @@ import { PostsQueryRepository } from 'src/features/posts/infrastructure/posts.qu
 import { CommandBus, CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import {
   QueryParams,
-  RequiredParamsValuesForPosts,
+  RequiredParamsValuesForPostsOrComments,
 } from 'src/shared/common-types';
-import { GetLikeInfoCommand } from 'src/features/likes/application/use-cases/get-like-info';
-import { GetNewestLikesCommand } from 'src/features/likes/application/use-cases/get-newest-likes';
+import { GetLikeInfoCommand } from 'src/features/comments-likes/application/use-cases/get-like-info';
+import { GetNewestLikesCommand } from 'src/features/comments-likes/application/use-cases/get-newest-likes';
+import { response } from 'express';
+import { PostsLikesQueryRepository } from 'src/features/posts-likes/infrastructure/posts-likes-query-repository';
 
 export class FindPostsForSpecificBlogCommand {
   constructor(
     public blogId: string,
     public userId: string | null,
-    public params: RequiredParamsValuesForPosts,
+    public params: RequiredParamsValuesForPostsOrComments,
   ) {}
 }
 
@@ -22,16 +24,30 @@ export class FindBlogsForSpecificBlogHandler
 {
   constructor(
     @Inject() protected postsQueryRepository: PostsQueryRepository,
+    @Inject() protected postsLikesQueryRepository: PostsLikesQueryRepository,
     @Inject() protected commandBus: CommandBus,
   ) {}
 
   async execute({ blogId, params, userId }: FindPostsForSpecificBlogCommand) {
-    const posts = await this.postsQueryRepository.findPostsForSpecificBlog(
+    const response = await this.postsQueryRepository.findPostsForSpecificBlog(
       params,
       blogId,
       userId,
     );
 
-    return posts;
+    response.items = await Promise.all(
+      response.items.map(async (post) => {
+        const newestLikes = await this.postsLikesQueryRepository.getNewestLikes(
+          post?.id,
+        );
+
+        return {
+          ...post,
+          extendedLikesInfo: { ...post.extendedLikesInfo, newestLikes },
+        };
+      }),
+    );
+
+    return response;
   }
 }

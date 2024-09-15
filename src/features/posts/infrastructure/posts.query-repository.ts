@@ -1,13 +1,8 @@
-import { InjectModel } from '@nestjs/mongoose';
 import { Injectable } from '@nestjs/common';
-import { ObjectId } from 'mongodb';
-import {
-  QueryParams,
-  RequiredParamsValuesForPosts,
-} from 'src/shared/common-types';
-import { Post, PostModel } from 'src/features/posts/domain/posts-schema';
+import { RequiredParamsValuesForPostsOrComments } from 'src/shared/common-types';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
+import { mapRawPostToExtendedModel } from 'src/utils';
 
 @Injectable()
 export class PostsQueryRepository {
@@ -27,7 +22,7 @@ export class PostsQueryRepository {
       WHEN ("likeStatus" = 'Dislike' AND "postId" = $1) THEN 'Dislike'
     END
     FROM public."PostsReactions"
-    WHERE "userId" = $2
+    WHERE "userId" = $2 AND "postId" = $1
   ), 'None')) AS MyStatus
 
 FROM public."Posts" as p 
@@ -41,38 +36,18 @@ WHERE p."id" = $1
 ORDER BY PR."addedAt" DESC
 LIMIT 3
 `;
-    const rawResult = await this.dataSource.query(query, [postId, userId]);
-    if(!rawResult.length) return  null
 
-    const post = {
-      id: rawResult[0].id,
-      title: rawResult[0].title,
-      shortDescription: rawResult[0].shortDescription,
-      content: rawResult[0].content,
-      blogId: rawResult[0].blogId,
-      blogName: rawResult[0].blogName,
-      createdAt: rawResult[0].createdAt,
-      extendedLikesInfo: {
-        likesCount: +rawResult[0].likescount,
-        dislikesCount: +rawResult[0].dislikescount,
-        myStatus: rawResult[0].mystatus,
-        newestLikes: rawResult.reduce((acc, el) => {
-          if (el.postreactionid)
-            acc.push({
-              addedAt: el.addedAt,
-              userId: el.userId,
-              login: el.login,
-            });
-          return acc;
-        }, []),
-      },
-    };
-
-    return post;
+    try {
+      const rawResult = await this.dataSource.query(query, [postId, userId]);
+      if (!rawResult.length) return null;
+      return mapRawPostToExtendedModel(rawResult);
+    } catch (e) {
+      debugger;
+    }
   }
 
   async findPostsForSpecificBlog(
-    params: RequiredParamsValuesForPosts,
+    params: RequiredParamsValuesForPostsOrComments,
     blogId: string,
     userId: string | null,
   ) {
@@ -108,7 +83,10 @@ LIMIT 3
     };
   }
 
-  async findAll(params: RequiredParamsValuesForPosts, userId: string | null) {
+  async findAll(
+    params: RequiredParamsValuesForPostsOrComments,
+    userId: string | null,
+  ) {
     const { pageNumber, pageSize, sortBy, sortDirection } = params;
 
     const countQuery = `SELECT COUNT(*) FROM public."Posts"`;

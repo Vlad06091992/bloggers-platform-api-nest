@@ -23,6 +23,8 @@ import { CreatePostForSpecificBlogHandler } from 'src/features/sa_blogs/applicat
 import { UniqueValidator } from 'src/shared/validators/is-exist-blog';
 import { BlogsController } from 'src/features/blogs/api/blogs.controller';
 import { BlogsQueryRepository } from 'src/features/blogs/infrastructure/blogs.query-repository';
+import { UsersQueryRepository } from 'src/features/users/infrastructure/users.query-repository';
+import { PostsLikesQueryRepository } from 'src/features/posts-likes/infrastructure/posts-likes-query-repository';
 
 @Module({
   imports: [
@@ -33,10 +35,12 @@ import { BlogsQueryRepository } from 'src/features/blogs/infrastructure/blogs.qu
   ],
   controllers: [BlogsController],
   providers: [
+    UsersQueryRepository,
     PostsService,
     BlogsRepository,
     PostsRepository,
     PostsQueryRepository,
+    PostsLikesQueryRepository,
     BlogsQueryRepository,
     CommentsQueryRepository,
     CreateBlogHandler,

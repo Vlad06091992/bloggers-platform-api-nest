@@ -21,7 +21,8 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
   @UseGuards(BasicAuthGuard)
   @Post()
-  create(@Body(IsExistUserValidationPipe) createUserDto: CreateUserDto) { //pipe внутри декоратора
+  create(@Body(IsExistUserValidationPipe) createUserDto: CreateUserDto) {
+    //pipe внутри декоратора
     return this.usersService.create(createUserDto);
   }
   @UseGuards(BasicAuthGuard)

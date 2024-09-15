@@ -7,7 +7,6 @@ import {
   NotFoundException,
   Post,
   Put,
-  Query,
   Request,
   Res,
   UseGuards,
@@ -22,11 +21,12 @@ import { BasicAuthGuard } from 'src/features/auth/guards/basic-auth.guard';
 import { CommentDto } from 'src/features/comments/api/models/comment-dto';
 import { CommandBus } from '@nestjs/cqrs';
 import { CreateCommentForPostCommand } from 'src/features/comments/application/use-cases/create-comment-for-post';
-import { LikeStatusDto } from 'src/features/likes/api/models/like-status-dto';
-import { UpdateLikeStatusCommand } from 'src/features/likes/application/use-cases/update-like-status';
+import { LikeStatusDto } from 'src/features/comments-likes/api/models/like-status-dto';
 import { CheckUserByJWTAccessToken } from 'src/infrastructure/decorators/checkUserByJWTAccessToken';
-import { RequiredParamsValuesForPosts } from 'src/shared/common-types';
+import { RequiredParamsValuesForPostsOrComments } from 'src/shared/common-types';
 import { getValidQueryParamsForPosts } from 'src/infrastructure/decorators/getValidQueryParamsForPosts';
+import { getValidQueryParamsForComments } from 'src/infrastructure/decorators/getValidQueryParamsForComments';
+import { UpdateOrCreateLikePostStatusCommand } from 'src/features/posts-likes/application/use-cases/update-or-create-like-post-status';
 
 @Controller('/posts')
 export class PostsController {
@@ -36,7 +36,6 @@ export class PostsController {
   ) {}
   @UseGuards(BasicAuthGuard)
   @Post()
-
   createPost(@Body() createPostDto: CreatePostDto) {
     return this.postsService.create(createPostDto);
   }
@@ -44,7 +43,8 @@ export class PostsController {
   @Get()
   findAll(
     @CheckUserByJWTAccessToken() userId: string | null,
-    @getValidQueryParamsForPosts() params: RequiredParamsValuesForPosts,
+    @getValidQueryParamsForPosts()
+    params: RequiredParamsValuesForPostsOrComments,
   ) {
     return this.postsService.findAll(params, userId);
   }
@@ -53,24 +53,15 @@ export class PostsController {
   async findComments(
     @CheckUserByJWTAccessToken() userId: string | null,
     @getIdFromParams() id: string,
-    @Query('sortBy') sortBy: string,
-    @Query('sortDirection') sortDirection: string,
-    @Query('pageNumber') pageNumber: string,
-    @Query('pageSize') pageSize: string,
+    @getValidQueryParamsForComments()
+    params: RequiredParamsValuesForPostsOrComments,
   ) {
-    const queryParams = {
-      sortDirection,
-      pageNumber,
-      pageSize,
-      sortBy,
-    };
-
     const post = await this.postsService.findOne(id, userId);
     if (!post) {
       throw new NotFoundException();
     }
 
-    return this.postsService.getCommentsForPost(id, queryParams, userId);
+    return this.postsService.getCommentsForPost(id, params, userId);
   }
 
   @UseGuards(JwtAuthGuard)
@@ -88,11 +79,10 @@ export class PostsController {
       return;
     }
 
-    const { userId, userLogin } = req.user;
+    const { userId } = req.user;
     const comment = await this.commandBus.execute(
       new CreateCommentForPostCommand({
         postId: id,
-        userLogin,
         userId,
         content,
       }),
@@ -114,15 +104,12 @@ export class PostsController {
     if (!post) {
       throw new NotFoundException();
     } else {
-      const likedEntity = 'post';
-
       await this.commandBus.execute(
-        new UpdateLikeStatusCommand(
+        new UpdateOrCreateLikePostStatusCommand(
           likeStatus,
           id,
           userId,
           userLogin,
-          likedEntity,
         ),
       );
     }

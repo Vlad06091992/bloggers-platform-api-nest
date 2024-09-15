@@ -21,6 +21,8 @@ import { FindBlogsForSpecificBlogHandler } from 'src/features/sa_blogs/applicati
 import { CreatePostForSpecificBlogHandler } from 'src/features/sa_blogs/application/use-cases/create-post-for-specific-blog';
 import { UniqueValidator } from 'src/shared/validators/is-exist-blog';
 import { BlogsQueryRepository } from 'src/features/blogs/infrastructure/blogs.query-repository';
+import { UsersQueryRepository } from 'src/features/users/infrastructure/users.query-repository';
+import { PostsLikesQueryRepository } from 'src/features/posts-likes/infrastructure/posts-likes-query-repository';
 
 @Module({
   imports: [
@@ -31,9 +33,11 @@ import { BlogsQueryRepository } from 'src/features/blogs/infrastructure/blogs.qu
   controllers: [SaBlogsController],
   providers: [
     BlogsQueryRepository,
+    UsersQueryRepository,
     BlogsRepository,
     PostsRepository,
     PostsQueryRepository,
+    PostsLikesQueryRepository,
     CommentsQueryRepository,
     PostsService,
     CreateBlogHandler,

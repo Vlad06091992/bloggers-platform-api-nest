@@ -1,9 +1,10 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 
 import { CommentsRepository } from 'src/features/comments/infrastructure/comments-repository';
-import { ObjectId } from 'mongodb';
 import { Comment } from '../../domain/comments-schema';
 import { CreateCommentDto } from 'src/features/comments/api/models/comment-dto';
+import { generateUuidV4 } from 'src/utils';
+import { UsersQueryRepository } from 'src/features/users/infrastructure/users.query-repository';
 
 export class CreateCommentForPostCommand {
   constructor(public createCommentDTO: CreateCommentDto) {}
@@ -13,29 +14,35 @@ export class CreateCommentForPostCommand {
 export class CreateCommentForPostHandler
   implements ICommandHandler<CreateCommentForPostCommand>
 {
-  constructor(protected commentsRepository: CommentsRepository) {}
+  constructor(
+    protected commentsRepository: CommentsRepository,
+    protected usersQueryRepository: UsersQueryRepository,
+  ) {}
 
-  async execute({
-    createCommentDTO,
-  }: CreateCommentForPostCommand): Promise<any> {
-    const _id = new ObjectId();
-
+  async execute({ createCommentDTO }: CreateCommentForPostCommand) {
     const comment: Comment = {
-      _id,
-      id: _id.toString(),
+      id: generateUuidV4(),
       createdAt: new Date().toISOString(),
       ...createCommentDTO,
     };
 
-    const likesInfo = {
-      likesCount: 0,
-      dislikesCount: 0,
-      myStatus: 'None',
-    };
+    const newCommentData = await this.commentsRepository.createComment(comment);
 
     return {
-      ...(await this.commentsRepository.createComment(comment)),
-      likesInfo,
+      id: newCommentData.id,
+      content: newCommentData.content,
+      commentatorInfo: {
+        userId: newCommentData.userId,
+        userLogin: (
+          await this.usersQueryRepository.getUserById(newCommentData.userId)
+        )?.login,
+      },
+      createdAt: newCommentData.createdAt,
+      likesInfo: {
+        likesCount: 0,
+        dislikesCount: 0,
+        myStatus: 'None',
+      },
     };
   }
 }

@@ -46,10 +46,10 @@ export class PostsRepository {
   async updatePost(id: string, post: UpdatePostDto) {
     const { title, shortDescription, content } = post;
 
-    const createUserQuery = `UPDATE public."Posts"
+    const updateUserQuery = `UPDATE public."Posts"
     SET title=$2, "shortDescription"=$3, content=$4
     WHERE "id" = $1;`;
-    const result = await this.dataSource.query(createUserQuery, [
+    const result = await this.dataSource.query(updateUserQuery, [
       id,
       title,
       shortDescription,

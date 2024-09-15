@@ -1,11 +1,14 @@
 import { Inject } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { QueryParams } from 'src/shared/common-types';
+import {
+  QueryParams,
+  RequiredParamsValuesForPostsOrComments,
+} from 'src/shared/common-types';
 import { CommentsQueryRepository } from 'src/features/comments/infrastructure/comments.query-repository';
 
 export class FindCommentsByPostCommand {
   constructor(
-    public params: QueryParams,
+    public params: RequiredParamsValuesForPostsOrComments,
     public postId: string,
     public userId: string,
   ) {}
@@ -19,10 +22,11 @@ export class FindCommentsByPostHandler
     @Inject() protected commentsQueryRepository: CommentsQueryRepository,
   ) {}
 
-  async execute({ params, postId }: FindCommentsByPostCommand) {
+  async execute({ params, postId, userId }: FindCommentsByPostCommand) {
     return await this.commentsQueryRepository.getCommentsForPost(
       postId,
       params,
+      userId,
     );
   }
 }

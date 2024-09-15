@@ -8,7 +8,7 @@ import { FindBlogsCommand } from 'src/features/sa_blogs/application/use-cases/fi
 import { CheckUserByJWTAccessToken } from 'src/infrastructure/decorators/checkUserByJWTAccessToken';
 import {
   RequiredParamsValuesForBlogs,
-  RequiredParamsValuesForPosts,
+  RequiredParamsValuesForPostsOrComments,
 } from 'src/shared/common-types';
 import { getValidQueryParamsForBlogs } from 'src/infrastructure/decorators/getValidQueryParamsForBlogs';
 import { getValidQueryParamsForPosts } from 'src/infrastructure/decorators/getValidQueryParamsForPosts';
@@ -36,7 +36,8 @@ export class BlogsController {
   @Get(':id/posts')
   async findPostsForSpecificBlog(
     @CheckUserByJWTAccessToken() userId: string | null,
-    @getValidQueryParamsForPosts() params: RequiredParamsValuesForPosts,
+    @getValidQueryParamsForPosts()
+    params: RequiredParamsValuesForPostsOrComments,
     @getIdFromParams() id: string,
     @Res({ passthrough: true }) res: Response,
   ) {

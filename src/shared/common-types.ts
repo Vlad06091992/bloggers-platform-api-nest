@@ -19,7 +19,7 @@ export type RequiredParamsValuesForBlogs = Omit<
   'searchLoginTerm' | 'searchEmailTerm'
 >;
 
-export type RequiredParamsValuesForPosts = Omit<
+export type RequiredParamsValuesForPostsOrComments = Omit<
   Record<ParamsValues, string>,
   'searchLoginTerm' | 'searchEmailTerm' | 'searchNameTerm'
 >;
