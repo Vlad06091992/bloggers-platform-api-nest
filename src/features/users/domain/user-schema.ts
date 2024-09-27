@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import mongoose, { Model, Types } from 'mongoose';
+import { Model } from 'mongoose';
 import { pagination } from 'src/utils';
-import ObjectId = mongoose.Types.ObjectId;
+
 @Schema()
 export class RegistrationData {
   @Prop()

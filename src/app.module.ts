@@ -13,7 +13,6 @@ import { ThrottlerModule } from '@nestjs/throttler';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { EmailModule } from 'src/email/email.module';
 import { CqrsModule } from '@nestjs/cqrs';
-import { WalletsModule } from 'src/wallets/wallets.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { BlogsModule } from 'src/features/blogs/blogs.module';
 
@@ -54,7 +53,6 @@ import { BlogsModule } from 'src/features/blogs/blogs.module';
     TestModule,
     PostsModule,
     AuthModule,
-    WalletsModule,
     ThrottlerModule.forRoot([
       {
         ttl: 10000,

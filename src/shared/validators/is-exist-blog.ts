@@ -3,9 +3,9 @@ import {
   ValidatorConstraintInterface,
 } from 'class-validator';
 import { CommandBus } from '@nestjs/cqrs';
-import { Inject, NotFoundException } from "@nestjs/common";
+import { Inject, NotFoundException } from '@nestjs/common';
 import { FindBlogCommand } from 'src/features/sa_blogs/application/use-cases/find-blog';
-import { isValidUUIDv4 } from "src/utils";
+import { isValidUUIDv4 } from 'src/utils';
 
 @ValidatorConstraint({ name: 'IsExistBlog', async: true })
 export class UniqueValidator implements ValidatorConstraintInterface {

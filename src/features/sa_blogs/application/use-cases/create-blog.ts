@@ -1,5 +1,4 @@
 import { Inject } from '@nestjs/common';
-import { ObjectId } from 'mongodb';
 import { BlogsRepository } from 'src/features/sa_blogs/infrastructure/blogs-repository';
 
 import { CreateBlogDto } from 'src/features/sa_blogs/api/models/create-blog.dto';

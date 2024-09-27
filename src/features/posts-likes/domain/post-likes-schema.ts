@@ -1,5 +1,5 @@
-import { Types } from 'mongoose';
 import { Prop, Schema } from '@nestjs/mongoose';
+
 export type LikeStatus = 'Like' | 'Dislike';
 
 @Schema()

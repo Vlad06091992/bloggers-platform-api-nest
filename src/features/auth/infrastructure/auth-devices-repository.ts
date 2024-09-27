@@ -1,19 +1,11 @@
-import { InjectModel } from '@nestjs/mongoose';
 import { Injectable, NotFoundException } from '@nestjs/common';
-import {
-  AuthDevices,
-  AuthDevicesModel,
-} from 'src/features/auth/domain/devices-schema';
+import { AuthDevices } from 'src/features/auth/domain/devices-schema';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 
 @Injectable()
 export class AuthDevicesRepository {
-  constructor(
-    @InjectDataSource() protected dataSource: DataSource,
-    @InjectModel(AuthDevices.name)
-    private authDevicesModel: AuthDevicesModel,
-  ) {}
+  constructor(@InjectDataSource() protected dataSource: DataSource) {}
 
   async addSession(record: AuthDevices) {
     const { ip, title, deviceId, userId, isActive, lastActiveDate } = record;

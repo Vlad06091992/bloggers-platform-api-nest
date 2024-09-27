@@ -1,7 +1,6 @@
 import { Inject } from '@nestjs/common';
 import { CommentsQueryRepository } from 'src/features/comments/infrastructure/comments.query-repository';
 import { CommandBus, CommandHandler } from '@nestjs/cqrs';
-import { GetLikeInfoCommand } from 'src/features/comments-likes/application/use-cases/get-like-info';
 import { UsersQueryRepository } from 'src/features/users/infrastructure/users.query-repository';
 
 export class FindCommentByIdCommand {
