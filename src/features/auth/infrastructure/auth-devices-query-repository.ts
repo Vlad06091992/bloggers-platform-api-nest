@@ -1,18 +1,12 @@
-import { InjectModel } from '@nestjs/mongoose';
 import { Injectable } from '@nestjs/common';
-import {
-  AuthDevices,
-  AuthDevicesModel,
-} from 'src/features/auth/domain/devices-schema';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 
 @Injectable()
 export class AuthDevicesQueryRepository {
   constructor(
-    @InjectModel(AuthDevices.name)
-    private authDevicesModel: AuthDevicesModel,
-    @InjectDataSource() protected dataSource: DataSource,
+    @InjectDataSource()
+    protected dataSource: DataSource,
   ) {}
 
   getDevicesByUserId(userId: string) {

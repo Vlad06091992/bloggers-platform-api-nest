@@ -1,5 +1,3 @@
-import { User, UserModel } from 'src/features/users/domain/user-schema';
-import { InjectModel } from '@nestjs/mongoose';
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { RequiredParamsValuesForUsers } from 'src/shared/common-types';
 import { InjectDataSource } from '@nestjs/typeorm';

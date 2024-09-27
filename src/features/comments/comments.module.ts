@@ -1,10 +1,7 @@
 import { Module } from '@nestjs/common';
-import { MongooseModule } from '@nestjs/mongoose';
-import { MongoModule } from 'src/mongo-module/mongo.module';
 
 import { CommentsRepository } from 'src/features/comments/infrastructure/comments-repository';
 import { CommentsQueryRepository } from 'src/features/comments/infrastructure/comments.query-repository';
-import { Comment, CommentsSchema } from './domain/comments-schema';
 import { CqrsModule } from '@nestjs/cqrs';
 import { FindCommentByIdHandler } from 'src/features/comments/application/use-cases/find-comment-by-id';
 import { CommentsController } from 'src/features/comments/api/comments-controller';
@@ -17,14 +14,7 @@ import { UsersQueryRepository } from 'src/features/users/infrastructure/users.qu
 import { CommentsLikesRepository } from 'src/features/comments-likes/infrastructure/comments-likes-repository';
 
 @Module({
-  imports: [
-    CqrsModule,
-    MongoModule,
-    MongooseModule.forFeature([{ name: Comment.name, schema: CommentsSchema }]),
-    // MongooseModule.forFeature([
-    //   { name: CommentLikes.name, schema: LikesSchema },
-    // ]),
-  ],
+  imports: [CqrsModule],
   controllers: [CommentsController],
   providers: [
     FindCommentByIdHandler,

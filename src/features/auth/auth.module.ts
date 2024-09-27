@@ -7,9 +7,6 @@ import { LocalStrategy } from 'src/features/auth/strategies/local.strategy';
 import { UsersService } from 'src/features/users/application/users.service';
 import { UsersQueryRepository } from 'src/features/users/infrastructure/users.query-repository';
 import { UsersRepository } from 'src/features/users/infrastructure/users-repository';
-import { MongoModule } from 'src/mongo-module/mongo.module';
-import { MongooseModule } from '@nestjs/mongoose';
-import { User, UserSchema } from 'src/features/users/domain/user-schema';
 import { JwtModule, JwtService } from '@nestjs/jwt';
 import { jwtConstants } from 'src/features/auth/constants';
 import { JwtStrategy } from 'src/features/auth/strategies/jwt.strategy';
@@ -17,10 +14,6 @@ import { ConfigService } from '@nestjs/config';
 import { EmailService } from 'src/email/email.service';
 import { RecoveryPasswordQueryRepository } from 'src/features/auth/infrastructure/recovery-password-query-repository';
 import { RecoveryPasswordRepository } from 'src/features/auth/infrastructure/recovery-password-repository';
-import {
-  RecoveryPasswordsCode,
-  RecoveryPasswordsCodesSchema,
-} from 'src/features/auth/domain/recovery-password-schema';
 import { BasicStrategy } from 'src/features/auth/strategies/auth-basic.strategy';
 import { CqrsModule } from '@nestjs/cqrs';
 import { ValidateUserHandler } from 'src/features/auth/application/use-cases/validate-user';
@@ -36,17 +29,9 @@ import { RefreshJWTHandler } from 'src/features/auth/application/use-cases/refre
 import { CreateSessionlHandler } from 'src/features/auth/application/use-cases/create-session';
 import { AuthDevicesRepository } from 'src/features/auth/infrastructure/auth-devices-repository';
 import { AuthDevicesQueryRepository } from 'src/features/auth/infrastructure/auth-devices-query-repository';
-import {
-  AuthDevices,
-  AuthDevicesSchema,
-} from 'src/features/auth/domain/devices-schema';
 import { IsActiveDeviceHandler } from 'src/features/auth/application/use-cases/is-active-device';
 import { LogoutHandler } from 'src/features/auth/application/use-cases/logout';
 import { SecurityModule } from 'src/features/security/security.module';
-import {
-  OldTokensIds,
-  OldTokensIdsSchema,
-} from 'src/features/auth/domain/old-tokens-id-schema';
 import { WriteOldTokenHandler } from 'src/features/auth/application/use-cases/write-old-token';
 import { IsOldTokenHandler } from 'src/features/auth/application/use-cases/is-old-token';
 import { OldTokensIdsQueryRepository } from 'src/features/auth/infrastructure/old-tokens-ids-query-repository';
@@ -59,26 +44,6 @@ import { UpdateSessionHandler } from 'src/features/security/application/use-case
     SecurityModule,
     UsersModule,
     PassportModule,
-    MongoModule,
-    MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
-    MongooseModule.forFeature([
-      {
-        name: RecoveryPasswordsCode.name,
-        schema: RecoveryPasswordsCodesSchema,
-      },
-    ]),
-    MongooseModule.forFeature([
-      {
-        name: AuthDevices.name,
-        schema: AuthDevicesSchema,
-      },
-    ]),
-    MongooseModule.forFeature([
-      {
-        name: OldTokensIds.name,
-        schema: OldTokensIdsSchema,
-      },
-    ]),
     JwtModule.register({
       secret: jwtConstants.secret,
       signOptions: { expiresIn: '60m' },

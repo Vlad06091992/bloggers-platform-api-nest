@@ -1,15 +1,11 @@
-import { InjectModel } from '@nestjs/mongoose';
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { Comment, CommentsModel } from '../domain/comments-schema';
+import { Comment } from '../domain/comments-schema';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 
 @Injectable()
 export class CommentsRepository {
-  constructor(
-    @InjectModel(Comment.name) private commentsModel: CommentsModel,
-    @InjectDataSource() protected dataSource: DataSource,
-  ) {}
+  constructor(@InjectDataSource() protected dataSource: DataSource) {}
 
   async updateCommentById(commentId: string, content: string) {
     const updateCommentQuery = `UPDATE public."Comments"

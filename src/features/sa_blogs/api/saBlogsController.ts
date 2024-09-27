@@ -2,49 +2,45 @@ import {
   Body,
   Controller,
   Delete,
-  Get, HttpCode, Inject, NotFoundException,
+  Get,
+  HttpCode,
+  Inject,
+  NotFoundException,
   Post,
   Put,
-  Query,
   Res,
-  UseGuards
-} from "@nestjs/common";
-import { getIdFromParams } from "src/infrastructure/decorators/getIdFromParams";
-import { Response } from "express";
-import { UpdateBlogDto } from "src/features/sa_blogs/api/models/update-blog.dto";
-import { CreateBlogDto } from "src/features/sa_blogs/api/models/create-blog.dto";
-import { CreatePostDtoWithoutBlogId } from "src/features/posts/api/models/create-post.dto";
-import { CommandBus } from "@nestjs/cqrs";
-import { CreateBlogCommand } from "src/features/sa_blogs/application/use-cases/create-blog";
-import { DeleteBlogCommand } from "src/features/sa_blogs/application/use-cases/delete-blog";
-import { UpdateBlogCommand } from "src/features/sa_blogs/application/use-cases/update-blog";
-import { FindBlogCommand } from "src/features/sa_blogs/application/use-cases/find-blog";
-import {
-  FindPostsForSpecificBlogCommand
-} from "src/features/sa_blogs/application/use-cases/find-posts-for-specific-blog";
-import { FindBlogsCommand } from "src/features/sa_blogs/application/use-cases/find-blogs";
-import {
-  CreatePostsForSpecificBlogCommand
-} from "src/features/sa_blogs/application/use-cases/create-post-for-specific-blog";
-import { BasicAuthGuard } from "src/features/auth/guards/basic-auth.guard";
-import { CheckUserByJWTAccessToken } from "src/infrastructure/decorators/checkUserByJWTAccessToken";
+  UseGuards,
+} from '@nestjs/common';
+import { getIdFromParams } from 'src/infrastructure/decorators/getIdFromParams';
+import { Response } from 'express';
+import { UpdateBlogDto } from 'src/features/sa_blogs/api/models/update-blog.dto';
+import { CreateBlogDto } from 'src/features/sa_blogs/api/models/create-blog.dto';
+import { CreatePostDtoWithoutBlogId } from 'src/features/posts/api/models/create-post.dto';
+import { CommandBus } from '@nestjs/cqrs';
+import { CreateBlogCommand } from 'src/features/sa_blogs/application/use-cases/create-blog';
+import { DeleteBlogCommand } from 'src/features/sa_blogs/application/use-cases/delete-blog';
+import { UpdateBlogCommand } from 'src/features/sa_blogs/application/use-cases/update-blog';
+import { FindBlogCommand } from 'src/features/sa_blogs/application/use-cases/find-blog';
+import { FindPostsForSpecificBlogCommand } from 'src/features/sa_blogs/application/use-cases/find-posts-for-specific-blog';
+import { FindBlogsCommand } from 'src/features/sa_blogs/application/use-cases/find-blogs';
+import { CreatePostsForSpecificBlogCommand } from 'src/features/sa_blogs/application/use-cases/create-post-for-specific-blog';
+import { BasicAuthGuard } from 'src/features/auth/guards/basic-auth.guard';
+import { CheckUserByJWTAccessToken } from 'src/infrastructure/decorators/checkUserByJWTAccessToken';
 import {
   RequiredParamsValuesForBlogs,
-  RequiredParamsValuesForPostsOrComments
-} from "src/shared/common-types";
-import { getValidQueryParamsForBlogs } from "src/infrastructure/decorators/getValidQueryParamsForBlogs";
-import { getValidQueryParamsForPosts } from "src/infrastructure/decorators/getValidQueryParamsForPosts";
-import { UpdatePostDto } from "src/features/posts/api/models/update-post.dto";
-import { UsersService } from "src/features/users/application/users.service";
-import { PostsService } from "src/features/posts/application/posts.service";
+  RequiredParamsValuesForPostsOrComments,
+} from 'src/shared/common-types';
+import { getValidQueryParamsForBlogs } from 'src/infrastructure/decorators/getValidQueryParamsForBlogs';
+import { getValidQueryParamsForPosts } from 'src/infrastructure/decorators/getValidQueryParamsForPosts';
+import { UpdatePostDto } from 'src/features/posts/api/models/update-post.dto';
+import { PostsService } from 'src/features/posts/application/posts.service';
 
-@Controller("/sa/blogs")
+@Controller('/sa/blogs')
 export class SaBlogsController {
   constructor(
     private commandBus: CommandBus,
-    @Inject() protected postsService: PostsService
-  ) {
-  } //TODO должны быть одинаковые инъекции
+    @Inject() protected postsService: PostsService,
+  ) {} //TODO должны быть одинаковые инъекции
   @UseGuards(BasicAuthGuard)
   @Post()
   create(@Body() createBlogDto: CreateBlogDto) {
@@ -58,10 +54,10 @@ export class SaBlogsController {
   }
 
   @UseGuards(BasicAuthGuard)
-  @Get(":id")
+  @Get(':id')
   async findOne(
     @getIdFromParams() id: string,
-    @Res({ passthrough: true }) res: Response
+    @Res({ passthrough: true }) res: Response,
   ) {
     const blog = await this.commandBus.execute(new FindBlogCommand(id));
     if (blog) {
@@ -72,12 +68,13 @@ export class SaBlogsController {
   }
 
   @UseGuards(BasicAuthGuard)
-  @Get(":id/posts")
+  @Get(':id/posts')
   async findPostsForSpecificBlog(
     @CheckUserByJWTAccessToken() userId: string | null,
-    @getValidQueryParamsForPosts() params: RequiredParamsValuesForPostsOrComments,
+    @getValidQueryParamsForPosts()
+    params: RequiredParamsValuesForPostsOrComments,
     @getIdFromParams() id: string,
-    @Res({ passthrough: true }) res: Response
+    @Res({ passthrough: true }) res: Response,
   ) {
     const blog = await this.commandBus.execute(new FindBlogCommand(id));
 
@@ -87,16 +84,16 @@ export class SaBlogsController {
     }
 
     return await this.commandBus.execute(
-      new FindPostsForSpecificBlogCommand(id, userId, params)
+      new FindPostsForSpecificBlogCommand(id, userId, params),
     );
   }
 
   @UseGuards(BasicAuthGuard)
-  @Post(":id/posts")
+  @Post(':id/posts')
   async updatePostForSpecificBlog(
     @Body() createPostDto: CreatePostDtoWithoutBlogId,
     @getIdFromParams() id: string,
-    @Res({ passthrough: true }) res: Response
+    @Res({ passthrough: true }) res: Response,
   ) {
     const blog = await this.commandBus.execute(new FindBlogCommand(id));
 
@@ -106,17 +103,17 @@ export class SaBlogsController {
     }
 
     return await this.commandBus.execute(
-      new CreatePostsForSpecificBlogCommand(createPostDto, id)
+      new CreatePostsForSpecificBlogCommand(createPostDto, id),
     );
   }
 
   @UseGuards(BasicAuthGuard)
   @HttpCode(204) //TODO коды сложить куда то в одно место
-  @Put(":blogId/posts/:postId")
+  @Put(':blogId/posts/:postId')
   async createPostForSpecificBlog(
     @Body() updatePostDto: UpdatePostDto,
-    @getIdFromParams({ paramName: "blogId" }) blogId: string,
-    @getIdFromParams({ paramName: "postId" }) postId: string
+    @getIdFromParams({ paramName: 'blogId' }) blogId: string,
+    @getIdFromParams({ paramName: 'postId' }) postId: string,
   ) {
     const blog = await this.commandBus.execute(new FindBlogCommand(blogId)); //TODO подобное унести в Pipe
     const post = await this.postsService.findOne(postId, null);
@@ -132,10 +129,10 @@ export class SaBlogsController {
 
   @UseGuards(BasicAuthGuard)
   @HttpCode(204) //TODO коды сложить куда то в одно место
-  @Delete(":blogId/posts/:postId")
+  @Delete(':blogId/posts/:postId')
   async deletePostForSpecificBlog(
-    @getIdFromParams({ paramName: "blogId" }) blogId: string,
-    @getIdFromParams({ paramName: "postId" }) postId: string
+    @getIdFromParams({ paramName: 'blogId' }) blogId: string,
+    @getIdFromParams({ paramName: 'postId' }) postId: string,
   ) {
     const blog = await this.commandBus.execute(new FindBlogCommand(blogId)); //TODO подобное унести в Pipe
     const post = this.postsService.findOne(postId, null);
@@ -143,21 +140,21 @@ export class SaBlogsController {
     if (!blog || !post) {
       throw new NotFoundException();
     }
-    const isUpdated = await this.postsService.remove(postId) //TODO нейминги методов у сервисов/репозиториев;
+    const isUpdated = await this.postsService.remove(postId); //TODO нейминги методов у сервисов/репозиториев;
     if (!isUpdated) {
       throw new NotFoundException();
     }
   }
 
   @UseGuards(BasicAuthGuard)
-  @Put(":id")
+  @Put(':id')
   async updateOne(
     @getIdFromParams() id: string,
     @Body() updateBlogDto: UpdateBlogDto,
-    @Res() res: Response
+    @Res() res: Response,
   ) {
     const isUpdated = await this.commandBus.execute(
-      new UpdateBlogCommand(updateBlogDto, id)
+      new UpdateBlogCommand(updateBlogDto, id),
     );
     if (isUpdated) {
       return res.sendStatus(204);
@@ -167,7 +164,7 @@ export class SaBlogsController {
   }
 
   @UseGuards(BasicAuthGuard)
-  @Delete(":id")
+  @Delete(':id')
   async remove(@getIdFromParams() id: string, @Res() res: Response) {
     if (!id) {
       res.sendStatus(404);

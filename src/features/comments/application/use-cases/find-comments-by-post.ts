@@ -1,9 +1,6 @@
 import { Inject } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import {
-  QueryParams,
-  RequiredParamsValuesForPostsOrComments,
-} from 'src/shared/common-types';
+import { RequiredParamsValuesForPostsOrComments } from 'src/shared/common-types';
 import { CommentsQueryRepository } from 'src/features/comments/infrastructure/comments.query-repository';
 
 export class FindCommentsByPostCommand {

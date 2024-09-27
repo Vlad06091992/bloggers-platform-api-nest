@@ -1,22 +1,13 @@
-import { InjectModel } from '@nestjs/mongoose';
 import { Inject, Injectable } from '@nestjs/common';
-import { Comment, CommentsModel } from '../domain/comments-schema';
-import {
-  QueryParams,
-  RequiredParamsValuesForPostsOrComments,
-} from 'src/shared/common-types';
+import { RequiredParamsValuesForPostsOrComments } from 'src/shared/common-types';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
-import {
-  mapRawCommentToExtendedModel,
-  mapRawUserToExtendedModel,
-} from 'src/utils';
+import { mapRawCommentToExtendedModel } from 'src/utils';
 import { UsersQueryRepository } from 'src/features/users/infrastructure/users.query-repository';
 
 @Injectable()
 export class CommentsQueryRepository {
   constructor(
-    @InjectModel(Comment.name) private commentsModel: CommentsModel,
     @InjectDataSource() protected dataSource: DataSource,
     @Inject() protected usersQueryRepository: UsersQueryRepository,
   ) {}

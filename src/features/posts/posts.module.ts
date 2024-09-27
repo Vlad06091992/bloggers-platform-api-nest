@@ -1,15 +1,8 @@
 import { Module } from '@nestjs/common';
-import { MongooseModule } from '@nestjs/mongoose';
-import { MongoModule } from 'src/mongo-module/mongo.module';
-import { Post, PostsSchema } from 'src/features/posts/domain/posts-schema';
 import { PostsQueryRepository } from 'src/features/posts/infrastructure/posts.query-repository';
 import { PostsController } from 'src/features/posts/api/posts.controller';
 import { PostsRepository } from 'src/features/posts/infrastructure/posts-repository';
 import { CommentsQueryRepository } from 'src/features/comments/infrastructure/comments.query-repository';
-import {
-  Comment,
-  CommentsSchema,
-} from 'src/features/comments/domain/comments-schema';
 import { PostsService } from 'src/features/posts/application/posts.service';
 import { CqrsModule } from '@nestjs/cqrs';
 import { CreateCommentForPostHandler } from 'src/features/comments/application/use-cases/create-comment-for-post';
@@ -24,15 +17,7 @@ import { PostsLikesQueryRepository } from 'src/features/posts-likes/infrastructu
 import { UpdateOrCreateLikePostStatusHandler } from 'src/features/posts-likes/application/use-cases/update-or-create-like-post-status';
 
 @Module({
-  imports: [
-    CqrsModule,
-    MongoModule,
-    MongooseModule.forFeature([{ name: Post.name, schema: PostsSchema }]),
-    MongooseModule.forFeature([{ name: Comment.name, schema: CommentsSchema }]),
-    // MongooseModule.forFeature([
-    //   { name: CommentLikes.name, schema: LikesSchema },
-    // ]),
-  ],
+  imports: [CqrsModule],
   controllers: [PostsController],
   providers: [
     BlogsQueryRepository,

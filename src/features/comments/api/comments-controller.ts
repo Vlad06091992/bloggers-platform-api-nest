@@ -51,7 +51,6 @@ export class CommentsController {
     @Request() req,
     @getIdFromParams() id: string,
     @Body() { content }: CommentDto,
-    @Res({ passthrough: true }) res: Response,
   ) {
     const comment = await this.commandBus.execute(
       new FindCommentByIdCommand(id, null),

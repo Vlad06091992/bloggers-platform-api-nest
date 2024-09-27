@@ -1,4 +1,3 @@
-import { InjectModel } from '@nestjs/mongoose';
 import { Injectable } from '@nestjs/common';
 
 import { LikeStatuses } from 'src/features/comments-likes/api/models/like-status-dto';
