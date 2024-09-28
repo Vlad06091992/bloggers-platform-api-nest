@@ -1,3 +1,3 @@
-import { CreatePostDto } from 'src/features/posts/api/models/create-post.dto';
+import { CreatePostDtoWithoutBlogId } from 'src/features/posts/api/models/create-post.dto';
 
-export class UpdatePostDto extends CreatePostDto {}
+export class UpdatePostDto extends CreatePostDtoWithoutBlogId {}

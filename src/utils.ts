@@ -84,7 +84,62 @@ export const mapRawUserToExtendedModel = (rawResult) => ({
   },
 });
 
-export const generateUuid = () => uuidv4();
+export const mapRawPostToExtendedModel = (rawResult) => {
+  debugger;
+  return {
+    id: rawResult[0].id,
+    title: rawResult[0].title,
+    shortDescription: rawResult[0].shortDescription,
+    content: rawResult[0].content,
+    blogId: rawResult[0].blogId,
+    blogName: rawResult[0].blogName,
+    createdAt: rawResult[0].createdAt,
+    extendedLikesInfo: {
+      likesCount: Number(rawResult[0].likescount),
+      dislikesCount: Number(rawResult[0].dislikescount),
+      myStatus: rawResult[0].mystatus,
+      // newestLikes: rawResult.reduce((acc, el) => {
+      //   if (el.postreactionid) {
+      //     debugger;
+      //     acc.push({
+      //       addedAt: el.addedAt,
+      //       userId: el.userId,
+      //       login: el.login,
+      //     });
+      //   }
+      //   return acc;
+      // }, []),
+    },
+  };
+};
+
+export async function mapRawCommentToExtendedModel(rawResult) {
+  let userLogin;
+  if (this) {
+    userLogin = (await this.usersQueryRepository.getUserById(rawResult.userId))
+      .login;
+  } else {
+    userLogin = null;
+  }
+  const res = {
+    id: rawResult.id,
+    content: rawResult.content,
+    commentatorInfo: {
+      userId: rawResult.userId,
+      userLogin,
+    },
+    createdAt: rawResult.createdAt,
+    likesInfo: {
+      likesCount: +rawResult.likescount,
+      dislikesCount: +rawResult.dislikescount,
+      myStatus: rawResult.mystatus,
+    },
+  };
+  // console.log(res);
+  return res;
+}
+
+export const generateUuidV4 = () => uuidv4();
 
 export function isValidUUIDv4(uuid) {
   const uuidv4Regex =

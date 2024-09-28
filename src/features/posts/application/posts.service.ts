@@ -1,6 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { ObjectId } from 'mongodb';
-import { QueryParams } from '../../../shared/common-types';
+import { RequiredParamsValuesForPostsOrComments } from '../../../shared/common-types';
 import { PostsRepository } from 'src/features/posts/infrastructure/posts-repository';
 import { PostsQueryRepository } from 'src/features/posts/infrastructure/posts.query-repository';
 import { CreatePostDto } from 'src/features/posts/api/models/create-post.dto';
@@ -8,29 +7,36 @@ import { Post } from 'src/features/posts/domain/posts-schema';
 import { UpdatePostDto } from 'src/features/posts/api/models/update-post.dto';
 import { CommentsQueryRepository } from 'src/features/comments/infrastructure/comments.query-repository';
 import { CommandBus } from '@nestjs/cqrs';
-import { GetLikeInfoCommand } from 'src/features/likes/application/use-cases/get-like-info';
-import { GetNewestLikesCommand } from 'src/features/likes/application/use-cases/get-newest-likes';
+import { generateUuidV4 } from 'src/utils';
+import { BlogsQueryRepository } from 'src/features/blogs/infrastructure/blogs.query-repository';
+import { UsersQueryRepository } from 'src/features/users/infrastructure/users.query-repository';
+import { PostsLikesQueryRepository } from 'src/features/posts-likes/infrastructure/posts-likes-query-repository';
 
 @Injectable()
 export class PostsService {
   constructor(
     @Inject() protected postsRepository: PostsRepository,
+    @Inject() protected postsLikesQueryRepository: PostsLikesQueryRepository,
+    @Inject() protected usersQueryRepository: UsersQueryRepository,
+    @Inject() protected blogsQueryRepository: BlogsQueryRepository,
     @Inject() protected commentsQueryRepository: CommentsQueryRepository,
     @Inject() protected postsQueryRepository: PostsQueryRepository,
     @Inject() protected commandBus: CommandBus,
   ) {}
 
   async create(createPostDto: CreatePostDto) {
-    const _id = new ObjectId();
-    const blogName = 'blogName';
+    const { shortDescription, content, blogId, title } = createPostDto;
+    const id = generateUuidV4();
+    const blogName = (
+      await this.blogsQueryRepository.getBlogNameById(blogId)
+    )[0].name;
 
     const newPost: Post = {
-      _id,
-      id: _id.toString(),
-      title: createPostDto.title,
-      shortDescription: createPostDto.shortDescription,
-      content: createPostDto.content,
-      blogId: createPostDto.blogId,
+      id,
+      title: title,
+      shortDescription: shortDescription,
+      content,
+      blogId,
       blogName,
       createdAt: new Date().toISOString(),
     };
@@ -48,60 +54,56 @@ export class PostsService {
     };
   }
 
-  async findAll(params: QueryParams, userId: string | null) {
-    // return params;
-    const posts = await this.postsQueryRepository.findAll(params);
+  async findAll(
+    params: RequiredParamsValuesForPostsOrComments,
+    userId: string | null,
+  ) {
+    const response = await this.postsQueryRepository.findAll(params, userId);
+    response.items = await Promise.all(
+      response.items.map(async (post) => {
+        const newestLikes = await this.postsLikesQueryRepository.getNewestLikes(
+          post?.id,
+        );
 
-    const result = posts.items.map(async (el) => ({
-      ...el.toObject(),
-      extendedLikesInfo: {
-        ...(await this.commandBus.execute(
-          new GetLikeInfoCommand(el.id, userId),
-        )),
-        newestLikes: await Promise.all(
-          await this.commandBus.execute(new GetNewestLikesCommand(el.id)),
-        ),
-      },
-    }));
-    posts.items = await Promise.all(result);
+        return {
+          ...post,
+          extendedLikesInfo: { ...post.extendedLikesInfo, newestLikes },
+        };
+      }),
+    );
 
-    return posts;
+    return response;
   }
 
   async getCommentsForPost(
     postId: string,
-    queryParams: QueryParams,
+    queryParams: RequiredParamsValuesForPostsOrComments,
     userId: string | null,
   ) {
     const comments = await this.commentsQueryRepository.getCommentsForPost(
       postId,
       queryParams,
+      userId,
     );
-
-    comments.items = await Promise.all(
-      comments.items.map(async (el) => ({
-        ...el,
-        likesInfo: await this.commandBus.execute(
-          new GetLikeInfoCommand(el.id, userId),
-        ),
-      })),
-    );
-
     return comments;
   }
 
   async findOne(id: string, userId: string | null) {
-    const post = await this.postsQueryRepository.getPostById(id, true);
+    const post =
+      await this.postsQueryRepository.getPostWithExtendedLikesInfoById(
+        id,
+        userId,
+      );
+
     if (post) {
-      const extendedLikesInfo = {
-        ...(await this.commandBus.execute(
-          new GetLikeInfoCommand(post.id, userId),
-        )),
-        newestLikes: await Promise.all(
-          await this.commandBus.execute(new GetNewestLikesCommand(post.id)),
-        ),
+      const newestLikes = await this.postsLikesQueryRepository.getNewestLikes(
+        post?.id,
+      );
+
+      return {
+        ...post,
+        extendedLikesInfo: { ...post.extendedLikesInfo, newestLikes },
       };
-      return { ...post.toObject(), extendedLikesInfo };
     }
     return null;
   }
@@ -111,6 +113,6 @@ export class PostsService {
   }
 
   remove(id: string) {
-    return this.postsQueryRepository.removePostById(id);
+    return this.postsRepository.removePostById(id);
   }
 }

@@ -1,33 +1,60 @@
-import { InjectModel } from '@nestjs/mongoose';
-import { Injectable } from '@nestjs/common';
-import { CommentModel, Comment } from '../domain/comments-schema';
-import { ObjectId } from 'mongodb';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { Comment } from '../domain/comments-schema';
+import { InjectDataSource } from '@nestjs/typeorm';
+import { DataSource } from 'typeorm';
 
 @Injectable()
 export class CommentsRepository {
-  constructor(@InjectModel(Comment.name) private commentModel: CommentModel) {}
-
-  // async createUser(user) {
-  //   const res = await this.userModel.insertMany([user]);
-  //   const { email, id, login, createdAt } = res[0];
-  //   return { email, id, login, createdAt };
-  // }
+  constructor(@InjectDataSource() protected dataSource: DataSource) {}
 
   async updateCommentById(commentId: string, content: string) {
-    const result = await this.commentModel
-      .updateOne({ id: commentId }, { $set: { content } })
-      .exec();
-    return result.matchedCount === 1;
+    const updateCommentQuery = `UPDATE public."Comments"
+    SET "content"=$1
+    WHERE "id" = $2;`;
+    const result = await this.dataSource.query(updateCommentQuery, [
+      content,
+      commentId,
+    ]);
+    return (result[1] = 1);
   }
+
   async createComment(comment: Comment) {
-    return (await this.commentModel.create(comment)).toObject();
+    const { id, postId, userId, content, createdAt } = comment;
+
+    // console.log(comment);
+
+    const createCommentQuery = `INSERT INTO public."Comments"(
+        "id","postId", "userId", "content", "createdAt")
+     VALUES ($1, $2, $3, $4, $5)`;
+
+    await this.dataSource.query(createCommentQuery, [
+      id,
+      postId,
+      userId,
+      content,
+      createdAt,
+    ]);
+
+    return {
+      id,
+      content,
+      createdAt,
+      userId,
+    };
   }
+
   async removeCommentById(id: string) {
-    const _id = new ObjectId(id);
-    const res = await this.commentModel.deleteOne({ _id }).exec();
-    return res.deletedCount === 1;
+    const query = `DELETE FROM public."Comments"
+    WHERE id=$1;`;
+    try {
+      const result = await this.dataSource.query(query, [id]);
+      return result[1] === 1;
+    } catch (e) {
+      throw new NotFoundException();
+    }
   }
+
   async clearData() {
-    await this.commentModel.deleteMany({});
+    await this.dataSource.query(`TRUNCATE TABLE "Comments" CASCADE;`, []);
   }
 }

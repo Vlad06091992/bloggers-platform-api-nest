@@ -15,7 +15,7 @@ export class UsersQueryRepository {
     ON u."id" = ur."userId"
     WHERE u."id" = $1`;
     const rawResult = (await this.dataSource.query(query, [id]))[0];
-    return mapRawUserToExtendedModel(rawResult);
+    return rawResult ? mapRawUserToExtendedModel(rawResult) : null;
   }
 
   async findUserByEmailOrLogin(emailOrLogin: string) {

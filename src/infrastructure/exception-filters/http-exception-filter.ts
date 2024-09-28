@@ -14,13 +14,12 @@ import { DataSource } from 'typeorm';
 export class GlobalExceptionFilter implements ExceptionFilter {
   constructor(@InjectDataSource() protected dataSource: DataSource) {}
 
-  async catch(exception: unknown, host: ArgumentsHost) {
+  async catch(exception, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
     const request = ctx.getRequest();
 
     if (exception instanceof HttpException) {
-      // Если это HttpException, то используем статус код из исключения
       const status = exception.getStatus();
       const message = exception.getResponse();
       const timestamp = new Date().toISOString();
@@ -50,8 +49,8 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     } else {
       const timestamp = new Date().toISOString();
       const statusCode = 500;
-      //@ts-ignore
-      const message = exception.toString();
+
+      const message = exception.toString() as string;
       const query = `
         INSERT INTO public."ErrorsLogs"("statusCode", "timestamp", path, query, params,message,method,body)
         VALUES ($1, $2, $3, $4, $5, $6,$7,$8);

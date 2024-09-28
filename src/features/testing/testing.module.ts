@@ -1,31 +1,17 @@
 import { Module } from '@nestjs/common';
 import { TestingController } from 'src/features/testing/testing.controller';
 import { TestingService } from 'src/features/testing/testing.service';
-import { MongoModule } from 'src/mongo-module/mongo.module';
 import { UsersRepository } from 'src/features/users/infrastructure/users-repository';
 import { CommentsRepository } from 'src/features/comments/infrastructure/comments-repository';
-import { MongooseModule } from '@nestjs/mongoose';
-import {
-  Comment,
-  CommentsSchema,
-} from 'src/features/comments/domain/comments-schema';
 import { PostsRepository } from 'src/features/posts/infrastructure/posts-repository';
-import { Post, PostsSchema } from 'src/features/posts/domain/posts-schema';
-import { Blog, BlogsSchema } from 'src/features/blogs/domain/blogs-schema';
-import { BlogsRepository } from 'src/features/blogs/infrastructure/blogs-repository';
-import { Likes, LikesSchema } from 'src/features/likes/domain/likes-schema';
-import { LikesRepository } from 'src/features/likes/infrastructure/likes-repository';
+import { BlogsRepository } from 'src/features/sa_blogs/infrastructure/blogs-repository';
 import { AuthDevicesRepository } from 'src/features/auth/infrastructure/auth-devices-repository';
 import { OldTokensIdsRepository } from 'src/features/auth/infrastructure/old-tokens-ids-repository';
+import { CommentsLikesRepository } from 'src/features/comments-likes/infrastructure/comments-likes-repository';
+import { PostsLikesRepository } from 'src/features/posts-likes/infrastructure/posts-likes-repository';
 
 @Module({
-  imports: [
-    MongoModule,
-    MongooseModule.forFeature([{ name: Comment.name, schema: CommentsSchema }]),
-    MongooseModule.forFeature([{ name: Post.name, schema: PostsSchema }]),
-    MongooseModule.forFeature([{ name: Blog.name, schema: BlogsSchema }]),
-    MongooseModule.forFeature([{ name: Likes.name, schema: LikesSchema }]),
-  ],
+  imports: [],
   controllers: [TestingController],
   providers: [
     TestingService,
@@ -33,7 +19,8 @@ import { OldTokensIdsRepository } from 'src/features/auth/infrastructure/old-tok
     CommentsRepository,
     PostsRepository,
     BlogsRepository,
-    LikesRepository,
+    CommentsLikesRepository,
+    PostsLikesRepository,
     AuthDevicesRepository,
     OldTokensIdsRepository,
   ],

@@ -4,7 +4,7 @@ import { addHours } from 'date-fns';
 import { RecoveryPasswordRepository } from 'src/features/auth/infrastructure/recovery-password-repository';
 import { EmailService } from 'src/email/email.service';
 import { UsersService } from 'src/features/users/application/users.service';
-import { generateUuid } from 'src/utils';
+import { generateUuidV4 } from 'src/utils';
 
 export class RecoveryPasswordCommand {
   constructor(public email: string) {}
@@ -24,8 +24,8 @@ export class RecoveryPasswordHandler
     const user = await this.usersService.findUserByEmailOrLogin(email);
 
     if (user) {
-      const recoveryCode = generateUuid();
-      const id = generateUuid();
+      const recoveryCode = generateUuidV4();
+      const id = generateUuidV4();
       await this.emailService.recoveryPassword(email, recoveryCode);
 
       const record: RecoveryPasswordsCode = {
@@ -35,10 +35,6 @@ export class RecoveryPasswordHandler
         expirationDate: addHours(new Date(), 2),
         userId: user.id,
       };
-
-      console.log(typeof record.expirationDate);
-      console.log(typeof new Date());
-
       await this.recoveryPasswordRepository.createRecord(record);
 
       await this.emailService.recoveryPassword(user.email, recoveryCode);

@@ -1,56 +1,24 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Post,
-  Put,
-  Query,
-  Res,
-  UseGuards,
-} from '@nestjs/common';
+import { Controller, Get, Res } from '@nestjs/common';
 import { getIdFromParams } from 'src/infrastructure/decorators/getIdFromParams';
 import { Response } from 'express';
-import { UpdateBlogDto } from 'src/features/blogs/api/models/update-blog.dto';
-import { CreateBlogDto } from 'src/features/blogs/api/models/create-blog.dto';
-import { CreatePostDtoWithoutBlogId } from 'src/features/posts/api/models/create-post.dto';
 import { CommandBus } from '@nestjs/cqrs';
-import { CreateBlogCommand } from 'src/features/blogs/application/use-cases/create-blog';
-import { DeleteBlogCommand } from 'src/features/blogs/application/use-cases/delete-blog';
-import { UpdateBlogCommand } from 'src/features/blogs/application/use-cases/update-blog';
-import { FindBlogCommand } from 'src/features/blogs/application/use-cases/find-blog';
-import { FindPostsForSpecificBlogCommand } from 'src/features/blogs/application/use-cases/find-posts-for-specific-blog';
-import { FindBlogsCommand } from 'src/features/blogs/application/use-cases/find-blogs';
-import { CreatePostsForSpecificBlogCommand } from 'src/features/blogs/application/use-cases/create-post-for-specific-blog';
-import { BasicAuthGuard } from 'src/features/auth/guards/basic-auth.guard';
-import { CheckUserByJWT } from 'src/infrastructure/decorators/checkUserByJWT';
+import { FindBlogCommand } from 'src/features/sa_blogs/application/use-cases/find-blog';
+import { FindPostsForSpecificBlogCommand } from 'src/features/sa_blogs/application/use-cases/find-posts-for-specific-blog';
+import { FindBlogsCommand } from 'src/features/sa_blogs/application/use-cases/find-blogs';
+import { CheckUserByJWTAccessToken } from 'src/infrastructure/decorators/checkUserByJWTAccessToken';
+import {
+  RequiredParamsValuesForBlogs,
+  RequiredParamsValuesForPostsOrComments,
+} from 'src/shared/common-types';
+import { getValidQueryParamsForBlogs } from 'src/infrastructure/decorators/getValidQueryParamsForBlogs';
+import { getValidQueryParamsForPosts } from 'src/infrastructure/decorators/getValidQueryParamsForPosts';
 
-@Controller('blogs')
+@Controller('/blogs')
 export class BlogsController {
   constructor(private commandBus: CommandBus) {}
-  @UseGuards(BasicAuthGuard)
-  @Post()
-  create(@Body() createBlogDto: CreateBlogDto) {
-    return this.commandBus.execute(new CreateBlogCommand(createBlogDto));
-  }
-
   @Get()
-  findAll(
-    @Query('sortBy') sortBy: string,
-    @Query('sortDirection') sortDirection: string,
-    @Query('pageNumber') pageNumber: string,
-    @Query('pageSize') pageSize: string,
-    @Query('searchNameTerm') searchNameTerm: string,
-  ) {
-    const QueryParams = {
-      sortDirection,
-      searchNameTerm,
-      pageNumber,
-      pageSize,
-      sortBy,
-    };
-
-    return this.commandBus.execute(new FindBlogsCommand(QueryParams));
+  findAll(@getValidQueryParamsForBlogs() params: RequiredParamsValuesForBlogs) {
+    return this.commandBus.execute(new FindBlogsCommand(params));
   }
 
   @Get(':id')
@@ -65,41 +33,11 @@ export class BlogsController {
       res.sendStatus(404);
     }
   }
-  // @UseGuards(BasicAuthGuard)
   @Get(':id/posts')
   async findPostsForSpecificBlog(
-    @CheckUserByJWT() userId: string | null,
-    @Query('sortBy') sortBy: string,
-    @Query('sortDirection') sortDirection: string,
-    @Query('pageNumber') pageNumber: string,
-    @Query('pageSize') pageSize: string,
-    @Query('searchNameTerm') searchNameTerm: string,
-    @getIdFromParams() id: string,
-    @Res({ passthrough: true }) res: Response,
-  ) {
-    const queryParams = {
-      sortDirection,
-      searchNameTerm,
-      pageNumber,
-      pageSize,
-      sortBy,
-    };
-
-    const blog = await this.commandBus.execute(new FindBlogCommand(id));
-
-    if (!blog) {
-      res.sendStatus(404);
-      return;
-    }
-
-    return await this.commandBus.execute(
-      new FindPostsForSpecificBlogCommand(id, userId, queryParams),
-    );
-  }
-  @UseGuards(BasicAuthGuard)
-  @Post(':id/posts')
-  async createPostForSpecificBlog(
-    @Body() createPostDto: CreatePostDtoWithoutBlogId,
+    @CheckUserByJWTAccessToken() userId: string | null,
+    @getValidQueryParamsForPosts()
+    params: RequiredParamsValuesForPostsOrComments,
     @getIdFromParams() id: string,
     @Res({ passthrough: true }) res: Response,
   ) {
@@ -111,43 +49,7 @@ export class BlogsController {
     }
 
     return await this.commandBus.execute(
-      new CreatePostsForSpecificBlogCommand(createPostDto, id),
+      new FindPostsForSpecificBlogCommand(id, userId, params),
     );
-  }
-  @UseGuards(BasicAuthGuard)
-  @Put(':id')
-  async updateOne(
-    @getIdFromParams() id: string,
-    @Body() updateBlogDto: UpdateBlogDto,
-    @Res() res: Response,
-  ) {
-    const isUpdated = await this.commandBus.execute(
-      new UpdateBlogCommand(updateBlogDto, id),
-    );
-    if (isUpdated) {
-      return res.sendStatus(204);
-    } else {
-      return res.sendStatus(404);
-    }
-  }
-  @UseGuards(BasicAuthGuard)
-  @Delete(':id')
-  async remove(@getIdFromParams() id: string, @Res() res: Response) {
-    if (!id) {
-      res.sendStatus(404);
-      return;
-    }
-
-    const isDeleted = await this.commandBus.execute(new DeleteBlogCommand(id));
-
-    if (!isDeleted) {
-      res.sendStatus(404);
-      return;
-    }
-
-    if (isDeleted) {
-      res.sendStatus(204);
-      return;
-    }
   }
 }

@@ -8,7 +8,7 @@ import { RequiredParamsValuesForUsers } from 'src/shared/common-types';
 import { EmailService } from 'src/email/email.service';
 import { add, isBefore } from 'date-fns';
 import { RecoveryPasswordQueryRepository } from 'src/features/auth/infrastructure/recovery-password-query-repository';
-import { generateUuid } from 'src/utils';
+import { generateUuidV4 } from 'src/utils';
 
 @Injectable()
 export class UsersService {
@@ -20,8 +20,8 @@ export class UsersService {
     protected recoveryPasswordQueryRepository: RecoveryPasswordQueryRepository,
   ) {}
   async create(createUserDto: CreateUserDto, isRegistration: boolean = false) {
-    const id = generateUuid();
-    const confirmationCode = generateUuid();
+    const id = generateUuidV4();
+    const confirmationCode = generateUuidV4();
 
     const newUser: User = {
       createdAt: new Date().toISOString(),
@@ -63,12 +63,14 @@ export class UsersService {
 
   async findOne(id: string) {
     const extendedUser = await this.usersQueryRepository.getUserById(id);
-    return {
-      id: extendedUser.id,
-      login: extendedUser.login,
-      email: extendedUser.email,
-      createdAt: extendedUser.createdAt,
-    };
+    return extendedUser
+      ? {
+          id: extendedUser.id,
+          login: extendedUser.login,
+          email: extendedUser.email,
+          createdAt: extendedUser.createdAt,
+        }
+      : null;
   }
 
   async confirmUserByConfirmationCode(code: string) {

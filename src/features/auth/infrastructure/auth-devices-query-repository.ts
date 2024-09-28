@@ -4,7 +4,10 @@ import { DataSource } from 'typeorm';
 
 @Injectable()
 export class AuthDevicesQueryRepository {
-  constructor(@InjectDataSource() protected dataSource: DataSource) {}
+  constructor(
+    @InjectDataSource()
+    protected dataSource: DataSource,
+  ) {}
 
   getDevicesByUserId(userId: string) {
     const query = `SELECT ip, title, "deviceId","lastActiveDate"

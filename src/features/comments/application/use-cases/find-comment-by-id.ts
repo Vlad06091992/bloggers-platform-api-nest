@@ -1,8 +1,7 @@
 import { Inject } from '@nestjs/common';
 import { CommentsQueryRepository } from 'src/features/comments/infrastructure/comments.query-repository';
 import { CommandBus, CommandHandler } from '@nestjs/cqrs';
-import { LikesQueryRepository } from 'src/features/likes/infrastructure/likes-query-repository';
-import { GetLikeInfoCommand } from 'src/features/likes/application/use-cases/get-like-info';
+import { UsersQueryRepository } from 'src/features/users/infrastructure/users.query-repository';
 
 export class FindCommentByIdCommand {
   constructor(
@@ -16,21 +15,33 @@ export class FindCommentByIdHandler {
   constructor(
     @Inject()
     protected commentsQueryRepository: CommentsQueryRepository,
-    protected likesQueryRepository: LikesQueryRepository,
+    protected usersQueryRepository: UsersQueryRepository,
     public commandBus: CommandBus,
   ) {}
 
   async execute({ commentId, userId }: FindCommentByIdCommand) {
-    const result = await this.commentsQueryRepository.getCommentById(
+    const findedCommentData = await this.commentsQueryRepository.getCommentById(
       commentId,
-      true,
+      userId,
     );
 
-    const likesInfo = await this.commandBus.execute(
-      new GetLikeInfoCommand(commentId, userId),
-    );
+    if (!findedCommentData) return null;
 
-    if (!result) return null;
-    return { ...result, likesInfo };
+    return {
+      id: findedCommentData.id,
+      content: findedCommentData.content,
+      commentatorInfo: {
+        userId: findedCommentData.userId,
+        userLogin: (
+          await this.usersQueryRepository.getUserById(findedCommentData.userId)
+        )?.login,
+      },
+      createdAt: findedCommentData.createdAt,
+      likesInfo: {
+        likesCount: +findedCommentData.likescount,
+        dislikesCount: +findedCommentData.dislikescount,
+        myStatus: findedCommentData.mystatus,
+      },
+    };
   }
 }

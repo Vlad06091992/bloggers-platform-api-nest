@@ -7,6 +7,5 @@ export class CommentDto {
 
 export class CreateCommentDto extends CommentDto {
   userId: string;
-  userLogin: string;
   postId: string;
 }

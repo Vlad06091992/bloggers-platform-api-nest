@@ -79,8 +79,11 @@ export class UsersRepository {
     }
   }
 
-  clearData() {
-    this.dataSource.query(`TRUNCATE TABLE public."User" CASCADE;`, []);
-    this.dataSource.query(`TRUNCATE TABLE public."UserRegistrationData";`, []);
+  async clearData() {
+    await this.dataSource.query(`TRUNCATE TABLE public."User" CASCADE;`, []);
+    await this.dataSource.query(
+      `TRUNCATE TABLE public."UserRegistrationData";`,
+      [],
+    );
   }
 }

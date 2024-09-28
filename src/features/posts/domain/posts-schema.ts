@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Model, Types } from 'mongoose';
+import { Model } from 'mongoose';
 import { pagination } from 'src/utils';
 
 @Schema({ _id: false })
@@ -31,9 +31,6 @@ export class ExtendedLikesInfo {
 
 @Schema()
 export class Post {
-  @Prop()
-  _id: Types.ObjectId;
-
   @Prop()
   id: string;
 
