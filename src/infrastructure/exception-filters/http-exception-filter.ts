@@ -18,7 +18,6 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     const request = ctx.getRequest();
 
     if (exception instanceof HttpException) {
-      // Если это HttpException, то используем статус код из исключения
       const status = exception.getStatus();
       const message = exception.getResponse();
       const timestamp = new Date().toISOString();
@@ -67,7 +66,6 @@ export class GlobalExceptionFilter implements ExceptionFilter {
 
       await this.dataSource.query(query, values);
 
-      // Возврат ответа клиенту
       if (!response.headersSent) {
         response.status(statusCode).send({
           statusCode,
