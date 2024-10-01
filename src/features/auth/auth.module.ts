@@ -37,6 +37,11 @@ import { IsOldTokenHandler } from 'src/features/auth/application/use-cases/is-ol
 import { OldTokensIdsQueryRepository } from 'src/features/auth/infrastructure/old-tokens-ids-query-repository';
 import { OldTokensIdsRepository } from 'src/features/auth/infrastructure/old-tokens-ids-repository';
 import { UpdateSessionHandler } from 'src/features/security/application/use-cases/update-session';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { OldTokensIds } from 'src/features/auth/entities/old-tokens-ids';
+import { AuthDevices } from 'src/features/auth/entities/devices';
+import { User } from 'src/features/users/entities/user';
+import { UserRegistrationData } from 'src/features/users/entities/user-registration-data';
 
 @Module({
   imports: [
@@ -48,6 +53,12 @@ import { UpdateSessionHandler } from 'src/features/security/application/use-case
       secret: jwtConstants.secret,
       signOptions: { expiresIn: '60m' },
     }),
+    TypeOrmModule.forFeature([
+      OldTokensIds,
+      AuthDevices,
+      User,
+      UserRegistrationData,
+    ]),
   ],
   controllers: [AuthController],
   providers: [

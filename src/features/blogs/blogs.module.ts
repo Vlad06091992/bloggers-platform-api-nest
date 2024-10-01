@@ -17,9 +17,12 @@ import { BlogsController } from 'src/features/blogs/api/blogs.controller';
 import { BlogsQueryRepository } from 'src/features/blogs/infrastructure/blogs.query-repository';
 import { UsersQueryRepository } from 'src/features/users/infrastructure/users.query-repository';
 import { PostsLikesQueryRepository } from 'src/features/posts-likes/infrastructure/posts-likes-query-repository';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { User } from 'src/features/users/entities/user';
+import { UserRegistrationData } from 'src/features/users/entities/user-registration-data';
 
 @Module({
-  imports: [CqrsModule],
+  imports: [CqrsModule, TypeOrmModule.forFeature([User, UserRegistrationData])],
   controllers: [BlogsController],
   providers: [
     UsersQueryRepository,

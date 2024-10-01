@@ -1,6 +1,6 @@
 import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { CreateUserDto } from 'src/features/users/api/models/create-user.dto';
-import { RegistrationData, User } from 'src/features/users/domain/user-schema';
+import { User } from 'src/features/users/entities/user';
 import { UsersRepository } from 'src/features/users/infrastructure/users-repository';
 import * as bcrypt from 'bcrypt';
 import { UsersQueryRepository } from 'src/features/users/infrastructure/users.query-repository';
@@ -9,6 +9,7 @@ import { EmailService } from 'src/email/email.service';
 import { add, isBefore } from 'date-fns';
 import { RecoveryPasswordQueryRepository } from 'src/features/auth/infrastructure/recovery-password-query-repository';
 import { generateUuidV4 } from 'src/utils';
+import { UserRegistrationData } from 'src/features/users/entities/user-registration-data';
 
 @Injectable()
 export class UsersService {
@@ -19,33 +20,36 @@ export class UsersService {
     @Inject()
     protected recoveryPasswordQueryRepository: RecoveryPasswordQueryRepository,
   ) {}
-  async create(createUserDto: CreateUserDto, isRegistration: boolean = false) {
+  async create(
+    { login, password, email }: CreateUserDto,
+    isRegistration: boolean = false,
+  ) {
     const id = generateUuidV4();
     const confirmationCode = generateUuidV4();
-
-    const newUser: User = {
-      createdAt: new Date().toISOString(),
+    const regDataId = generateUuidV4();
+    const newUser = new User(
       id,
-      email: createUserDto.email,
-      login: createUserDto.login,
-      password: await this.createHash(createUserDto.password),
-    };
-
-    const registrationData: RegistrationData = {
-      userId: id,
-      expirationDate: add(new Date(), { hours: 1 }),
-      confirmationCode: confirmationCode,
-      isConfirmed: !isRegistration,
-    };
-
+      email,
+      login,
+      new Date(),
+      await this.createHash(password),
+    );
+    const expirationDate = add(new Date(), { hours: 1 });
+    const newUserRegistrationData = new UserRegistrationData(
+      regDataId,
+      !isRegistration,
+      confirmationCode,
+      expirationDate,
+      newUser,
+    );
     if (isRegistration) {
-      await this.emailService.registrationConfirmation(
-        createUserDto.email,
-        confirmationCode,
-      );
+      await this.emailService.registrationConfirmation(email, confirmationCode);
     }
-
-    return await this.usersRepository.createUser({ newUser, registrationData });
+    debugger;
+    return await this.usersRepository.createUser({
+      newUser,
+      newUserRegistrationData,
+    });
   }
 
   async findAll(params: RequiredParamsValuesForUsers) {
@@ -58,6 +62,7 @@ export class UsersService {
   }
 
   async comparePassword(bodyPassword: string, password: string) {
+    debugger;
     return await bcrypt.compare(bodyPassword, password);
   }
 

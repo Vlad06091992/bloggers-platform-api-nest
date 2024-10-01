@@ -15,9 +15,12 @@ import { UsersQueryRepository } from 'src/features/users/infrastructure/users.qu
 import { PostsLikesRepository } from 'src/features/posts-likes/infrastructure/posts-likes-repository';
 import { PostsLikesQueryRepository } from 'src/features/posts-likes/infrastructure/posts-likes-query-repository';
 import { UpdateOrCreateLikePostStatusHandler } from 'src/features/posts-likes/application/use-cases/update-or-create-like-post-status';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { User } from 'src/features/users/entities/user';
+import { UserRegistrationData } from 'src/features/users/entities/user-registration-data';
 
 @Module({
-  imports: [CqrsModule],
+  imports: [CqrsModule, TypeOrmModule.forFeature([User, UserRegistrationData])],
   controllers: [PostsController],
   providers: [
     BlogsQueryRepository,

@@ -32,10 +32,10 @@ export class RefreshJWTHandler implements ICommandHandler<RefreshJWTCommand> {
 
     return {
       accessToken: await this.commandBus.execute(
-        new GenerateJWTCommand(payload, '10h'),
+        new GenerateJWTCommand(payload, '10s'),
       ),
       refreshToken: await this.commandBus.execute(
-        new GenerateJWTCommand(payload, '20h'),
+        new GenerateJWTCommand(payload, '20s'),
       ),
     };
   }

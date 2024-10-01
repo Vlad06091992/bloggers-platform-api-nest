@@ -1,26 +1,23 @@
 import { Injectable } from '@nestjs/common';
-import { InjectDataSource } from '@nestjs/typeorm';
-import { DataSource } from 'typeorm';
+import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
+import { DataSource, Repository } from 'typeorm';
+import { AuthDevices } from 'src/features/auth/entities/devices';
 
 @Injectable()
 export class AuthDevicesQueryRepository {
   constructor(
-    @InjectDataSource()
-    protected dataSource: DataSource,
+    @InjectRepository(AuthDevices)
+    private readonly repo: Repository<AuthDevices>,
   ) {}
 
-  getDevicesByUserId(userId: string) {
-    const query = `SELECT ip, title, "deviceId","lastActiveDate"
-       FROM public."AuthDevices"
-       WHERE "userId" = $1 AND "isActive" = true;`;
-    return this.dataSource.query(query, [userId]);
+  async getDevicesByUserId(userId: string) {
+    return await this.repo.find({
+      where: { userId, isActive: true },
+      select: ['ip', 'title', 'lastActiveDate', 'deviceId'],
+    });
   }
 
   async getDeviceByDeviceId(deviceId: string) {
-    const query = `SELECT "ip", "title", "deviceId","lastActiveDate", "userId", "isActive"
-       FROM public."AuthDevices"
-       WHERE "deviceId" = $1;`;
-    const result = await this.dataSource.query(query, [deviceId]);
-    return result.length ? result[0] : null;
+    return await this.repo.findOne({ where: { deviceId } });
   }
 }

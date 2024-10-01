@@ -1,22 +1,21 @@
 import { Injectable } from '@nestjs/common';
-import { InjectDataSource } from '@nestjs/typeorm';
-import { DataSource } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { OldTokensIds } from 'src/features/auth/entities/old-tokens-ids';
 
 @Injectable()
 export class OldTokensIdsRepository {
-  constructor(@InjectDataSource() protected dataSource: DataSource) {}
+  constructor(
+    @InjectRepository(OldTokensIds)
+    private readonly repo: Repository<OldTokensIds>,
+  ) {}
 
-  createRecord(tokenId: string) {
-    const query = `
-      INSERT INTO public."OldTokensIds"(
-      "OldTokenId")
-       VALUES ($1);
-       `;
-    return this.dataSource.query(query, [tokenId]);
+  async createRecord(tokenId: string) {
+    const record = new OldTokensIds(tokenId);
+    await this.repo.insert(record);
   }
 
-  clearData() {
-    const query = `TRUNCATE TABLE public."OldTokensIds"`;
-    return this.dataSource.query(query, []);
+  async clearData() {
+    await this.repo.clear();
   }
 }

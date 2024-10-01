@@ -1,17 +1,16 @@
 import { Injectable } from '@nestjs/common';
-import { InjectDataSource } from '@nestjs/typeorm';
-import { DataSource } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { OldTokensIds } from 'src/features/auth/entities/old-tokens-ids';
 
 @Injectable()
 export class OldTokensIdsQueryRepository {
-  constructor(@InjectDataSource() protected dataSource: DataSource) {}
+  constructor(
+    @InjectRepository(OldTokensIds)
+    private readonly repo: Repository<OldTokensIds>,
+  ) {}
 
   async getOldTokenById(tokenId: string) {
-    const query = `
-    SELECT "OldTokenId"
-    FROM public."OldTokensIds"
-    WHERE "OldTokenId" = $1
-    `;
-    return (await this.dataSource.query(query, [tokenId])).length > 0;
+    return await this.repo.findOne({ where: { expiredTokenId: tokenId } });
   }
 }

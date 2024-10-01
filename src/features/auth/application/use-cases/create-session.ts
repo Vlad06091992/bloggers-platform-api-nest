@@ -1,7 +1,8 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { CreateSessionDto } from 'src/features/auth/api/models/create-session-dto';
-import { AuthDevices } from 'src/features/auth/domain/devices-schema';
+import { AuthDevices } from 'src/features/auth/entities/devices';
 import { AuthDevicesRepository } from 'src/features/auth/infrastructure/auth-devices-repository';
+import { generateUuidV4 } from 'src/utils';
 
 export class CreateSessionCommand {
   constructor(public sessionDTO: CreateSessionDto) {}
@@ -13,12 +14,18 @@ export class CreateSessionlHandler
 {
   constructor(protected authDevicesRepository: AuthDevicesRepository) {}
 
-  async execute({ sessionDTO }: CreateSessionCommand) {
-    const device: AuthDevices = {
-      ...sessionDTO,
-      lastActiveDate: new Date(),
-      isActive: true,
-    };
+  async execute({
+    sessionDTO: { ip, title, deviceId, userId },
+  }: CreateSessionCommand) {
+    const device = new AuthDevices(
+      ip,
+      generateUuidV4(),
+      true,
+      deviceId,
+      userId,
+      title,
+      new Date(),
+    );
 
     await this.authDevicesRepository.addSession(device);
     return true;

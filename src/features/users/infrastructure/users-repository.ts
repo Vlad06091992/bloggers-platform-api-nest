@@ -1,74 +1,76 @@
-import { RegistrationData, User } from 'src/features/users/domain/user-schema';
+import { User } from 'src/features/users/entities/user';
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { InjectDataSource } from '@nestjs/typeorm';
-import { DataSource } from 'typeorm';
+import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
+import {
+  DataSource,
+  FindOneOptions,
+  FindOptionsWhere,
+  Repository,
+} from 'typeorm';
+import { UserRegistrationData } from 'src/features/users/entities/user-registration-data';
 
-type CreateUser = {
+type CreateUserDTO = {
   newUser: User;
-  registrationData: RegistrationData;
+  newUserRegistrationData: UserRegistrationData;
 };
 
 @Injectable()
 export class UsersRepository {
-  constructor(@InjectDataSource() protected dataSource: DataSource) {}
+  constructor(
+    @InjectDataSource() protected dataSource: DataSource,
+    @InjectRepository(User) protected userRepo: Repository<User>,
+    @InjectRepository(UserRegistrationData)
+    protected userRegDataRepo: Repository<UserRegistrationData>,
+  ) {}
 
-  async createUser({ newUser, registrationData }: CreateUser) {
-    const { id, email, login, createdAt, password } = newUser;
-    const { userId, confirmationCode, isConfirmed, expirationDate } =
-      registrationData;
-
-    const createUserQuery = `INSERT INTO public."User"(
-         "id", "email", "login", "createdAt", "password")
-         VALUES ($1, $2, $3, $4, $5);`;
-    await this.dataSource.query(createUserQuery, [
-      id,
-      email,
-      login,
-      createdAt,
-      password,
-    ]);
-
-    const createUserRegistrationDataQuery = `INSERT INTO public."UserRegistrationData"(
-          "userId", "confirmationCode", "expirationDate", "isConfirmed")
-           VALUES ($1, $2, $3, $4);`;
-    await this.dataSource.query(createUserRegistrationDataQuery, [
-      userId,
-      confirmationCode,
-      expirationDate,
-      isConfirmed,
-    ]);
-
+  async createUser({ newUser, newUserRegistrationData }: CreateUserDTO) {
+    debugger;
+    const { id, email, login, createdAt } = newUser;
+    await this.userRepo.insert(newUser);
+    await this.userRegDataRepo.insert(newUserRegistrationData);
     return { id, email, login, createdAt };
   }
 
   async confirmUserByUserId(userId: string) {
-    const query = `UPDATE public."UserRegistrationData"
-        SET "isConfirmed"=true
-        WHERE "userId" = $1;`;
-    const result = await this.dataSource.query(query, [userId]);
-    return result[1] == 1;
+    const regData = await this.userRegDataRepo.findOne({
+      where: { user: { id: userId } },
+      relations: ['user'],
+    } as FindOneOptions<UserRegistrationData>);
+    debugger;
+    if (regData) {
+      regData.isConfirmed = true;
+      await this.userRegDataRepo.save(regData);
+      return true;
+    } else {
+      return false;
+    }
   }
 
   async updateUserPassword(userId: string, passwordHash: string) {
-    const query = `UPDATE public."User"
-        SET "password" = $2
-        WHERE "id" = $1;`;
-    const result = await this.dataSource.query(query, [userId, passwordHash]);
-    return result[1] == 1;
+    const user = await this.userRepo.findOne({ where: { id: userId } });
+    if (user) {
+      user.password = passwordHash;
+      await this.userRepo.save(user);
+      return true;
+    } else {
+      return false;
+    }
   }
 
   async updateConfirmationCode(userId: string, confirmationCode: string) {
-    const query = `UPDATE public."UserRegistrationData"
-       SET "confirmationCode"= $2
-       WHERE "userId" = $1`;
-    const result = await this.dataSource.query(query, [
-      userId,
-      confirmationCode,
-    ]);
-    return result[1] == 1;
+    const regData = await this.userRegDataRepo.findOne({ where: {} });
+    if (regData) {
+      regData.confirmationCode = confirmationCode;
+      await this.userRegDataRepo.save(regData);
+      return true;
+    } else {
+      return false;
+    }
   }
 
   async removeUserById(id: string) {
+    // await this.userRepo.delete(id);
+    // await this.userRegDataRepo.delete({ userId: id });
     const query = `DELETE FROM public."User" CASCADE
     WHERE "id" = $1`;
     try {

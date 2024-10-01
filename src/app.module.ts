@@ -15,6 +15,7 @@ import { EmailModule } from 'src/email/email.module';
 import { CqrsModule } from '@nestjs/cqrs';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { BlogsModule } from 'src/features/blogs/blogs.module';
+import { OldTokensIds } from 'src/features/auth/entities/old-tokens-ids';
 
 @Module({
   imports: [
@@ -24,10 +25,10 @@ import { BlogsModule } from 'src/features/blogs/blogs.module';
       port: 5432,
       username: 'nest_dev',
       password: 'nest',
-      database: 'bloggers_dev',
-      entities: [],
-      autoLoadEntities: false,
-      synchronize: false,
+      database: 'bloggers_dev_typeorm',
+      autoLoadEntities: true,
+      synchronize: true,
+      logging: true,
     }),
     CqrsModule,
     MailerModule.forRootAsync({

@@ -1,5 +1,5 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { RecoveryPasswordsCode } from 'src/features/auth/domain/recovery-password-schema';
+import { RecoveryPasswordsCode } from 'src/features/auth/entities/recovery-password-schema';
 import { addHours } from 'date-fns';
 import { RecoveryPasswordRepository } from 'src/features/auth/infrastructure/recovery-password-repository';
 import { EmailService } from 'src/email/email.service';

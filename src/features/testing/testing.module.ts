@@ -9,11 +9,25 @@ import { AuthDevicesRepository } from 'src/features/auth/infrastructure/auth-dev
 import { OldTokensIdsRepository } from 'src/features/auth/infrastructure/old-tokens-ids-repository';
 import { CommentsLikesRepository } from 'src/features/comments-likes/infrastructure/comments-likes-repository';
 import { PostsLikesRepository } from 'src/features/posts-likes/infrastructure/posts-likes-repository';
+import { OldTokensIds } from 'src/features/auth/entities/old-tokens-ids';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { AuthDevices } from 'src/features/auth/entities/devices';
+import { AuthDevicesQueryRepository } from 'src/features/auth/infrastructure/auth-devices-query-repository';
+import { User } from 'src/features/users/entities/user';
+import { UserRegistrationData } from 'src/features/users/entities/user-registration-data';
 
 @Module({
-  imports: [],
+  imports: [
+    TypeOrmModule.forFeature([
+      OldTokensIds,
+      AuthDevices,
+      User,
+      UserRegistrationData,
+    ]),
+  ],
   controllers: [TestingController],
   providers: [
+    OldTokensIdsRepository,
     TestingService,
     UsersRepository,
     CommentsRepository,
@@ -22,7 +36,7 @@ import { PostsLikesRepository } from 'src/features/posts-likes/infrastructure/po
     CommentsLikesRepository,
     PostsLikesRepository,
     AuthDevicesRepository,
-    OldTokensIdsRepository,
+    AuthDevicesQueryRepository,
   ],
 })
 export class TestModule {}

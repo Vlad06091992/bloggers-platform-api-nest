@@ -12,9 +12,12 @@ import { CommentsLikesQueryRepository } from 'src/features/comments-likes/infras
 import { GetLikeInfoHandler } from 'src/features/comments-likes/application/use-cases/get-like-info';
 import { UsersQueryRepository } from 'src/features/users/infrastructure/users.query-repository';
 import { CommentsLikesRepository } from 'src/features/comments-likes/infrastructure/comments-likes-repository';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { User } from 'src/features/users/entities/user';
+import { UserRegistrationData } from 'src/features/users/entities/user-registration-data';
 
 @Module({
-  imports: [CqrsModule],
+  imports: [CqrsModule, TypeOrmModule.forFeature([User, UserRegistrationData])],
   controllers: [CommentsController],
   providers: [
     FindCommentByIdHandler,

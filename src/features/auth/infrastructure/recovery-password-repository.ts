@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { RecoveryPasswordsCode } from 'src/features/auth/domain/recovery-password-schema';
+import { RecoveryPasswordsCode } from 'src/features/auth/entities/recovery-password-schema';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 

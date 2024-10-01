@@ -1,53 +1,54 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { RequiredParamsValuesForUsers } from 'src/shared/common-types';
-import { InjectDataSource } from '@nestjs/typeorm';
-import { DataSource } from 'typeorm';
+import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { mapRawUserToExtendedModel } from 'src/utils';
+import { User } from 'src/features/users/entities/user';
+import { UserRegistrationData } from 'src/features/users/entities/user-registration-data';
 
 @Injectable()
 export class UsersQueryRepository {
-  constructor(@InjectDataSource() protected dataSource: DataSource) {}
+  constructor(
+    @InjectDataSource() protected dataSource: DataSource,
+    @InjectRepository(User) protected userRepo: Repository<User>,
+    @InjectRepository(UserRegistrationData)
+    protected userRegDataRepo: Repository<UserRegistrationData>,
+  ) {}
 
   async getUserById(id: string) {
-    const query = `SELECT u."id",u."password",u."createdAt",u."login",u."email",ur."confirmationCode",ur."expirationDate",ur."isConfirmed"
-    FROM public."UserRegistrationData" as ur
-    JOIN public."User" as u
-    ON u."id" = ur."userId"
-    WHERE u."id" = $1`;
-    const rawResult = (await this.dataSource.query(query, [id]))[0];
-    return rawResult ? mapRawUserToExtendedModel(rawResult) : null;
+    return await this.userRepo.findOne({
+      where: { id },
+      relations: ['userRegistrationData'],
+    });
   }
 
   async findUserByEmailOrLogin(emailOrLogin: string) {
-    const query = `SELECT u."id",u."password",u."login",u."email",ur."confirmationCode",ur."expirationDate",ur."isConfirmed"
-    FROM public."UserRegistrationData" as ur
-    JOIN public."User" as u
-    ON u."id" = ur."userId"
-    WHERE u."email" = $1 OR u."login" = $1`;
-    const rawResult = (await this.dataSource.query(query, [emailOrLogin]))[0];
-    return rawResult ? mapRawUserToExtendedModel(rawResult) : null;
+    try {
+      debugger;
+      const res = await this.userRepo.findOne({
+        where: [{ email: emailOrLogin }, { login: emailOrLogin }],
+        relations: ['userRegistrationData'],
+      });
+      debugger;
+      return res;
+    } catch (error) {
+      console.error('Error finding user by email or login:', error);
+      throw error;
+    }
   }
 
   async findUserByEmail(email: string) {
-    const query = `SELECT u."id",u."password",u."login",u."email",ur."confirmationCode",ur."expirationDate",ur."isConfirmed"
-    FROM public."UserRegistrationData" as ur
-    JOIN public."User" as u
-    ON u."id" = ur."userId"
-    WHERE u."email" = $1;`;
-    const rawResult = (await this.dataSource.query(query, [email]))[0];
-
-    return rawResult ? mapRawUserToExtendedModel(rawResult) : null;
+    return await this.userRepo.findOne({
+      where: { email },
+      relations: ['userRegistrationData'],
+    });
   }
 
   async findUserByLogin(login: string) {
-    const query = `SELECT u."id",u."password",u."login",u."email",ur."confirmationCode",ur."expirationDate",ur."isConfirmed"
-    FROM public."UserRegistrationData" as ur
-    JOIN public."User" as u
-    ON u."id" = ur."userId"
-    WHERE u."login" = $1;`;
-    const rawResult = (await this.dataSource.query(query, [login]))[0];
-
-    return rawResult ? mapRawUserToExtendedModel(rawResult) : null;
+    return await this.userRepo.findOne({
+      where: { login },
+      relations: ['userRegistrationData'],
+    });
   }
 
   async findUserByConfirmationCode(code: string) {
