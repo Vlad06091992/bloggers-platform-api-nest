@@ -18,9 +18,13 @@ import { UpdateOrCreateLikePostStatusHandler } from 'src/features/posts-likes/ap
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from 'src/features/users/entities/user';
 import { UserRegistrationData } from 'src/features/users/entities/user-registration-data';
+import { Blogs } from 'src/features/blogs/entity/blogs';
 
 @Module({
-  imports: [CqrsModule, TypeOrmModule.forFeature([User, UserRegistrationData])],
+  imports: [
+    CqrsModule,
+    TypeOrmModule.forFeature([User, UserRegistrationData, Blogs]),
+  ],
   controllers: [PostsController],
   providers: [
     BlogsQueryRepository,

@@ -2,9 +2,9 @@ import { Controller, Get, Res } from '@nestjs/common';
 import { getIdFromParams } from 'src/infrastructure/decorators/getIdFromParams';
 import { Response } from 'express';
 import { CommandBus } from '@nestjs/cqrs';
-import { FindBlogCommand } from 'src/features/sa_blogs/application/use-cases/find-blog';
-import { FindPostsForSpecificBlogCommand } from 'src/features/sa_blogs/application/use-cases/find-posts-for-specific-blog';
-import { FindBlogsCommand } from 'src/features/sa_blogs/application/use-cases/find-blogs';
+import { FindBlogCommand } from 'src/features/blogs/application/use-cases/find-blog';
+import { FindPostsForSpecificBlogCommand } from 'src/features/blogs/application/use-cases/find-posts-for-specific-blog';
+import { FindBlogsCommand } from 'src/features/blogs/application/use-cases/find-blogs';
 import { CheckUserByJWTAccessToken } from 'src/infrastructure/decorators/checkUserByJWTAccessToken';
 import {
   RequiredParamsValuesForBlogs,

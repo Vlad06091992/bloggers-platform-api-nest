@@ -49,8 +49,7 @@ export class AuthDevicesRepository {
       userId: userId,
       deviceId: Not(deviceId),
     });
-    //@ts-ignore
-    return result.affected > 0;
+    return result!.affected! > 0;
   }
 
   async clearData() {

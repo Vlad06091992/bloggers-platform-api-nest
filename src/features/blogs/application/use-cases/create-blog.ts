@@ -1,13 +1,12 @@
 import { Inject } from '@nestjs/common';
-import { BlogsRepository } from 'src/features/sa_blogs/infrastructure/blogs-repository';
-
-import { CreateBlogDto } from 'src/features/sa_blogs/api/models/create-blog.dto';
-import { Blog } from 'src/features/sa_blogs/domain/blogs-schema';
+import { BlogsRepository } from 'src/features/blogs/infrastructure/blogs-repository';
+import { CreateBlogDto } from 'src/features/blogs/api/models/create-blog.dto';
 import { PostsQueryRepository } from 'src/features/posts/infrastructure/posts.query-repository';
 import { PostsService } from 'src/features/posts/application/posts.service';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { generateUuidV4 } from 'src/utils';
 import { BlogsQueryRepository } from 'src/features/blogs/infrastructure/blogs.query-repository';
+import { Blogs } from 'src/features/blogs/entity/blogs';
 
 export class CreateBlogCommand {
   constructor(public createBlogDto: CreateBlogDto) {}
@@ -23,16 +22,17 @@ export class CreateBlogHandler implements ICommandHandler<CreateBlogCommand> {
   ) {}
 
   async execute(command: CreateBlogCommand) {
-    const { createBlogDto } = command;
-    const newBlog: Blog = {
-      id: generateUuidV4(),
-      createdAt: new Date().toISOString(),
-      isMembership: false,
-      websiteUrl: createBlogDto.websiteUrl,
-      name: createBlogDto.name,
-      description: createBlogDto.description,
-    };
-
+    const {
+      createBlogDto: { name, websiteUrl, description },
+    } = command;
+    const newBlog = new Blogs(
+      generateUuidV4(),
+      new Date(),
+      false,
+      websiteUrl,
+      name,
+      description,
+    );
     return await this.blogsRepository.createBlog(newBlog);
   }
 }

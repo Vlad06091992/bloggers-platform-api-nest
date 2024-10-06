@@ -1,52 +1,66 @@
 import { Injectable } from '@nestjs/common';
 import { RequiredParamsValuesForBlogs } from 'src/shared/common-types';
-import { InjectDataSource } from '@nestjs/typeorm';
-import { DataSource } from 'typeorm';
+import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
+import { DataSource, Repository } from 'typeorm';
+import { Blogs } from 'src/features/blogs/entity/blogs';
+
+//only query builder
 
 @Injectable()
 export class BlogsQueryRepository {
-  constructor(@InjectDataSource() protected dataSource: DataSource) {}
+  constructor(
+    @InjectDataSource() protected dataSource: DataSource,
+    @InjectRepository(Blogs) protected repo: Repository<Blogs>,
+  ) {}
 
   async getBlogById(id: string) {
-    const query = `SELECT id, name, description, "websiteUrl", "createdAt", "isMembership"
-     FROM public."Blogs"
-     WHERE "id" = $1`;
-    return (await this.dataSource.query(query, [id]))[0];
+    return this.repo.createQueryBuilder('b').where('b.id = :id', { id });
   }
 
   async findAll(params: RequiredParamsValuesForBlogs) {
     const { pageNumber, pageSize, sortBy, sortDirection, searchNameTerm } =
       params;
 
-    const countQuery = `SELECT COUNT(*) FROM public."Blogs"
-  WHERE name ILIKE '%${searchNameTerm}%'`;
-    const [{ count: totalCount }] = await this.dataSource.query(countQuery, []);
-    const skip = (+pageNumber - 1) * +pageSize;
-    const query = `
- SELECT id, name, description, "websiteUrl", "createdAt", "isMembership"
-  FROM public."Blogs"
-  WHERE  name ILIKE '%${searchNameTerm}%'
-  ORDER BY "${sortBy}" ${sortDirection}
-   LIMIT ${+pageSize} OFFSET ${+skip}
-`;
+    const totalCount = await this.repo
+      .createQueryBuilder('b')
+      .where(`b.name Ilike :searchNameTerm`, {
+        searchNameTerm: `%${searchNameTerm}%`,
+      })
+      .getCount();
 
-    const items = await this.dataSource.query(query);
+    const skip = (+pageNumber - 1) * +pageSize;
+
+    const blogs = await this.repo
+      .createQueryBuilder('b')
+      .select([
+        'b.id',
+        'b.name',
+        'b.description',
+        'b.websiteUrl',
+        'b.createdAt',
+        'b.isMembership',
+      ])
+      .where(`b.name Ilike :searchNameTerm`, {
+        searchNameTerm: `%${searchNameTerm}%`,
+      })
+      .orderBy(`b.${sortBy}`, sortDirection)
+      .skip(+skip)
+      .take(+pageSize)
+      .getMany();
 
     return {
       pagesCount: Math.ceil(+totalCount / +pageSize),
       page: +pageNumber,
       pageSize: +pageSize,
       totalCount: +totalCount,
-      items,
+      items: blogs,
     };
   }
 
   getBlogNameById(id: string) {
-    const query = `
-    SELECT name
-    FROM public."Blogs"
-    WHERE "id" = $1
-`;
-    return this.dataSource.query(query, [id]);
+    return this.repo
+      .createQueryBuilder('b')
+      .select(['u.name'])
+      .where('b.id = :id', { id });
   }
 }

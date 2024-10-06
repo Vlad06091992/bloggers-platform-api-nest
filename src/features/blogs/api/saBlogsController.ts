@@ -13,17 +13,17 @@ import {
 } from '@nestjs/common';
 import { getIdFromParams } from 'src/infrastructure/decorators/getIdFromParams';
 import { Response } from 'express';
-import { UpdateBlogDto } from 'src/features/sa_blogs/api/models/update-blog.dto';
-import { CreateBlogDto } from 'src/features/sa_blogs/api/models/create-blog.dto';
+import { UpdateBlogDto } from 'src/features/blogs/api/models/update-blog.dto';
+import { CreateBlogDto } from 'src/features/blogs/api/models/create-blog.dto';
 import { CreatePostDtoWithoutBlogId } from 'src/features/posts/api/models/create-post.dto';
 import { CommandBus } from '@nestjs/cqrs';
-import { CreateBlogCommand } from 'src/features/sa_blogs/application/use-cases/create-blog';
-import { DeleteBlogCommand } from 'src/features/sa_blogs/application/use-cases/delete-blog';
-import { UpdateBlogCommand } from 'src/features/sa_blogs/application/use-cases/update-blog';
-import { FindBlogCommand } from 'src/features/sa_blogs/application/use-cases/find-blog';
-import { FindPostsForSpecificBlogCommand } from 'src/features/sa_blogs/application/use-cases/find-posts-for-specific-blog';
-import { FindBlogsCommand } from 'src/features/sa_blogs/application/use-cases/find-blogs';
-import { CreatePostsForSpecificBlogCommand } from 'src/features/sa_blogs/application/use-cases/create-post-for-specific-blog';
+import { CreateBlogCommand } from 'src/features/blogs/application/use-cases/create-blog';
+import { DeleteBlogCommand } from 'src/features/blogs/application/use-cases/delete-blog';
+import { UpdateBlogCommand } from 'src/features/blogs/application/use-cases/update-blog';
+import { FindBlogCommand } from 'src/features/blogs/application/use-cases/find-blog';
+import { FindPostsForSpecificBlogCommand } from 'src/features/blogs/application/use-cases/find-posts-for-specific-blog';
+import { FindBlogsCommand } from 'src/features/blogs/application/use-cases/find-blogs';
+import { CreatePostsForSpecificBlogCommand } from 'src/features/blogs/application/use-cases/create-post-for-specific-blog';
 import { BasicAuthGuard } from 'src/features/auth/guards/basic-auth.guard';
 import { CheckUserByJWTAccessToken } from 'src/infrastructure/decorators/checkUserByJWTAccessToken';
 import {

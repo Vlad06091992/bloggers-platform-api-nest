@@ -4,7 +4,7 @@ import { TestingService } from 'src/features/testing/testing.service';
 import { UsersRepository } from 'src/features/users/infrastructure/users-repository';
 import { CommentsRepository } from 'src/features/comments/infrastructure/comments-repository';
 import { PostsRepository } from 'src/features/posts/infrastructure/posts-repository';
-import { BlogsRepository } from 'src/features/sa_blogs/infrastructure/blogs-repository';
+import { BlogsRepository } from 'src/features/blogs/infrastructure/blogs-repository';
 import { AuthDevicesRepository } from 'src/features/auth/infrastructure/auth-devices-repository';
 import { OldTokensIdsRepository } from 'src/features/auth/infrastructure/old-tokens-ids-repository';
 import { CommentsLikesRepository } from 'src/features/comments-likes/infrastructure/comments-likes-repository';
@@ -15,6 +15,7 @@ import { AuthDevices } from 'src/features/auth/entities/devices';
 import { AuthDevicesQueryRepository } from 'src/features/auth/infrastructure/auth-devices-query-repository';
 import { User } from 'src/features/users/entities/user';
 import { UserRegistrationData } from 'src/features/users/entities/user-registration-data';
+import { Blogs } from 'src/features/blogs/entity/blogs';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { UserRegistrationData } from 'src/features/users/entities/user-registrat
       AuthDevices,
       User,
       UserRegistrationData,
+      Blogs,
     ]),
   ],
   controllers: [TestingController],

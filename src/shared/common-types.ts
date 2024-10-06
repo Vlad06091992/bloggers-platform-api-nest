@@ -1,3 +1,5 @@
+export type SortDirection = 'ASC' | 'DESC';
+
 export type ParamsValues =
   | 'sortBy'
   | 'sortDirection'
@@ -11,15 +13,20 @@ export type QueryParams = Partial<Record<ParamsValues, string>>;
 
 export type RequiredParamsValuesForUsers = Omit<
   Record<ParamsValues, string>,
-  'searchNameTerm'
->;
+  'searchNameTerm' | 'sortDirection'
+> & {
+  sortDirection: SortDirection;
+};
 
 export type RequiredParamsValuesForBlogs = Omit<
   Record<ParamsValues, string>,
-  'searchLoginTerm' | 'searchEmailTerm'
->;
-
+  'searchLoginTerm' | 'searchEmailTerm' | 'sortDirection'
+> & {
+  sortDirection: SortDirection;
+};
 export type RequiredParamsValuesForPostsOrComments = Omit<
   Record<ParamsValues, string>,
-  'searchLoginTerm' | 'searchEmailTerm' | 'searchNameTerm'
->;
+  'searchLoginTerm' | 'searchEmailTerm' | 'searchNameTerm' | 'sortDirection'
+> & {
+  sortDirection: SortDirection;
+};

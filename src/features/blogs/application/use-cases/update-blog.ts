@@ -1,9 +1,9 @@
 import { Inject } from '@nestjs/common';
-import { BlogsRepository } from 'src/features/sa_blogs/infrastructure/blogs-repository';
+import { BlogsRepository } from 'src/features/blogs/infrastructure/blogs-repository';
 import { PostsQueryRepository } from 'src/features/posts/infrastructure/posts.query-repository';
 import { PostsService } from 'src/features/posts/application/posts.service';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { UpdateBlogDto } from 'src/features/sa_blogs/api/models/update-blog.dto';
+import { UpdateBlogDto } from 'src/features/blogs/api/models/update-blog.dto';
 import { BlogsQueryRepository } from 'src/features/blogs/infrastructure/blogs.query-repository';
 
 export class UpdateBlogCommand {
