@@ -21,9 +21,7 @@ export class BlogsQueryRepository {
     const countQuery = `SELECT COUNT(*) FROM public."Blogs"
   WHERE name ILIKE '%${searchNameTerm}%'`;
     const [{ count: totalCount }] = await this.dataSource.query(countQuery, []);
-    // const totalCount = await this.dataSource.query(countQuery, []);
     const skip = (+pageNumber - 1) * +pageSize;
-
     const query = `
  SELECT id, name, description, "websiteUrl", "createdAt", "isMembership"
   FROM public."Blogs"

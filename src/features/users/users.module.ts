@@ -9,9 +9,17 @@ import { CqrsModule } from '@nestjs/cqrs';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from 'src/features/users/entities/user';
 import { UserRegistrationData } from 'src/features/users/entities/user-registration-data';
+import { RecoveryPasswordCodes } from 'src/features/auth/entities/recovery-password-codes';
 
 @Module({
-  imports: [CqrsModule, TypeOrmModule.forFeature([User, UserRegistrationData])],
+  imports: [
+    CqrsModule,
+    TypeOrmModule.forFeature([
+      User,
+      UserRegistrationData,
+      RecoveryPasswordCodes,
+    ]),
+  ],
   controllers: [UsersController],
   providers: [
     UsersService,

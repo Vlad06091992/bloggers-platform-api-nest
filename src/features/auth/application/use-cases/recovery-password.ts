@@ -1,10 +1,11 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { RecoveryPasswordsCode } from 'src/features/auth/entities/recovery-password-schema';
+
 import { addHours } from 'date-fns';
 import { RecoveryPasswordRepository } from 'src/features/auth/infrastructure/recovery-password-repository';
 import { EmailService } from 'src/email/email.service';
 import { UsersService } from 'src/features/users/application/users.service';
 import { generateUuidV4 } from 'src/utils';
+import { RecoveryPasswordCodes } from 'src/features/auth/entities/recovery-password-codes';
 
 export class RecoveryPasswordCommand {
   constructor(public email: string) {}
@@ -28,7 +29,7 @@ export class RecoveryPasswordHandler
       const id = generateUuidV4();
       await this.emailService.recoveryPassword(email, recoveryCode);
 
-      const record: RecoveryPasswordsCode = {
+      const record: RecoveryPasswordCodes = {
         id,
         recoveryCode,
         email: user.email,

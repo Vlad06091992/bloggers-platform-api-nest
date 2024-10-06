@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { RecoveryPasswordsCode } from 'src/features/auth/entities/recovery-password-schema';
+
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
+import { RecoveryPasswordCodes } from 'src/features/auth/entities/recovery-password-codes';
 
 @Injectable()
 export class RecoveryPasswordRepository {
@@ -10,7 +11,7 @@ export class RecoveryPasswordRepository {
     protected dataSource: DataSource,
   ) {}
 
-  async createRecord(record: RecoveryPasswordsCode) {
+  async createRecord(record: RecoveryPasswordCodes) {
     const { userId, recoveryCode, id, expirationDate, email } = record;
     const query = `INSERT INTO public."RecoveryPasswordCodes"(
           "id", "userId", "email", "expirationDate", "recoveryCode")

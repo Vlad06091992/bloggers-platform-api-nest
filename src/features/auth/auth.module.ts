@@ -42,6 +42,7 @@ import { OldTokensIds } from 'src/features/auth/entities/old-tokens-ids';
 import { AuthDevices } from 'src/features/auth/entities/devices';
 import { User } from 'src/features/users/entities/user';
 import { UserRegistrationData } from 'src/features/users/entities/user-registration-data';
+import { RecoveryPasswordCodes } from 'src/features/auth/entities/recovery-password-codes';
 
 @Module({
   imports: [
@@ -58,6 +59,7 @@ import { UserRegistrationData } from 'src/features/users/entities/user-registrat
       AuthDevices,
       User,
       UserRegistrationData,
+      RecoveryPasswordCodes,
     ]),
   ],
   controllers: [AuthController],

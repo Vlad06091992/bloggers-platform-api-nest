@@ -1,8 +1,7 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { AuthDevices } from 'src/features/auth/entities/devices';
-import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
-import { DataSource, Not, Repository } from 'typeorm';
-import { OldTokensIds } from 'src/features/auth/entities/old-tokens-ids';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Not, Repository } from 'typeorm';
 
 @Injectable()
 export class AuthDevicesRepository {
@@ -46,15 +45,12 @@ export class AuthDevicesRepository {
   }
 
   async deactivateAllDevicesExceptThisOne(deviceId: string, userId: string) {
-    // Удаляем все устройства пользователя, кроме указанного
     const result = await this.repo.delete({
       userId: userId,
       deviceId: Not(deviceId),
     });
-    debugger;
     //@ts-ignore
     return result.affected > 0;
-    // return result;
   }
 
   async clearData() {

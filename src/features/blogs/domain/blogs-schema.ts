@@ -1,6 +1,5 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Model, Types } from 'mongoose';
-import { pagination } from 'src/utils';
+import { Prop, Schema } from '@nestjs/mongoose';
+import { Types } from 'mongoose';
 
 @Schema()
 export class Blog {
@@ -25,24 +24,3 @@ export class Blog {
   @Prop()
   isMembership: boolean;
 }
-
-interface BlogStatics {
-  pagination: (params: any, filter: any, projection: any) => any;
-}
-
-export const BlogsSchema = SchemaFactory.createForClass(Blog);
-
-BlogsSchema.statics = {
-  pagination: pagination,
-};
-
-BlogsSchema.set('toObject', {
-  transform: (doc, ret) => {
-    delete ret.__v;
-    delete ret._id;
-    return ret;
-  },
-});
-
-//
-export type BlogModel = Model<Blog> & BlogStatics;
