@@ -1,8 +1,8 @@
 import { Column, Entity, JoinColumn, OneToOne, PrimaryColumn } from 'typeorm';
-import { UserRegistrationData } from 'src/features/users/entities/user-registration-data';
+import { UsersRegistrationData } from 'src/features/users/entities/users-registration-data';
 
-@Entity({ name: 'User' })
-export class User {
+@Entity({ name: 'Users' })
+export class Users {
   @PrimaryColumn('uuid')
   id: string;
 
@@ -19,10 +19,10 @@ export class User {
   password: string;
 
   @OneToOne(
-    () => UserRegistrationData,
-    (userRegData: UserRegistrationData) => userRegData.user,
+    () => UsersRegistrationData,
+    (userRegData: UsersRegistrationData) => userRegData.user,
   )
-  userRegistrationData: UserRegistrationData;
+  userRegistrationData: UsersRegistrationData;
   constructor(
     id: string,
     email: string,

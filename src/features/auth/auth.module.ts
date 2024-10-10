@@ -40,8 +40,8 @@ import { UpdateSessionHandler } from 'src/features/security/application/use-case
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { OldTokensIds } from 'src/features/auth/entities/old-tokens-ids';
 import { AuthDevices } from 'src/features/auth/entities/devices';
-import { User } from 'src/features/users/entities/user';
-import { UserRegistrationData } from 'src/features/users/entities/user-registration-data';
+import { Users } from 'src/features/users/entities/users';
+import { UsersRegistrationData } from 'src/features/users/entities/users-registration-data';
 import { RecoveryPasswordCodes } from 'src/features/auth/entities/recovery-password-codes';
 
 @Module({
@@ -57,8 +57,8 @@ import { RecoveryPasswordCodes } from 'src/features/auth/entities/recovery-passw
     TypeOrmModule.forFeature([
       OldTokensIds,
       AuthDevices,
-      User,
-      UserRegistrationData,
+      Users,
+      UsersRegistrationData,
       RecoveryPasswordCodes,
     ]),
   ],

@@ -3,7 +3,7 @@ import { RequiredParamsValuesForPostsOrComments } from '../../../shared/common-t
 import { PostsRepository } from 'src/features/posts/infrastructure/posts-repository';
 import { PostsQueryRepository } from 'src/features/posts/infrastructure/posts.query-repository';
 import { CreatePostDto } from 'src/features/posts/api/models/create-post.dto';
-import { Post } from 'src/features/posts/domain/posts-schema';
+
 import { UpdatePostDto } from 'src/features/posts/api/models/update-post.dto';
 import { CommentsQueryRepository } from 'src/features/comments/infrastructure/comments.query-repository';
 import { CommandBus } from '@nestjs/cqrs';
@@ -11,6 +11,8 @@ import { generateUuidV4 } from 'src/utils';
 import { BlogsQueryRepository } from 'src/features/blogs/infrastructure/blogs.query-repository';
 import { UsersQueryRepository } from 'src/features/users/infrastructure/users.query-repository';
 import { PostsLikesQueryRepository } from 'src/features/posts-likes/infrastructure/posts-likes-query-repository';
+import { Posts } from 'src/features/posts/entity/posts';
+import { Blogs } from 'src/features/blogs/entity/blogs';
 
 @Injectable()
 export class PostsService {
@@ -27,19 +29,17 @@ export class PostsService {
   async create(createPostDto: CreatePostDto) {
     const { shortDescription, content, blogId, title } = createPostDto;
     const id = generateUuidV4();
-    const blogName = (
-      await this.blogsQueryRepository.getBlogNameById(blogId)
-    )[0].name;
-
-    const newPost: Post = {
+    const blog = (await this.blogsQueryRepository.getBlogById(blogId))!;
+    const createdAt = new Date();
+    const newPost = new Posts(
       id,
-      title: title,
-      shortDescription: shortDescription,
+      title,
+      shortDescription,
       content,
-      blogId,
-      blogName,
-      createdAt: new Date().toISOString(),
-    };
+      blog,
+      blog.name,
+      createdAt,
+    );
 
     const extendedLikesInfo = {
       likesCount: 0,
@@ -67,7 +67,7 @@ export class PostsService {
 
         return {
           ...post,
-          extendedLikesInfo: { ...post.extendedLikesInfo, newestLikes },
+          // extendedLikesInfo: { ...post.extendedLikesInfo, newestLikes },
         };
       }),
     );
@@ -96,14 +96,15 @@ export class PostsService {
       );
 
     if (post) {
-      const newestLikes = await this.postsLikesQueryRepository.getNewestLikes(
-        post?.id,
-      );
+      return post;
+      // const newestLikes = await this.postsLikesQueryRepository.getNewestLikes(
+      //   post?.id,
+      // );
 
-      return {
-        ...post,
-        extendedLikesInfo: { ...post.extendedLikesInfo, newestLikes },
-      };
+      // return {
+      //   ...post,
+      //   // extendedLikesInfo: { ...post.extendedLikesInfo, newestLikes },
+      // };
     }
     return null;
   }

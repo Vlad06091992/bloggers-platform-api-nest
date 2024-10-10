@@ -37,7 +37,6 @@ export class AuthDevicesRepository {
     if (device) {
       device.lastActiveDate = new Date();
       await this.repo.save(device);
-
       return true;
     } else {
       return false;

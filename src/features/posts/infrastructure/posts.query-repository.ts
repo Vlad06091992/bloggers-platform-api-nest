@@ -1,49 +1,37 @@
 import { Injectable } from '@nestjs/common';
 import { RequiredParamsValuesForPostsOrComments } from 'src/shared/common-types';
-import { InjectDataSource } from '@nestjs/typeorm';
-import { DataSource } from 'typeorm';
-import { mapRawPostToExtendedModel } from 'src/utils';
+import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
+import { DataSource, Repository } from 'typeorm';
+import { Posts } from 'src/features/posts/entity/posts';
 
 @Injectable()
 export class PostsQueryRepository {
-  constructor(@InjectDataSource() protected dataSource: DataSource) {}
+  constructor(
+    @InjectDataSource() protected dataSource: DataSource,
+    @InjectRepository(Posts) protected repo: Repository<Posts>,
+  ) {}
 
   async getPostWithExtendedLikesInfoById(
     postId: string,
     userId: string | null,
   ) {
-    const query = `SELECT p.*,pr.id as postReactionId,pr."addedAt",pr."userId",u."login",b.name as "blogName",
-(SELECT COUNT(*) FROM public."PostsReactions"  WHERE "likeStatus" ='Like' AND "postId" = $1 ) as LikesCount,
-(SELECT COUNT(*) FROM public."PostsReactions"  WHERE "likeStatus" ='Dislike' AND "postId" = $1 ) as DislikesCount,
-(SELECT COALESCE(
-  (
-    SELECT CASE
-      WHEN ("likeStatus" = 'Like' AND "postId" = $1) THEN 'Like'
-      WHEN ("likeStatus" = 'Dislike' AND "postId" = $1) THEN 'Dislike'
-    END
-    FROM public."PostsReactions"
-    WHERE "userId" = $2 AND "postId" = $1
-  ), 'None')) AS MyStatus
+    const post = await this.repo
+      .createQueryBuilder('p')
+      .where('p.id = :postId', { postId })
+      .loadRelationIdAndMap('p.blogId', 'p.blog')
+      .getOne();
 
-FROM public."Posts" as p 
-LEFT JOIN public."PostsReactions" as pr
-ON p."id" = pr."postId"
-LEFT JOIN public."User" as u
-ON pr."userId" = u."id"
-LEFT JOIN public."Blogs" as b
-ON P."blogId" = b."id"
-WHERE p."id" = $1
-ORDER BY PR."addedAt" DESC
-LIMIT 3
-`;
-
-    try {
-      const rawResult = await this.dataSource.query(query, [postId, userId]);
-      if (!rawResult.length) return null;
-      return mapRawPostToExtendedModel(rawResult);
-    } catch (e) {
-      debugger;
-    }
+    return post
+      ? {
+          ...post,
+          extendedLikesInfo: {
+            likesCount: 0,
+            dislikesCount: 0,
+            myStatus: 'None',
+            newestLikes: [],
+          },
+        }
+      : null;
   }
 
   async findPostsForSpecificBlog(
@@ -52,34 +40,37 @@ LIMIT 3
     userId: string | null,
   ) {
     const { pageNumber, pageSize, sortBy, sortDirection } = params;
-
-    const countQuery = `SELECT COUNT(*) FROM public."Posts" WHERE "blogId" = $1`;
-    const [{ count: totalCount }] = await this.dataSource.query(countQuery, [
-      blogId,
-    ]);
-    debugger;
+    const totalCount = await this.repo.createQueryBuilder('p').getCount();
     const skip = (+pageNumber - 1) * +pageSize;
-
-    const query = `
-    SELECT id
-    FROM public."Posts"
-    WHERE "blogId" = $1
-    ORDER BY "${sortBy}" ${sortDirection}
-    LIMIT ${+pageSize} OFFSET ${+skip}
-`;
-
-    const itemsIds = await this.dataSource.query(query, [blogId]);
+    const posts = await this.repo
+      .createQueryBuilder('p')
+      .where('p.blogId = :blogId', { blogId })
+      .loadRelationIdAndMap('p.blogId', 'p.blog')
+      .orderBy(`p.${sortBy}`, sortDirection)
+      .skip(+skip)
+      .take(+pageSize)
+      .getMany();
 
     return {
       pagesCount: Math.ceil(+totalCount / +pageSize),
       page: +pageNumber,
       pageSize: +pageSize,
       totalCount: +totalCount,
-      items: await Promise.all(
-        itemsIds.map((el) =>
-          this.getPostWithExtendedLikesInfoById(el.id, userId),
-        ),
-      ),
+      items: posts.map((el) => ({
+        ...el,
+        extendedLikesInfo: {
+          likesCount: 0,
+          dislikesCount: 0,
+          myStatus: 'None',
+          newestLikes: [
+            // {
+            //   "addedAt": "2024-10-09T04:25:37.185Z",
+            //   "userId": "string",
+            //   "login": "string"
+            // }
+          ],
+        },
+      })),
     };
   }
 
@@ -88,31 +79,37 @@ LIMIT 3
     userId: string | null,
   ) {
     const { pageNumber, pageSize, sortBy, sortDirection } = params;
-
-    const countQuery = `SELECT COUNT(*) FROM public."Posts"`;
-    const [{ count: totalCount }] = await this.dataSource.query(countQuery, []);
-    // const totalCount = await this.dataSource.query(countQuery, []);
+    const totalCount = await this.repo.createQueryBuilder('p').getCount();
     const skip = (+pageNumber - 1) * +pageSize;
 
-    const query = `
-    SELECT id
-    FROM public."Posts"
-    ORDER BY "${sortBy}" ${sortDirection}
-    LIMIT ${+pageSize} OFFSET ${+skip}
-`;
-
-    const itemsIds = await this.dataSource.query(query);
+    const posts = await this.repo
+      .createQueryBuilder('p')
+      .loadRelationIdAndMap('p.blogId', 'p.blog')
+      .orderBy(`p.${sortBy}`, sortDirection)
+      .skip(+skip)
+      .take(+pageSize)
+      .getMany();
 
     return {
       pagesCount: Math.ceil(+totalCount / +pageSize),
       page: +pageNumber,
       pageSize: +pageSize,
       totalCount: +totalCount,
-      items: await Promise.all(
-        itemsIds.map((el) =>
-          this.getPostWithExtendedLikesInfoById(el.id, userId),
-        ),
-      ),
+      items: posts.map((el) => ({
+        ...el,
+        extendedLikesInfo: {
+          likesCount: 0,
+          dislikesCount: 0,
+          myStatus: 'None',
+          newestLikes: [
+            // {
+            //   "addedAt": "2024-10-09T04:25:37.185Z",
+            //   "userId": "string",
+            //   "login": "string"
+            // }
+          ],
+        },
+      })),
     };
   }
 }

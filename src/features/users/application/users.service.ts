@@ -1,6 +1,6 @@
 import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { CreateUserDto } from 'src/features/users/api/models/create-user.dto';
-import { User } from 'src/features/users/entities/user';
+import { Users } from 'src/features/users/entities/users';
 import { UsersRepository } from 'src/features/users/infrastructure/users-repository';
 import * as bcrypt from 'bcrypt';
 import { UsersQueryRepository } from 'src/features/users/infrastructure/users.query-repository';
@@ -9,7 +9,7 @@ import { EmailService } from 'src/email/email.service';
 import { add, isBefore } from 'date-fns';
 import { RecoveryPasswordQueryRepository } from 'src/features/auth/infrastructure/recovery-password-query-repository';
 import { generateUuidV4 } from 'src/utils';
-import { UserRegistrationData } from 'src/features/users/entities/user-registration-data';
+import { UsersRegistrationData } from 'src/features/users/entities/users-registration-data';
 
 @Injectable()
 export class UsersService {
@@ -27,7 +27,7 @@ export class UsersService {
     const id = generateUuidV4();
     const confirmationCode = generateUuidV4();
     const regDataId = generateUuidV4();
-    const newUser = new User(
+    const newUser = new Users(
       id,
       email,
       login,
@@ -35,7 +35,7 @@ export class UsersService {
       await this.createHash(password),
     );
     const expirationDate = add(new Date(), { hours: 1 });
-    const newUserRegistrationData = new UserRegistrationData(
+    const newUserRegistrationData = new UsersRegistrationData(
       regDataId,
       !isRegistration,
       confirmationCode,
@@ -79,26 +79,28 @@ export class UsersService {
   }
 
   async confirmUserByConfirmationCode(code: string) {
-    const user =
+    const userRegData =
       await this.usersQueryRepository.findUserByConfirmationCode(code);
 
-    if (!user) {
+    debugger;
+
+    if (!userRegData) {
       throw new BadRequestException({
         errorsMessages: [{ message: 'user not found', field: 'code' }],
       });
     }
 
-    if (user.registrationData.isConfirmed)
+    if (userRegData.isConfirmed)
       throw new BadRequestException({
         errorsMessages: [{ message: 'code is confirmed', field: 'code' }],
       });
 
-    if (isBefore(user.registrationData.expirationDate, new Date()))
+    if (isBefore(userRegData.expirationDate, new Date()))
       throw new BadRequestException({
         errorsMessages: [{ message: 'code is expired', field: 'code' }],
       });
-
-    return this.usersRepository.confirmUserByUserId(user.id);
+    debugger;
+    return this.usersRepository.confirmUserByUserId(userRegData.user.id);
   }
 
   async updateConfirmationCode(userId: string, confirmationCode: string) {

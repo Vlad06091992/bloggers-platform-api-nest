@@ -1,17 +1,17 @@
 import { Column, Entity, JoinColumn, OneToOne, PrimaryColumn } from 'typeorm';
-import { User } from 'src/features/users/entities/user';
+import { Users } from 'src/features/users/entities/users';
 
-@Entity({ name: 'UserRegistrationData' })
-export class UserRegistrationData {
+@Entity({ name: 'UsersRegistrationData' })
+export class UsersRegistrationData {
   @PrimaryColumn()
   id: string;
 
-  @OneToOne(() => User, {
+  @OneToOne(() => Users, {
     cascade: true,
     onDelete: 'CASCADE',
   })
   @JoinColumn()
-  user: User;
+  user: Users;
 
   @Column()
   confirmationCode: string;
@@ -27,7 +27,7 @@ export class UserRegistrationData {
     isConfirmed: boolean,
     confirmationCode: string,
     expirationDate: Date,
-    user: User,
+    user: Users,
   ) {
     this.id = id;
     this.isConfirmed = isConfirmed;

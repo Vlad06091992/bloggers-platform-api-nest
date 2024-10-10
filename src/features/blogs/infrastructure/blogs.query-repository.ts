@@ -14,7 +14,10 @@ export class BlogsQueryRepository {
   ) {}
 
   async getBlogById(id: string) {
-    return this.repo.createQueryBuilder('b').where('b.id = :id', { id });
+    return await this.repo
+      .createQueryBuilder('b')
+      .where('b.id = :id', { id })
+      .getOne();
   }
 
   async findAll(params: RequiredParamsValuesForBlogs) {
@@ -57,10 +60,22 @@ export class BlogsQueryRepository {
     };
   }
 
-  getBlogNameById(id: string) {
-    return this.repo
-      .createQueryBuilder('b')
-      .select(['u.name'])
-      .where('b.id = :id', { id });
+  async getBlogNameById(id: string): Promise<string> {
+    try {
+      const blog = await this.repo
+        .createQueryBuilder('b')
+        .select(['b.name'])
+        .where('b.id = :id', { id })
+        .getOne();
+
+      if (!blog) {
+        throw new Error(`Блог с id ${id} не найден`);
+      }
+
+      return blog.name;
+    } catch (error) {
+      console.error(`Ошибка при получении имени блога с id ${id}:`, error);
+      throw error;
+    }
   }
 }

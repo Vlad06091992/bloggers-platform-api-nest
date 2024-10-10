@@ -13,18 +13,20 @@ import { OldTokensIds } from 'src/features/auth/entities/old-tokens-ids';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthDevices } from 'src/features/auth/entities/devices';
 import { AuthDevicesQueryRepository } from 'src/features/auth/infrastructure/auth-devices-query-repository';
-import { User } from 'src/features/users/entities/user';
-import { UserRegistrationData } from 'src/features/users/entities/user-registration-data';
+import { Users } from 'src/features/users/entities/users';
+import { UsersRegistrationData } from 'src/features/users/entities/users-registration-data';
 import { Blogs } from 'src/features/blogs/entity/blogs';
+import { Posts } from 'src/features/posts/entity/posts';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([
       OldTokensIds,
       AuthDevices,
-      User,
-      UserRegistrationData,
+      Users,
+      UsersRegistrationData,
       Blogs,
+      Posts,
     ]),
   ],
   controllers: [TestingController],

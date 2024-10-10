@@ -2,17 +2,16 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { RequiredParamsValuesForUsers } from 'src/shared/common-types';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
-import { mapRawUserToExtendedModel } from 'src/utils';
-import { User } from 'src/features/users/entities/user';
-import { UserRegistrationData } from 'src/features/users/entities/user-registration-data';
+import { Users } from 'src/features/users/entities/users';
+import { UsersRegistrationData } from 'src/features/users/entities/users-registration-data';
 
 @Injectable()
 export class UsersQueryRepository {
   constructor(
     @InjectDataSource() protected dataSource: DataSource,
-    @InjectRepository(User) protected userRepo: Repository<User>,
-    @InjectRepository(UserRegistrationData)
-    protected userRegDataRepo: Repository<UserRegistrationData>,
+    @InjectRepository(Users) protected userRepo: Repository<Users>,
+    @InjectRepository(UsersRegistrationData)
+    protected userRegDataRepo: Repository<UsersRegistrationData>,
   ) {}
 
   async getUserById(id: string) {
@@ -24,13 +23,10 @@ export class UsersQueryRepository {
 
   async findUserByEmailOrLogin(emailOrLogin: string) {
     try {
-      debugger;
-      const res = await this.userRepo.findOne({
+      return await this.userRepo.findOne({
         where: [{ email: emailOrLogin }, { login: emailOrLogin }],
         relations: ['userRegistrationData'],
       });
-      debugger;
-      return res;
     } catch (error) {
       console.error('Error finding user by email or login:', error);
       throw error;
@@ -38,28 +34,49 @@ export class UsersQueryRepository {
   }
 
   async findUserByEmail(email: string) {
-    return await this.userRepo.findOne({
-      where: { email },
-      relations: ['userRegistrationData'],
-    });
+    try {
+      return await this.userRepo.findOne({
+        where: { email },
+        relations: ['userRegistrationData'],
+      });
+    } catch (error) {
+      console.error('Error finding user by email:', error);
+      throw error;
+    }
   }
 
   async findUserByLogin(login: string) {
-    return await this.userRepo.findOne({
-      where: { login },
-      relations: ['userRegistrationData'],
-    });
+    try {
+      return await this.userRepo.findOne({
+        where: { login },
+        relations: ['userRegistrationData'],
+      });
+    } catch (error) {
+      console.error('Error finding user by login:', error);
+      throw error;
+    }
   }
 
   async findUserByConfirmationCode(code: string) {
     try {
-      const query = `SELECT u."id",u."password",u."login",u."email",ur."confirmationCode",ur."expirationDate",ur."isConfirmed"
-    FROM public."UserRegistrationData" as ur
-    JOIN public."User" as u
-    ON u."id" = ur."userId"
-    WHERE ur."confirmationCode" = $1;`;
-      const rawResult = (await this.dataSource.query(query, [code]))[0];
-      return rawResult ? mapRawUserToExtendedModel(rawResult) : null;
+      return await this.userRegDataRepo
+        .createQueryBuilder('urd')
+        .innerJoinAndSelect('urd.user', 'u')
+        .where('urd.confirmationCode = :confirmationCode', {
+          confirmationCode: code,
+        })
+        .select([
+          'urd.id',
+          'urd.confirmationCode',
+          'urd.expirationDate',
+          'urd.isConfirmed',
+          'u.id',
+          'u.email',
+          'u.login',
+          'u.createdAt',
+          'u.password',
+        ])
+        .getOne();
     } catch (e) {
       throw new BadRequestException({
         errorsMessages: [{ message: 'user not exist', field: 'code' }],
@@ -68,37 +85,45 @@ export class UsersQueryRepository {
   }
 
   async findAll(params: RequiredParamsValuesForUsers) {
-    const {
-      pageNumber,
-      pageSize,
-      sortBy,
-      sortDirection,
-      searchEmailTerm,
-      searchLoginTerm,
-    } = params;
+    try {
+      const {
+        pageNumber,
+        pageSize,
+        sortBy,
+        sortDirection,
+        searchEmailTerm,
+        searchLoginTerm,
+      } = params;
+      const skip = (+pageNumber - 1) * +pageSize;
 
-    const countQuery = `SELECT COUNT(*) FROM public."User"
-  WHERE email ILIKE '%${searchEmailTerm}%' OR  login ILIKE '%${searchLoginTerm}%'`;
-    const [{ count: totalCount }] = await this.dataSource.query(countQuery, []);
-    // const totalCount = await this.dataSource.query(countQuery, []);
-    const skip = (+pageNumber - 1) * +pageSize;
+      const builder = await this.userRepo
+        .createQueryBuilder('u')
+        .select(['u.id', 'u.email', 'u.login', 'u.createdAt'])
+        .where('u.login ILIKE :searchLoginTerm', {
+          searchLoginTerm: `%${searchLoginTerm}%`,
+        })
+        .orWhere('u.email ILIKE :searchEmailTerm', {
+          searchEmailTerm: `%${searchEmailTerm}%`,
+        });
 
-    const query = `
-  SELECT "id", "email", "login", "createdAt"
-  FROM public."User"
-  WHERE  login ILIKE '%${searchLoginTerm}%'  OR email ILIKE '%${searchEmailTerm}%'
-  ORDER BY "${sortBy}" ${sortDirection}
-   LIMIT ${+pageSize} OFFSET ${+skip}
-`;
+      const totalCount = await builder.getCount();
 
-    const items = await this.dataSource.query(query);
+      const result = await builder
+        .orderBy(`u.${sortBy}`, sortDirection)
+        .skip(+skip)
+        .take(+pageSize)
+        .getMany();
 
-    return {
-      pagesCount: Math.ceil(+totalCount / +pageSize),
-      page: +pageNumber,
-      pageSize: +pageSize,
-      totalCount: +totalCount,
-      items,
-    };
+      return {
+        pagesCount: Math.ceil(+totalCount / +pageSize),
+        page: +pageNumber,
+        pageSize: +pageSize,
+        totalCount: +totalCount,
+        items: result,
+      };
+    } catch (error) {
+      console.error('Ошибка при выполнении метода users findAll:', error);
+      throw error; // Или обработайте ошибку по-своему
+    }
   }
 }

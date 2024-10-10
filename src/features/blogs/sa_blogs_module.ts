@@ -18,16 +18,23 @@ import { BlogsQueryRepository } from 'src/features/blogs/infrastructure/blogs.qu
 import { UsersQueryRepository } from 'src/features/users/infrastructure/users.query-repository';
 import { PostsLikesQueryRepository } from 'src/features/posts-likes/infrastructure/posts-likes-query-repository';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { User } from 'src/features/users/entities/user';
-import { UserRegistrationData } from 'src/features/users/entities/user-registration-data';
+import { Users } from 'src/features/users/entities/users';
+import { UsersRegistrationData } from 'src/features/users/entities/users-registration-data';
 import { Blogs } from 'src/features/blogs/entity/blogs';
 import { AuthDevicesRepository } from 'src/features/auth/infrastructure/auth-devices-repository';
 import { AuthDevices } from 'src/features/auth/entities/devices';
+import { Posts } from 'src/features/posts/entity/posts';
 
 @Module({
   imports: [
     CqrsModule,
-    TypeOrmModule.forFeature([User, UserRegistrationData, Blogs, AuthDevices]),
+    TypeOrmModule.forFeature([
+      Users,
+      UsersRegistrationData,
+      Blogs,
+      Posts,
+      AuthDevices,
+    ]),
   ],
   controllers: [SaBlogsController],
   providers: [

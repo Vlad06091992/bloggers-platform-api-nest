@@ -4,6 +4,8 @@ import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 import { Blogs } from 'src/features/blogs/entity/blogs';
 
+//only query builder
+
 @Injectable()
 export class BlogsRepository {
   constructor(
@@ -39,7 +41,7 @@ export class BlogsRepository {
 
   async clearData() {
     await this.dataSource.query(`TRUNCATE TABLE public."Blogs" CASCADE;`, []);
-    await this.dataSource.query(`TRUNCATE TABLE public."Posts";`, []);
-    await this.dataSource.query(`TRUNCATE TABLE public."PostsReactions";`, []);
+    // await this.dataSource.query(`TRUNCATE TABLE public."Posts";`, []);
+    // await this.dataSource.query(`TRUNCATE TABLE public."PostsReactions";`, []);
   }
 }

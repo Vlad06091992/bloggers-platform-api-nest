@@ -1,26 +1,21 @@
-import { User } from 'src/features/users/entities/user';
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Users } from 'src/features/users/entities/users';
+import { Injectable } from '@nestjs/common';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
-import {
-  DataSource,
-  FindOneOptions,
-  FindOptionsWhere,
-  Repository,
-} from 'typeorm';
-import { UserRegistrationData } from 'src/features/users/entities/user-registration-data';
+import { DataSource, FindOneOptions, Repository } from 'typeorm';
+import { UsersRegistrationData } from 'src/features/users/entities/users-registration-data';
 
 type CreateUserDTO = {
-  newUser: User;
-  newUserRegistrationData: UserRegistrationData;
+  newUser: Users;
+  newUserRegistrationData: UsersRegistrationData;
 };
 
 @Injectable()
 export class UsersRepository {
   constructor(
     @InjectDataSource() protected dataSource: DataSource,
-    @InjectRepository(User) protected userRepo: Repository<User>,
-    @InjectRepository(UserRegistrationData)
-    protected userRegDataRepo: Repository<UserRegistrationData>,
+    @InjectRepository(Users) protected userRepo: Repository<Users>,
+    @InjectRepository(UsersRegistrationData)
+    protected userRegDataRepo: Repository<UsersRegistrationData>,
   ) {}
 
   async createUser({ newUser, newUserRegistrationData }: CreateUserDTO) {
@@ -32,14 +27,31 @@ export class UsersRepository {
   }
 
   async confirmUserByUserId(userId: string) {
-    const regData = await this.userRegDataRepo.findOne({
-      where: { user: { id: userId } },
-      relations: ['user'],
-    } as FindOneOptions<UserRegistrationData>);
+    debugger;
+    const regData = await this.userRegDataRepo
+      .createQueryBuilder('urd')
+      .innerJoinAndSelect('urd.user', 'u') // указываем связь через отношение user
+      .where('u.id = :userId', {
+        userId,
+      })
+      // указываем конкретные поля, которые нужно выбрать
+      .select([
+        'urd.id',
+        'urd.confirmationCode',
+        'urd.expirationDate',
+        'urd.isConfirmed',
+        'u.id',
+        'u.email',
+        'u.login',
+        'u.createdAt',
+        'u.password',
+      ])
+      .getOne();
     debugger;
     if (regData) {
       regData.isConfirmed = true;
       await this.userRegDataRepo.save(regData);
+      debugger;
       return true;
     } else {
       return false;
@@ -58,10 +70,16 @@ export class UsersRepository {
   }
 
   async updateConfirmationCode(userId: string, confirmationCode: string) {
-    const regData = await this.userRegDataRepo.findOne({ where: {} });
+    debugger;
+    const regData = await this.userRegDataRepo.findOne({
+      where: {
+        user: { id: userId },
+      },
+    } as FindOneOptions<UsersRegistrationData>);
     if (regData) {
       regData.confirmationCode = confirmationCode;
       await this.userRegDataRepo.save(regData);
+      debugger;
       return true;
     } else {
       return false;
@@ -69,22 +87,18 @@ export class UsersRepository {
   }
 
   async removeUserById(id: string) {
-    // await this.userRepo.delete(id);
-    // await this.userRegDataRepo.delete({ userId: id });
-    const query = `DELETE FROM public."User" CASCADE
-    WHERE "id" = $1`;
-    try {
-      const result = await this.dataSource.query(query, [id]);
-      return result[1] == 1;
-    } catch (e) {
-      throw new NotFoundException();
-    }
+    const result = await this.userRepo
+      .createQueryBuilder()
+      .delete()
+      .where('id = :id', { id })
+      .execute();
+    return result!.affected! > 0;
   }
 
   async clearData() {
-    await this.dataSource.query(`TRUNCATE TABLE public."User" CASCADE;`, []);
+    await this.dataSource.query(`TRUNCATE TABLE public."Users" CASCADE;`, []);
     await this.dataSource.query(
-      `TRUNCATE TABLE public."UserRegistrationData";`,
+      `TRUNCATE TABLE public."UsersRegistrationData";`,
       [],
     );
   }

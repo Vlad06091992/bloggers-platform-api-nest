@@ -1,37 +1,23 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { Post } from 'src/features/posts/domain/posts-schema';
+
 import { UpdatePostDto } from 'src/features/posts/api/models/update-post.dto';
-import { InjectDataSource } from '@nestjs/typeorm';
-import { DataSource } from 'typeorm';
+import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
+import { DataSource, Repository } from 'typeorm';
+import { Posts } from 'src/features/posts/entity/posts';
 
 @Injectable()
 export class PostsRepository {
-  constructor(@InjectDataSource() protected dataSource: DataSource) {}
+  constructor(
+    @InjectDataSource() protected dataSource: DataSource,
+    @InjectRepository(Posts) protected repo: Repository<Posts>,
+  ) {}
 
-  async createPost(post: Post) {
-    const {
-      createdAt,
-      content,
-      shortDescription,
-      id,
-      title,
-      blogName,
-      blogId,
-    } = post;
-    const createPostQuery = `INSERT INTO public."Posts"(
-      "id", "title", "shortDescription", "content", "blogId", "createdAt","blogName")
-    VALUES ($1, $2, $3, $4, $5, $6,$7)`;
+  async createPost(post: Posts) {
+    const { createdAt, content, shortDescription, id, title, blogName, blog } =
+      post;
+    const { id: blogId } = blog;
 
-    await this.dataSource.query(createPostQuery, [
-      id,
-      title,
-      shortDescription,
-      content,
-      blogId,
-      createdAt,
-      blogName,
-    ]);
-
+    await this.repo.insert(post);
     return {
       id,
       title,
@@ -43,19 +29,21 @@ export class PostsRepository {
     };
   }
 
-  async updatePost(id: string, post: UpdatePostDto) {
-    const { title, shortDescription, content } = post;
+  async updatePost(
+    id: string,
+    { content, shortDescription, title }: UpdatePostDto,
+  ) {
+    const post = await this.repo.findOne({ where: { id } });
 
-    const updateUserQuery = `UPDATE public."Posts"
-    SET title=$2, "shortDescription"=$3, content=$4
-    WHERE "id" = $1;`;
-    const result = await this.dataSource.query(updateUserQuery, [
-      id,
-      title,
-      shortDescription,
-      content,
-    ]);
-    return (result[1] = 1);
+    if (post) {
+      post.content = content;
+      post.shortDescription = shortDescription;
+      post.title = title;
+      await this.repo.save(post);
+      return true;
+    } else {
+      return false;
+    }
   }
 
   async removePostById(id: string) {
