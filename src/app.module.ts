@@ -15,7 +15,6 @@ import { EmailModule } from 'src/email/email.module';
 import { CqrsModule } from '@nestjs/cqrs';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { BlogsModule } from 'src/features/blogs/blogs.module';
-import process from 'process';
 import { TypeOrmConfigService } from 'src/typeorm.config';
 
 @Module({
@@ -46,7 +45,7 @@ import { TypeOrmConfigService } from 'src/typeorm.config';
         process.env.MODE === 'TESTING'
           ? '.env.testing'
           : process.env.MODE === 'DEVELOPMENT'
-            ? '.env.testing'
+            ? '.env.development'
             : '.env.production',
       ],
     }),
