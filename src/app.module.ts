@@ -15,20 +15,14 @@ import { EmailModule } from 'src/email/email.module';
 import { CqrsModule } from '@nestjs/cqrs';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { BlogsModule } from 'src/features/blogs/blogs.module';
-import { OldTokensIds } from 'src/features/auth/entities/old-tokens-ids';
+import process from 'process';
+import { TypeOrmConfigService } from 'src/typeorm.config';
 
 @Module({
   imports: [
-    TypeOrmModule.forRoot({
-      type: 'postgres',
-      host: 'localhost',
-      port: 5432,
-      username: 'nest_dev',
-      password: 'nest',
-      database: 'bloggers_dev_typeorm',
-      autoLoadEntities: true,
-      synchronize: true,
-      logging: true,
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      useClass: TypeOrmConfigService,
     }),
     CqrsModule,
     MailerModule.forRootAsync({
@@ -39,13 +33,23 @@ import { OldTokensIds } from 'src/features/auth/entities/old-tokens-ids';
           service: `${configService.get('MAILER_SERVICE')}`,
           auth: {
             user: `${configService.get('MAILER_USER')}`,
-            pass: `${configService.get('MAILER_PASS')}`, // generated ethereal password
+            pass: `${configService.get('MAILER_PASS')}`,
           },
         },
       }),
     }),
     EmailModule,
-    ConfigModule.forRoot(),
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: [
+        '.env',
+        process.env.MODE === 'TESTING'
+          ? '.env.testing'
+          : process.env.MODE === 'DEVELOPMENT'
+            ? '.env.testing'
+            : '.env.production',
+      ],
+    }),
     MongooseModule,
     SaBlogsModule,
     BlogsModule,
