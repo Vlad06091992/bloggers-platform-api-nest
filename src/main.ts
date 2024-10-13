@@ -5,19 +5,11 @@ import { exceptionFactory } from 'src/infrastructure/exception-filters/exception
 import { useContainer } from 'class-validator';
 import cookieParser from 'cookie-parser';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { createSwaggerConfig } from 'src/swagger.settings';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-
-  const config = new DocumentBuilder()
-    .setTitle('Bloggers API')
-    .setDescription('The Bloggers API description')
-    .setVersion('1.0')
-    .addBasicAuth()
-    .build();
-  const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api', app, document);
-
+  createSwaggerConfig(app);
   useContainer(app.select(AppModule), { fallbackOnErrors: true });
   app.use(cookieParser());
   app.useGlobalPipes(

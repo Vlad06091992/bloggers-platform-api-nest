@@ -31,7 +31,7 @@ import {
   UserOutput,
 } from 'src/features/users/entities/swagger';
 
-@ApiTags('Users')
+@ApiTags('Super admin users')
 @Controller('/sa/users')
 @ApiBasicAuth()
 export class UsersController {
@@ -105,14 +105,14 @@ export class UsersController {
     name: 'searchLoginTerm',
     required: false,
     type: String,
-    description: 'Поиск юзера по подстроке в логине',
+    description: 'Поиск пользователя по подстроке в логине',
     example: '',
   })
   @ApiQuery({
     name: 'searchEmailTerm',
     required: false,
     type: String,
-    description: 'Поиск юзера по подстроке в адресе электорнной почты',
+    description: 'Поиск пользователя по подстроке в адресе электронной почты',
     example: '',
   })
   @ApiOperation({ summary: 'Получить пользователей постранично' })
