@@ -1,8 +1,21 @@
-import { createParamDecorator, ExecutionContext } from '@nestjs/common';
+import {
+  createParamDecorator,
+  ExecutionContext,
+  UnauthorizedException,
+} from '@nestjs/common';
 
 export const GetAccessToken = createParamDecorator(
   (data: unknown, ctx: ExecutionContext) => {
     const request = ctx.switchToHttp().getRequest();
-    return request.headers.authorization?.split(' ')[1];
+    const accessToken = request.headers.authorization?.split(' ')[1];
+    debugger;
+    if (!accessToken)
+      throw new UnauthorizedException({
+        errorsMessages: [
+          {
+            message: 'access token not found',
+          },
+        ],
+      });
   },
 );
