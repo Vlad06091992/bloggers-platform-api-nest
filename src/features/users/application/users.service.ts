@@ -45,7 +45,6 @@ export class UsersService {
     if (isRegistration) {
       await this.emailService.registrationConfirmation(email, confirmationCode);
     }
-    debugger;
     return await this.usersRepository.createUser({
       newUser,
       newUserRegistrationData,
@@ -62,7 +61,6 @@ export class UsersService {
   }
 
   async comparePassword(bodyPassword: string, password: string) {
-    debugger;
     return await bcrypt.compare(bodyPassword, password);
   }
 
@@ -82,8 +80,6 @@ export class UsersService {
     const userRegData =
       await this.usersQueryRepository.findUserByConfirmationCode(code);
 
-    debugger;
-
     if (!userRegData) {
       throw new BadRequestException({
         errorsMessages: [{ message: 'user not found', field: 'code' }],
@@ -99,7 +95,6 @@ export class UsersService {
       throw new BadRequestException({
         errorsMessages: [{ message: 'code is expired', field: 'code' }],
       });
-    debugger;
     return this.usersRepository.confirmUserByUserId(userRegData.user.id);
   }
 

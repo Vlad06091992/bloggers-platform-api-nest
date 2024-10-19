@@ -25,13 +25,11 @@ export class DeleteSessionHandler implements ICommandHandler<DeleteDevice> {
     try {
       const session =
         await this.authDevicesQueryRepository.getDeviceByDeviceId(deviceId);
-      // debugger;
       if (!session) throw new NotFoundException();
       if (session.isActive === false) {
         await this.authDevicesRepository.deleteSession(deviceId);
         throw new NotFoundException();
       }
-      // debugger;
       if (session.userId !== userId) {
         throw new ForbiddenException();
       }

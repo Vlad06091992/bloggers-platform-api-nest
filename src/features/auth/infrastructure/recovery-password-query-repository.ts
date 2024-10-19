@@ -9,7 +9,6 @@ export class RecoveryPasswordQueryRepository {
   ) {}
 
   async findUserByRecoveryCode(recoveryCode: string) {
-    debugger;
     const res = await this.repo
       .createQueryBuilder()
       .select([
@@ -22,14 +21,6 @@ export class RecoveryPasswordQueryRepository {
       .from(RecoveryPasswordCodes, 'rpc')
       .where('rpc.recoveryCode = :recoveryCode', { recoveryCode: recoveryCode })
       .getOne();
-    console.log(res);
-    debugger;
     return res || null;
-
-    //  const query = `SELECT id, "userId", email, "recoveryCode", "expirationDate"
-    // FROM public."RecoveryPasswordCodes"
-    // WHERE "recoveryCode" = $1`;
-    //  const result = await this.dataSource.query(query, [recoveryCode]);
-    //  return result.length ? result[0] : null;
   }
 }

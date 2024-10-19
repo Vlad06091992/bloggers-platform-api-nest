@@ -19,7 +19,6 @@ export class UsersRepository {
   ) {}
 
   async createUser({ newUser, newUserRegistrationData }: CreateUserDTO) {
-    debugger;
     const { id, email, login, createdAt } = newUser;
     await this.userRepo.insert(newUser);
     await this.userRegDataRepo.insert(newUserRegistrationData);
@@ -27,7 +26,6 @@ export class UsersRepository {
   }
 
   async confirmUserByUserId(userId: string) {
-    debugger;
     const regData = await this.userRegDataRepo
       .createQueryBuilder('urd')
       .innerJoinAndSelect('urd.user', 'u') // указываем связь через отношение user
@@ -47,11 +45,9 @@ export class UsersRepository {
         'u.password',
       ])
       .getOne();
-    debugger;
     if (regData) {
       regData.isConfirmed = true;
       await this.userRegDataRepo.save(regData);
-      debugger;
       return true;
     } else {
       return false;
@@ -70,7 +66,6 @@ export class UsersRepository {
   }
 
   async updateConfirmationCode(userId: string, confirmationCode: string) {
-    debugger;
     const regData = await this.userRegDataRepo.findOne({
       where: {
         user: { id: userId },
@@ -79,7 +74,6 @@ export class UsersRepository {
     if (regData) {
       regData.confirmationCode = confirmationCode;
       await this.userRegDataRepo.save(regData);
-      debugger;
       return true;
     } else {
       return false;

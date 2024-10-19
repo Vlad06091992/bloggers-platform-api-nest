@@ -16,7 +16,6 @@ export class AuthDevicesRepository {
 
   async deactivateSessionByDeviceId(deviceId: string) {
     const device = await this.repo.findOne({ where: { deviceId } });
-    debugger;
     if (device) {
       device.isActive = false;
       await this.repo.save(device);

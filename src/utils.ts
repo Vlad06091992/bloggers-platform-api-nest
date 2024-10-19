@@ -85,7 +85,6 @@ export const mapRawUserToExtendedModel = (rawResult) => ({
 });
 
 export const mapRawPostToExtendedModel = (rawResult) => {
-  debugger;
   return {
     id: rawResult[0].id,
     title: rawResult[0].title,

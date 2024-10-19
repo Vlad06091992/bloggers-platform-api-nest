@@ -10,7 +10,6 @@ export class PostsLikesRepository {
   constructor(@InjectDataSource() protected dataSource: DataSource) {}
   async createLikeStatus(record: PostLikes) {
     const { postId, userId, likeStatus, id, login, addedAt } = record;
-    debugger;
     const query = `INSERT INTO public."PostsReactions"(
       id, "userId", "likeStatus", "postId", "addedAt", "login")
     VALUES ($1, $2, $3, $4, $5, $6)`;
