@@ -17,7 +17,7 @@ export class ValidateUserHandler
 
   async execute({ loginOrEmail, password }: ValidateUserCommand): Promise<any> {
     const user = await this.usersService.findUserByEmailOrLogin(loginOrEmail);
-    debugger;
+
     if (!user)
       throw new UnauthorizedException({
         errorsMessages: [
