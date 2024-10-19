@@ -19,7 +19,8 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "cross-env MODE=TESTING jest --config ./test/jest-e2e.json --runInBand",
     "test:app": "cross-env MODE=TESTING jest --config ./test/jest-e2e.json --runInBand src/app.controller.spec.ts",
-    "test:app2": "cross-env MODE=TESTING node --inspect-brk node_modules/jest/bin/jest.js --config ./test/jest-e2e2.json --runInBand ./test/app.e2e.spec.ts"
+    "test:app.e2e_debug_chrome": "cross-env MODE=TESTING node --inspect-brk node_modules/jest/bin/jest.js --config ./test/jest-e2e2.json --runInBand ./test/app.e2e.spec.ts",
+    "test:app.e2e": "cross-env MODE=TESTING jest --config ./test/jest-e2e2.json --runInBand ./test/app.e2e.spec.ts"
   },
   "dependencies": {
     "@nestjs-modules/mailer": "^2.0.2",

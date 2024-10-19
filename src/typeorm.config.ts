@@ -38,7 +38,7 @@ export class TypeOrmConfigService implements TypeOrmOptionsFactory {
           password: this.configService.get<string>('DB_PASSWORD'),
           database: this.configService.get<string>('DB_NAME'),
           autoLoadEntities: true,
-          synchronize: false,
+          synchronize: true,
           logging: false,
         };
       default:
@@ -50,8 +50,8 @@ export class TypeOrmConfigService implements TypeOrmOptionsFactory {
           password: this.configService.get<string>('DB_PASSWORD'),
           database: this.configService.get<string>('DB_NAME'),
           autoLoadEntities: true,
-          synchronize: false,
-          logging: false,
+          synchronize: true,
+          logging: true,
         };
     }
   }
