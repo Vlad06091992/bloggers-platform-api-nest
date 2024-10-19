@@ -33,9 +33,9 @@ import { RefreshJWTCommand } from 'src/features/auth/application/use-cases/refre
 import { CreateSessionCommand } from 'src/features/auth/application/use-cases/create-session';
 import { v4 as uuidv4 } from 'uuid';
 import { LogoutCommand } from 'src/features/auth/application/use-cases/logout';
-import { GetAccessToken } from 'src/infrastructure/decorators/getAccessToken';
 import { JwtService } from '@nestjs/jwt';
 import { GetRefreshToken } from 'src/infrastructure/decorators/getRefreshToken';
+import { GetUserByAccessToken } from 'src/infrastructure/decorators/getUserByAccessToken';
 
 @Controller('auth')
 export class AuthController {
@@ -148,12 +148,12 @@ export class AuthController {
   registrationConfirmation(@Body('code') code: string) {
     return this.commandBus.execute(new ConfirmEmailCommand(code));
   }
-
   @UseGuards(JwtAuthGuard)
   @Get('me')
   @HttpCode(200)
-  getUserInfo(@Request() req, @GetAccessToken() accessToken: string) {
-    const { sub } = this.jwtService.decode(accessToken);
-    return this.commandBus.execute(new GetMeCommand(sub));
+  getUserInfo(
+    @GetUserByAccessToken() { userId }: { userId: string; userLogin: string },
+  ) {
+    return this.commandBus.execute(new GetMeCommand(userId));
   }
 }
