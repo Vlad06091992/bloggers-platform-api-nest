@@ -21,12 +21,12 @@ import { BasicAuthGuard } from 'src/features/auth/guards/basic-auth.guard';
 import { CommentDto } from 'src/features/comments/api/models/comment-dto';
 import { CommandBus } from '@nestjs/cqrs';
 import { CreateCommentForPostCommand } from 'src/features/comments/application/use-cases/create-comment-for-post';
-import { LikeStatusDto } from 'src/features/comments-likes/api/models/like-status-dto';
+import { LikeStatusDto } from 'src/features/comments-reactions/api/models/like-status-dto';
 import { CheckUserByJWTAccessToken } from 'src/infrastructure/decorators/checkUserByJWTAccessToken';
 import { RequiredParamsValuesForPostsOrComments } from 'src/shared/common-types';
 import { getValidQueryParamsForPosts } from 'src/infrastructure/decorators/getValidQueryParamsForPosts';
 import { getValidQueryParamsForComments } from 'src/infrastructure/decorators/getValidQueryParamsForComments';
-import { UpdateOrCreateLikePostStatusCommand } from 'src/features/posts-likes/application/use-cases/update-or-create-like-post-status';
+import { UpdateOrCreateLikePostStatusCommand } from 'src/features/posts-reactions/application/use-cases/update-or-create-like-post-status';
 
 @Controller('/posts')
 export class PostsController {
@@ -56,7 +56,10 @@ export class PostsController {
     @getValidQueryParamsForComments()
     params: RequiredParamsValuesForPostsOrComments,
   ) {
-    const post = await this.postsService.findOne(id, userId);
+    const post = await this.postsService.findOnePostByIdWithLikesAndReactions(
+      id,
+      userId,
+    );
     if (!post) {
       throw new NotFoundException();
     }
@@ -72,18 +75,18 @@ export class PostsController {
     @Body() { content }: CommentDto,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const post = await this.postsService.findOne(id, null);
-
+    const post = await this.postsService.findOnePost(id);
     if (!post) {
       res.sendStatus(404);
       return;
     }
 
-    const { userId } = req.user;
+    const { userId, userLogin } = req.user;
     const comment = await this.commandBus.execute(
       new CreateCommentForPostCommand({
-        postId: id,
+        post,
         userId,
+        userLogin,
         content,
       }),
     );
@@ -100,7 +103,11 @@ export class PostsController {
     @Request() req,
   ) {
     const { userId, userLogin } = req.user;
-    const post = await this.postsService.findOne(id, userId);
+    const post = await this.postsService.findOnePostByIdWithLikesAndReactions(
+      id,
+      userId,
+    );
+
     if (!post) {
       throw new NotFoundException();
     } else {
@@ -121,7 +128,11 @@ export class PostsController {
     @CheckUserByJWTAccessToken() userId: string | null,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const post = await this.postsService.findOne(id, userId);
+    const post = await this.postsService.findOnePostByIdWithLikesAndReactions(
+      id,
+      userId,
+    );
+
     if (post) {
       return post;
     } else {

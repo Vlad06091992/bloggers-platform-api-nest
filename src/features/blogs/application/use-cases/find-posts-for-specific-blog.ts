@@ -2,7 +2,7 @@ import { Inject } from '@nestjs/common';
 import { PostsQueryRepository } from 'src/features/posts/infrastructure/posts.query-repository';
 import { CommandBus, CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { RequiredParamsValuesForPostsOrComments } from 'src/shared/common-types';
-import { PostsLikesQueryRepository } from 'src/features/posts-likes/infrastructure/posts-likes-query-repository';
+import { PostsReactionsQueryRepository } from 'src/features/posts-reactions/infrastructure/posts-reactions-query-repository';
 
 export class FindPostsForSpecificBlogCommand {
   constructor(
@@ -18,7 +18,8 @@ export class FindBlogsForSpecificBlogHandler
 {
   constructor(
     @Inject() protected postsQueryRepository: PostsQueryRepository,
-    @Inject() protected postsLikesQueryRepository: PostsLikesQueryRepository,
+    @Inject()
+    protected postsLikesQueryRepository: PostsReactionsQueryRepository,
     @Inject() protected commandBus: CommandBus,
   ) {}
 
@@ -27,19 +28,6 @@ export class FindBlogsForSpecificBlogHandler
       params,
       blogId,
       userId,
-    );
-
-    response.items = await Promise.all(
-      response.items.map(async (post) => {
-        const newestLikes = await this.postsLikesQueryRepository.getNewestLikes(
-          post?.id,
-        );
-
-        return {
-          ...post,
-          extendedLikesInfo: { ...post.extendedLikesInfo, newestLikes },
-        };
-      }),
     );
 
     return response;

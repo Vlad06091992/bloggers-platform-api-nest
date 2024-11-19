@@ -16,7 +16,7 @@ import { CreatePostForSpecificBlogHandler } from 'src/features/blogs/application
 import { UniqueValidator } from 'src/shared/validators/is-exist-blog';
 import { BlogsQueryRepository } from 'src/features/blogs/infrastructure/blogs.query-repository';
 import { UsersQueryRepository } from 'src/features/users/infrastructure/users.query-repository';
-import { PostsLikesQueryRepository } from 'src/features/posts-likes/infrastructure/posts-likes-query-repository';
+import { PostsReactionsQueryRepository } from 'src/features/posts-reactions/infrastructure/posts-reactions-query-repository';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Users } from 'src/features/users/entities/users';
 import { UsersRegistrationData } from 'src/features/users/entities/users-registration-data';
@@ -24,6 +24,9 @@ import { Blogs } from 'src/features/blogs/entity/blogs';
 import { AuthDevicesRepository } from 'src/features/auth/infrastructure/auth-devices-repository';
 import { AuthDevices } from 'src/features/auth/entities/devices';
 import { Posts } from 'src/features/posts/entity/posts';
+import { PostsReactions } from 'src/features/posts-reactions/entity/post-reactions';
+import { PostsReactionsRepository } from 'src/features/posts-reactions/infrastructure/posts-reactions-repository';
+import { Comments } from 'src/features/comments/entity/comments';
 
 @Module({
   imports: [
@@ -33,17 +36,20 @@ import { Posts } from 'src/features/posts/entity/posts';
       UsersRegistrationData,
       Blogs,
       Posts,
+      PostsReactions,
       AuthDevices,
+      Comments,
     ]),
   ],
   controllers: [SaBlogsController],
   providers: [
+    PostsReactionsQueryRepository,
     BlogsQueryRepository,
     UsersQueryRepository,
     BlogsRepository,
     PostsRepository,
     PostsQueryRepository,
-    PostsLikesQueryRepository,
+    PostsReactionsRepository,
     CommentsQueryRepository,
     PostsService,
     CreateBlogHandler,

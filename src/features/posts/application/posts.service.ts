@@ -10,7 +10,7 @@ import { CommandBus } from '@nestjs/cqrs';
 import { generateUuidV4 } from 'src/utils';
 import { BlogsQueryRepository } from 'src/features/blogs/infrastructure/blogs.query-repository';
 import { UsersQueryRepository } from 'src/features/users/infrastructure/users.query-repository';
-import { PostsLikesQueryRepository } from 'src/features/posts-likes/infrastructure/posts-likes-query-repository';
+import { PostsReactionsQueryRepository } from 'src/features/posts-reactions/infrastructure/posts-reactions-query-repository';
 import { Posts } from 'src/features/posts/entity/posts';
 import { Blogs } from 'src/features/blogs/entity/blogs';
 
@@ -18,7 +18,8 @@ import { Blogs } from 'src/features/blogs/entity/blogs';
 export class PostsService {
   constructor(
     @Inject() protected postsRepository: PostsRepository,
-    @Inject() protected postsLikesQueryRepository: PostsLikesQueryRepository,
+    @Inject()
+    protected postsReactionsQueryRepository: PostsReactionsQueryRepository,
     @Inject() protected usersQueryRepository: UsersQueryRepository,
     @Inject() protected blogsQueryRepository: BlogsQueryRepository,
     @Inject() protected commentsQueryRepository: CommentsQueryRepository,
@@ -59,18 +60,18 @@ export class PostsService {
     userId: string | null,
   ) {
     const response = await this.postsQueryRepository.findAll(params, userId);
-    response.items = await Promise.all(
-      response.items.map(async (post) => {
-        const newestLikes = await this.postsLikesQueryRepository.getNewestLikes(
-          post?.id,
-        );
-
-        return {
-          ...post,
-          // extendedLikesInfo: { ...post.extendedLikesInfo, newestLikes },
-        };
-      }),
-    );
+    // response.items = await Promise.all(
+    //   response.items.map(async (post) => {
+    //     const newestLikes = await this.postsLikesQueryRepository.getNewestLikes(
+    //       post?.id,
+    //     );
+    //
+    //     return {
+    //       ...post,
+    //       // extendedLikesInfo: { ...post.extendedLikesInfo, newestLikes },
+    //     };
+    //   }),
+    // );
 
     return response;
   }
@@ -88,25 +89,18 @@ export class PostsService {
     return comments;
   }
 
-  async findOne(id: string, userId: string | null) {
-    const post =
-      await this.postsQueryRepository.getPostWithExtendedLikesInfoById(
-        id,
-        userId,
-      );
+  async findOnePostByIdWithLikesAndReactions(
+    id: string,
+    userId: string | null,
+  ) {
+    return await this.postsQueryRepository.getPostByIdWithLikesAndReactions(
+      id,
+      userId,
+    );
+  }
 
-    if (post) {
-      return post;
-      // const newestLikes = await this.postsLikesQueryRepository.getNewestLikes(
-      //   post?.id,
-      // );
-
-      // return {
-      //   ...post,
-      //   // extendedLikesInfo: { ...post.extendedLikesInfo, newestLikes },
-      // };
-    }
-    return null;
+  async findOnePost(id: string) {
+    return await this.postsQueryRepository.getPostById(id);
   }
 
   async updateOne(id: string, updatePostDTO: UpdatePostDto) {

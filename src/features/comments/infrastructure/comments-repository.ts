@@ -1,11 +1,16 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { Comment } from '../domain/comments-schema';
-import { InjectDataSource } from '@nestjs/typeorm';
-import { DataSource } from 'typeorm';
+
+import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
+import { DataSource, Repository } from 'typeorm';
+import { Comments } from 'src/features/comments/entity/comments';
+import { Posts } from 'src/features/posts/entity/posts';
 
 @Injectable()
 export class CommentsRepository {
-  constructor(@InjectDataSource() protected dataSource: DataSource) {}
+  constructor(
+    @InjectDataSource() protected dataSource: DataSource,
+    @InjectRepository(Comments) protected repo: Repository<Comments>,
+  ) {}
 
   async updateCommentById(commentId: string, content: string) {
     const updateCommentQuery = `UPDATE public."Comments"
@@ -18,28 +23,12 @@ export class CommentsRepository {
     return (result[1] = 1);
   }
 
-  async createComment(comment: Comment) {
-    const { id, postId, userId, content, createdAt } = comment;
-
-    // console.log(comment);
-
-    const createCommentQuery = `INSERT INTO public."Comments"(
-        "id","postId", "userId", "content", "createdAt")
-     VALUES ($1, $2, $3, $4, $5)`;
-
-    await this.dataSource.query(createCommentQuery, [
-      id,
-      postId,
-      userId,
-      content,
-      createdAt,
-    ]);
-
+  async createComment(comment: Comments) {
+    await this.repo.insert(comment);
     return {
-      id,
-      content,
-      createdAt,
-      userId,
+      id: comment.id,
+      content: comment.content,
+      createdAt: comment.createdAt,
     };
   }
 

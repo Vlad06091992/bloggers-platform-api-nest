@@ -116,7 +116,10 @@ export class SaBlogsController {
     @getIdFromParams({ paramName: 'postId' }) postId: string,
   ) {
     const blog = await this.commandBus.execute(new FindBlogCommand(blogId)); //TODO подобное унести в Pipe
-    const post = await this.postsService.findOne(postId, null);
+    const post = await this.postsService.findOnePostByIdWithLikesAndReactions(
+      postId,
+      null,
+    );
 
     if (!blog || !post) {
       throw new NotFoundException();
@@ -135,7 +138,10 @@ export class SaBlogsController {
     @getIdFromParams({ paramName: 'postId' }) postId: string,
   ) {
     const blog = await this.commandBus.execute(new FindBlogCommand(blogId)); //TODO подобное унести в Pipe
-    const post = this.postsService.findOne(postId, null);
+    const post = this.postsService.findOnePostByIdWithLikesAndReactions(
+      postId,
+      null,
+    );
 
     if (!blog || !post) {
       throw new NotFoundException();

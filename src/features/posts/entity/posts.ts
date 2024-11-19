@@ -1,35 +1,6 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { pagination } from 'src/utils';
-import { Column, Entity, ManyToOne, PrimaryColumn } from 'typeorm';
+import { Column, Entity, ManyToOne, OneToMany, PrimaryColumn } from 'typeorm';
 import { Blogs } from 'src/features/blogs/entity/blogs';
-
-@Schema({ _id: false })
-export class Like {
-  @Prop({ required: true })
-  addedAt: string;
-
-  @Prop({ required: true })
-  userId: string;
-
-  @Prop({ required: true })
-  login: string;
-}
-
-@Schema({ _id: false })
-export class ExtendedLikesInfo {
-  @Prop({ default: 0, required: true })
-  likesCount: number;
-
-  @Prop({ default: 0, required: true })
-  dislikesCount: number;
-
-  @Prop({ required: true })
-  myStatus: string;
-
-  @Prop({ required: true, default: [], type: [Like] })
-  newestLikes: Like[];
-}
+import { PostsReactions } from 'src/features/posts-reactions/entity/post-reactions';
 
 @Entity({ name: 'Posts' })
 export class Posts {
@@ -47,6 +18,15 @@ export class Posts {
 
   @ManyToOne(() => Blogs, { cascade: true, onDelete: 'CASCADE' })
   blog: Blogs;
+
+  @OneToMany(
+    () => PostsReactions,
+    (postsReactions) => {
+      return postsReactions.post;
+    },
+    { cascade: true, onDelete: 'CASCADE' },
+  )
+  postReactions: PostsReactions[];
 
   @Column()
   blogName: string;
