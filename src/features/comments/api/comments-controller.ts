@@ -19,8 +19,8 @@ import { DeleteCommentByIdCommand } from 'src/features/comments/application/use-
 import { CommentDto } from 'src/features/comments/api/models/comment-dto';
 import { UpdateCommentByIdCommand } from 'src/features/comments/application/use-cases/update-comment-by-id';
 import { JwtAuthGuard } from 'src/features/auth/guards/jwt-auth.guard';
-import { UpdateOrCreateLikeCommentStatusCommand } from 'src/features/comments-likes/application/use-cases/update-or-create-comment-like-status';
-import { LikeStatusDto } from 'src/features/comments-likes/api/models/like-status-dto';
+import { UpdateOrCreateLikeCommentStatusCommand } from 'src/features/comments-reactions/application/use-cases/update-or-create-comment-like-status';
+import { LikeStatusDto } from 'src/features/comments-reactions/api/models/like-status-dto';
 import { CheckUserByJWTAccessToken } from 'src/infrastructure/decorators/checkUserByJWTAccessToken';
 
 @Controller('comments')
@@ -84,6 +84,7 @@ export class CommentsController {
     @Body() { likeStatus }: LikeStatusDto,
     @Request() req,
   ) {
+    debugger;
     const { userId, userLogin } = req.user;
     const comment = await this.commandBus.execute(
       new FindCommentByIdCommand(id, userId),

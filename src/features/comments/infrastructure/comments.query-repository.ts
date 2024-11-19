@@ -1,36 +1,62 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { RequiredParamsValuesForPostsOrComments } from 'src/shared/common-types';
-import { InjectDataSource } from '@nestjs/typeorm';
-import { DataSource } from 'typeorm';
-import { mapRawCommentToExtendedModel } from 'src/utils';
+import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { UsersQueryRepository } from 'src/features/users/infrastructure/users.query-repository';
+import { Posts } from 'src/features/posts/entity/posts';
+import { Comments } from 'src/features/comments/entity/comments';
+import { mappedCommentsToResponse } from 'src/features/comments/utils';
 
 @Injectable()
 export class CommentsQueryRepository {
   constructor(
     @InjectDataSource() protected dataSource: DataSource,
     @Inject() protected usersQueryRepository: UsersQueryRepository,
+    @InjectRepository(Comments) protected postsRepo: Repository<Posts>,
+    @InjectRepository(Comments) protected commentsRepo: Repository<Comments>,
   ) {}
 
   async getCommentById(commentId: string, userId: string | null) {
-    const query = `
-SELECT id, "postId", "userId", content, "createdAt",
-(SELECT COUNT(*) FROM public."CommentsReactions"  WHERE "likeStatus" ='Like' AND "commentId" = $1 ) as LikesCount,
-(SELECT COUNT(*) FROM public."CommentsReactions"  WHERE "likeStatus" ='Dislike' AND "commentId" = $1 ) as DislikesCount,
-(SELECT COALESCE(
-  (
-    SELECT CASE
-      WHEN ("likeStatus" = 'Like' AND "commentId" = $1) THEN 'Like'
-      WHEN ("likeStatus" = 'Dislike' AND "commentId" = $1) THEN 'Dislike'
-    END
-    FROM public."CommentsReactions"
-    WHERE "userId" = $2 AND "commentId" = $1
-  ), 'None')) AS MyStatus
-FROM public."Comments"
-WHERE "id" = $1
-`;
-    return (await this.dataSource.query(query, [commentId, userId]))[0];
+    const commentsFromBuilder = this.commentsRepo
+      .createQueryBuilder('c')
+      .select([
+        'c.id as "id"',
+        'c.content as "content"',
+        'c."createdAt" as "createdAt"',
+      ])
+      .select()
+      .where('c.id = :commentId', { commentId })
+      .leftJoinAndSelect(
+        (qb) => {
+          return qb
+            .select(['id as "userId"', 'login as "userLogin"'])
+            .from('Users', 'user');
+        },
+        'commentatorInfo',
+        'c."userId" = "commentatorInfo"."userId"',
+      )
+      .addSelect(
+        `(SELECT COUNT(*) FROM "CommentsReactions" WHERE "likeStatus" = 'Like' AND "commentId" = c.id)`,
+        'likesCount',
+      )
+      .addSelect(
+        `(SELECT COUNT(*) FROM "CommentsReactions" WHERE "likeStatus" = 'Dislike' AND "commentId" = c.id)`,
+        'dislikesCount',
+      );
+
+    if (userId) {
+      console.log(userId);
+      commentsFromBuilder.addSelect(
+        `(SELECT "likeStatus" FROM public."CommentsReactions" AS "cr"
+         WHERE "cr"."userId" = '${userId}' AND "cr"."commentId" = '${commentId}')`,
+        'myStatus',
+      );
+    }
+    const result = await commentsFromBuilder.getRawOne();
+
+    return result ? mappedCommentsToResponse(result) : null;
   }
+
   async getCommentsForPost(
     postId: string,
     params: RequiredParamsValuesForPostsOrComments,
@@ -42,36 +68,78 @@ WHERE "id" = $1
     ]);
 
     const { pageNumber, pageSize, sortDirection, sortBy } = params;
+
+    debugger;
+
     const skip = (+pageNumber - 1) * +pageSize;
-    const query = `
-SELECT id, "postId", "userId", content, "createdAt",
-(SELECT COUNT(*) FROM public."CommentsReactions"  WHERE "likeStatus" ='Like' AND "commentId" = C."id" ) as LikesCount,
-(SELECT COUNT(*) FROM public."CommentsReactions"  WHERE "likeStatus" ='Dislike' AND "commentId" = C."id" ) as DislikesCount,
-(SELECT COALESCE(
-  (
-    SELECT CASE
-      WHEN ("likeStatus" = 'Like' AND "commentId" = C."id") THEN 'Like'
-      WHEN ("likeStatus" = 'Dislike' AND "commentId" = C."id") THEN 'Dislike'
-    END
-    FROM public."CommentsReactions"
-    WHERE "userId" = $2 AND "commentId" = C."id"
-  ), 'None')) AS MyStatus
-FROM public."Comments" as C
-WHERE "postId" = $1
-ORDER BY "${sortBy}" ${sortDirection}
-OFFSET ${skip} LIMIT ${+pageSize} `;
-    console.log();
-    const comments = await this.dataSource.query(query, [postId, userId]);
-    const items = await Promise.all(
-      comments.map(mapRawCommentToExtendedModel.bind(this)),
-    );
+    const commentsFromBuilder = this.commentsRepo
+      .createQueryBuilder('c')
+      .select([
+        'c.id as "id"',
+        'c.content as "content"',
+        'c.createdAt as "createdAt"',
+      ])
+      .select()
+      .where('c.postId = :postId', { postId })
+      .leftJoinAndSelect(
+        (qb) => {
+          return qb
+            .select(['id as "userId"', 'login as "userLogin"'])
+            .from('Users', 'user');
+        },
+        'commentatorInfo',
+        'c."userId" = "commentatorInfo"."userId"',
+      )
+      .addSelect(
+        `(SELECT COUNT(*) FROM "CommentsReactions" WHERE "likeStatus" = 'Like' AND "commentId" = c.id)`,
+        'likesCount',
+      )
+      .addSelect(
+        `(SELECT COUNT(*) FROM "CommentsReactions" WHERE "likeStatus" = 'Dislike' AND "commentId" = c.id)`,
+        'dislikesCount',
+      );
+
+    if (userId) {
+      commentsFromBuilder.addSelect(
+        `(SELECT "likeStatus" FROM public."CommentsReactions" AS "cr"
+         WHERE "cr"."userId" = '${userId}' AND "cr"."commentId" = c.id)`,
+        'myStatus',
+      );
+    }
+
+    console.log('----------------------------');
+    console.log(sortDirection);
+    console.log('----------------------------');
+
+    console.log('----------------------------');
+    console.log(sortBy);
+    console.log('----------------------------');
+
+    console.log('----------------------------');
+    console.log(+skip);
+    console.log('----------------------------');
+
+    console.log('----------------------------');
+    console.log(+pageSize);
+    console.log('----------------------------');
+
+    const result = await commentsFromBuilder
+      // .orderBy(`"${sortBy}"`, `${sortDirection}`)
+      // // .skip(+pageSize) //offset
+      // .offset(+pageSize)
+      // // .take(+skip) //limit
+      // .limit(+skip)
+      .orderBy(`"${sortBy}"`, `${sortDirection}`)
+      .offset(+skip)
+      .limit(+pageSize)
+      .getRawMany();
 
     return {
       pagesCount: Math.ceil(+totalCount / +pageSize),
       page: +pageNumber,
       pageSize: +pageSize,
       totalCount: +totalCount,
-      items,
+      items: result.map(mappedCommentsToResponse),
     };
   }
 }

@@ -28,7 +28,7 @@ export class UsersRepository {
   async confirmUserByUserId(userId: string) {
     const regData = await this.userRegDataRepo
       .createQueryBuilder('urd')
-      .innerJoinAndSelect('urd.user', 'u') // указываем связь через отношение user
+      .innerJoinAndSelect('urd.user', 'u')
       .where('u.id = :userId', {
         userId,
       })

@@ -1,10 +1,12 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { LikeStatuses } from 'src/features/comments-likes/api/models/like-status-dto';
+import { LikeStatuses } from 'src/features/comments-reactions/api/models/like-status-dto';
 
-import { PostsLikesRepository } from 'src/features/posts-likes/infrastructure/posts-likes-repository';
-import { PostsLikesQueryRepository } from 'src/features/posts-likes/infrastructure/posts-likes-query-repository';
+import { PostsReactionsRepository } from 'src/features/posts-reactions/infrastructure/posts-reactions-repository';
+import { PostsReactionsQueryRepository } from 'src/features/posts-reactions/infrastructure/posts-reactions-query-repository';
 import { generateUuidV4 } from 'src/utils';
-import { PostLikes } from 'src/features/posts-likes/domain/post-likes-schema';
+import { PostsReactions } from 'src/features/posts-reactions/entity/post-reactions';
+import { Users } from 'src/features/users/entities/users';
+import { Posts } from 'src/features/posts/entity/posts';
 
 export class UpdateOrCreateLikePostStatusCommand {
   constructor(
@@ -20,8 +22,8 @@ export class UpdateOrCreateLikePostStatusHandler
   implements ICommandHandler<UpdateOrCreateLikePostStatusCommand>
 {
   constructor(
-    protected postsLikesRepository: PostsLikesRepository,
-    protected postsLikesQueryRepository: PostsLikesQueryRepository,
+    protected postsLikesRepository: PostsReactionsRepository,
+    protected postsLikesQueryRepository: PostsReactionsQueryRepository,
   ) {}
 
   async execute({
@@ -46,18 +48,25 @@ export class UpdateOrCreateLikePostStatusHandler
       statusRecord.likeStatus !== likeStatus &&
       likeStatus !== 'None'
     ) {
-      await this.postsLikesRepository.updateLikeStatus(postId, likeStatus);
+      await this.postsLikesRepository.updateLikeStatus(
+        postId,
+        userId,
+        likeStatus,
+      );
       return true;
     }
     if (!statusRecord && likeStatus !== 'None') {
-      const newLikeRecord: PostLikes = {
-        id: generateUuidV4(),
-        addedAt: new Date().toISOString(),
-        userId,
-        login: userLogin,
+      // if(likeStatus === 'Like'){
+      //
+      // }
+
+      const newLikeRecord = new PostsReactions(
+        generateUuidV4(),
         likeStatus,
-        postId,
-      };
+        new Date(),
+        { id: userId } as Users,
+        { id: postId } as Posts,
+      );
       await this.postsLikesRepository.createLikeStatus(newLikeRecord);
     }
   }

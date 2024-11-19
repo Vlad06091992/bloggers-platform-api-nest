@@ -8,7 +8,6 @@ export const GetUserByAccessToken = createParamDecorator(
   (data: unknown, ctx: ExecutionContext) => {
     const request = ctx.switchToHttp().getRequest();
     const accessToken = request.headers.authorization?.split(' ')[1];
-    debugger;
     if (!accessToken)
       throw new UnauthorizedException({
         errorsMessages: [
@@ -18,7 +17,6 @@ export const GetUserByAccessToken = createParamDecorator(
         ],
       });
 
-    debugger;
     return request.user;
   },
 );

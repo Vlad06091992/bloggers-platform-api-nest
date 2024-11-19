@@ -1,10 +1,14 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { LikeStatuses } from 'src/features/comments-likes/api/models/like-status-dto';
-import { CommentsLikesQueryRepository } from 'src/features/comments-likes/infrastructure/comments-likes-query-repository';
+import { LikeStatuses } from 'src/features/comments-reactions/api/models/like-status-dto';
+import { CommentsReactionsQueryRepository } from 'src/features/comments-reactions/infrastructure/comments-reactions-query-repository';
 
-import { CommentsLikesRepository } from 'src/features/comments-likes/infrastructure/comments-likes-repository';
+import { CommentsLikesRepository } from 'src/features/comments-reactions/infrastructure/comments-likes-repository';
 import { generateUuidV4 } from 'src/utils';
-import { CommentLikes } from 'src/features/comments-likes/domain/comment-likes-schema';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Comments } from 'src/features/comments/entity/comments';
+import { Repository } from 'typeorm';
+import { CommentsReactions } from 'src/features/comments-reactions/entity/comment-reactions';
+import { Users } from 'src/features/users/entities/users';
 
 export class UpdateOrCreateLikeCommentStatusCommand {
   constructor(
@@ -22,12 +26,13 @@ export class UpdateOrCreateLikeCommentStatusHandler
 {
   constructor(
     protected commentsLikesRepository: CommentsLikesRepository,
-    protected commentsLikesQueryRepository: CommentsLikesQueryRepository,
+    protected commentsLikesQueryRepository: CommentsReactionsQueryRepository,
+    @InjectRepository(CommentsReactions)
+    protected repo: Repository<CommentsReactions>,
   ) {}
 
   async execute({
     userId,
-    userLogin,
     likeStatus,
     commentId,
   }: UpdateOrCreateLikeCommentStatusCommand) {
@@ -35,7 +40,6 @@ export class UpdateOrCreateLikeCommentStatusHandler
       userId,
       commentId,
     );
-
     if (likeStatus === 'None' && !statusRecord) return true;
     if (likeStatus === 'None' && statusRecord) {
       await this.commentsLikesRepository.deleteRecord(statusRecord.id);
@@ -47,22 +51,24 @@ export class UpdateOrCreateLikeCommentStatusHandler
       statusRecord.likeStatus !== likeStatus &&
       likeStatus !== 'None'
     ) {
+      debugger;
       await this.commentsLikesRepository.updateLikeStatus(
-        commentId,
+        statusRecord.id,
         likeStatus,
       );
       return true;
     }
     if (!statusRecord && likeStatus !== 'None') {
-      const newLikeRecord: CommentLikes = {
-        id: generateUuidV4(),
-        addedAt: new Date().toISOString(),
-        login: userLogin,
-        userId,
+      debugger;
+      const newReactionRecord = new CommentsReactions(
+        generateUuidV4(),
         likeStatus,
-        commentId,
-      };
-      await this.commentsLikesRepository.createLikeStatus(newLikeRecord);
+        new Date(),
+        { id: userId } as Users,
+        { id: commentId } as Comments,
+      );
+
+      await this.commentsLikesRepository.createLikeStatus(newReactionRecord);
     }
   }
 }

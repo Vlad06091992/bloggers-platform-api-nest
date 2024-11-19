@@ -1,10 +1,11 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 
 import { CommentsRepository } from 'src/features/comments/infrastructure/comments-repository';
-import { Comment } from '../../domain/comments-schema';
+import { Comments } from 'src/features/comments/entity/comments';
 import { CreateCommentDto } from 'src/features/comments/api/models/comment-dto';
 import { generateUuidV4 } from 'src/utils';
 import { UsersQueryRepository } from 'src/features/users/infrastructure/users.query-repository';
+import { Users } from 'src/features/users/entities/users';
 
 export class CreateCommentForPostCommand {
   constructor(public createCommentDTO: CreateCommentDto) {}
@@ -20,11 +21,13 @@ export class CreateCommentForPostHandler
   ) {}
 
   async execute({ createCommentDTO }: CreateCommentForPostCommand) {
-    const comment: Comment = {
-      id: generateUuidV4(),
-      createdAt: new Date().toISOString(),
-      ...createCommentDTO,
-    };
+    const comment = new Comments(
+      generateUuidV4(),
+      createCommentDTO.content,
+      createCommentDTO.post,
+      { id: createCommentDTO.userId } as Users,
+      new Date(),
+    );
 
     const newCommentData = await this.commentsRepository.createComment(comment);
 
@@ -32,10 +35,8 @@ export class CreateCommentForPostHandler
       id: newCommentData.id,
       content: newCommentData.content,
       commentatorInfo: {
-        userId: newCommentData.userId,
-        userLogin: (
-          await this.usersQueryRepository.getUserById(newCommentData.userId)
-        )?.login,
+        userId: createCommentDTO.userId,
+        userLogin: createCommentDTO.userLogin,
       },
       createdAt: newCommentData.createdAt,
       likesInfo: {

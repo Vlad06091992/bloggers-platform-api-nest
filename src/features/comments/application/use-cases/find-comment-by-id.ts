@@ -26,22 +26,6 @@ export class FindCommentByIdHandler {
     );
 
     if (!findedCommentData) return null;
-
-    return {
-      id: findedCommentData.id,
-      content: findedCommentData.content,
-      commentatorInfo: {
-        userId: findedCommentData.userId,
-        userLogin: (
-          await this.usersQueryRepository.getUserById(findedCommentData.userId)
-        )?.login,
-      },
-      createdAt: findedCommentData.createdAt,
-      likesInfo: {
-        likesCount: +findedCommentData.likescount,
-        dislikesCount: +findedCommentData.dislikescount,
-        myStatus: findedCommentData.mystatus,
-      },
-    };
+    return findedCommentData;
   }
 }

@@ -1,5 +1,5 @@
-import { Column, Entity, ManyToOne, OneToMany, PrimaryColumn } from 'typeorm';
-import { Posts } from 'src/features/posts/entity/posts';
+import { Column, Entity, PrimaryColumn } from 'typeorm';
+
 @Entity({ name: 'Blogs' })
 export class Blogs {
   @PrimaryColumn()
@@ -19,13 +19,6 @@ export class Blogs {
 
   @Column()
   isMembership: boolean;
-
-  // @OneToMany(() => Posts, (post) => post.blog, {
-  //   cascade: true,
-  //   onDelete: 'CASCADE',
-  // })
-  // posts: Posts[];
-
   constructor(
     id: string,
     createdAt: Date,

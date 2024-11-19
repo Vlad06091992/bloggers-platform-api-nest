@@ -3,10 +3,10 @@ import { CommentsRepository } from 'src/features/comments/infrastructure/comment
 import { UsersRepository } from 'src/features/users/infrastructure/users-repository';
 import { PostsRepository } from 'src/features/posts/infrastructure/posts-repository';
 import { BlogsRepository } from 'src/features/blogs/infrastructure/blogs-repository';
-import { CommentsLikesRepository } from 'src/features/comments-likes/infrastructure/comments-likes-repository';
+import { CommentsLikesRepository } from 'src/features/comments-reactions/infrastructure/comments-likes-repository';
 import { AuthDevicesRepository } from 'src/features/auth/infrastructure/auth-devices-repository';
 import { OldTokensIdsRepository } from 'src/features/auth/infrastructure/old-tokens-ids-repository';
-import { PostsLikesRepository } from 'src/features/posts-likes/infrastructure/posts-likes-repository';
+import { PostsReactionsRepository } from 'src/features/posts-reactions/infrastructure/posts-reactions-repository';
 
 @Injectable()
 export class TestingService {
@@ -16,7 +16,7 @@ export class TestingService {
     @Inject() protected blogsRepository: BlogsRepository,
     @Inject() protected commentsRepository: CommentsRepository,
     @Inject() protected commentsLikesRepository: CommentsLikesRepository,
-    @Inject() protected postsLikesRepository: PostsLikesRepository,
+    @Inject() protected postsLikesRepository: PostsReactionsRepository,
     @Inject() protected authDevicesRepository: AuthDevicesRepository,
     @Inject() protected oldTokensIdsRepository: OldTokensIdsRepository,
   ) {}

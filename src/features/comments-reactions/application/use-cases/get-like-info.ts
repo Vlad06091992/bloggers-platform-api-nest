@@ -1,6 +1,6 @@
 import { Inject } from '@nestjs/common';
 import { CommandHandler } from '@nestjs/cqrs';
-import { CommentsLikesQueryRepository } from 'src/features/comments-likes/infrastructure/comments-likes-query-repository';
+import { CommentsReactionsQueryRepository } from 'src/features/comments-reactions/infrastructure/comments-reactions-query-repository';
 
 export class GetLikeInfoCommand {
   constructor(
@@ -13,7 +13,7 @@ export class GetLikeInfoCommand {
 export class GetLikeInfoHandler {
   constructor(
     @Inject()
-    protected likesQueryRepository: CommentsLikesQueryRepository,
+    protected likesQueryRepository: CommentsReactionsQueryRepository,
   ) {}
 
   async execute({ entityId, userId }: GetLikeInfoCommand) {
