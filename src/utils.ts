@@ -97,17 +97,6 @@ export const mapRawPostToExtendedModel = (rawResult) => {
       likesCount: Number(rawResult[0].likescount),
       dislikesCount: Number(rawResult[0].dislikescount),
       myStatus: rawResult[0].mystatus,
-      // newestLikes: rawResult.reduce((acc, el) => {
-      //   if (el.postreactionid) {
-      //     debugger;
-      //     acc.push({
-      //       addedAt: el.addedAt,
-      //       userId: el.userId,
-      //       login: el.login,
-      //     });
-      //   }
-      //   return acc;
-      // }, []),
     },
   };
 };
