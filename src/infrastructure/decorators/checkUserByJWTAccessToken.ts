@@ -1,17 +1,17 @@
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import process from 'process';
+import { ConfigService } from '@nestjs/config';
 
 export const CheckUserByJWTAccessToken = createParamDecorator(
-  (data: unknown, ctx: ExecutionContext) => {
+  (_, ctx: ExecutionContext) => {
     const request = ctx.switchToHttp().getRequest();
-    const token = request.headers['authorization']?.split(' ')[1];
-
+    const accessToken = request.headers.authorization?.split(' ')[1];
     const jwtService = new JwtService();
-    if (token) {
+    const configService = new ConfigService();
+    if (accessToken) {
       try {
-        const { sub: userId } = jwtService.verify(token, {
-          secret: process.env.SECRET_KEY,
+        const { sub: userId } = jwtService.verify(accessToken, {
+          secret: configService.get('SECRET_KEY'),
         });
 
         if (userId) {
@@ -24,7 +24,7 @@ export const CheckUserByJWTAccessToken = createParamDecorator(
       }
     }
 
-    if (!token) {
+    if (!accessToken) {
       return null;
     }
   },
