@@ -36,6 +36,7 @@ import { LogoutCommand } from 'src/features/auth/application/use-cases/logout';
 import { JwtService } from '@nestjs/jwt';
 import { GetRefreshToken } from 'src/infrastructure/decorators/getRefreshToken';
 import { GetUserByAccessToken } from 'src/infrastructure/decorators/getUserByAccessToken';
+import { NotTestingThrottleGuard } from 'src/features/auth/guards/custom-throttle-guard';
 
 @Controller('auth')
 export class AuthController {
@@ -46,7 +47,7 @@ export class AuthController {
     private readonly jwtService: JwtService,
   ) {}
   @UseGuards(LocalAuthGuard)
-  @UseGuards(ThrottlerGuard)
+  @UseGuards(NotTestingThrottleGuard)
   @HttpCode(200)
   @Post('login')
   async login(
