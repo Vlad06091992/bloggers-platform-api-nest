@@ -27,7 +27,7 @@ export class TypeOrmConfigService implements TypeOrmOptionsFactory {
           database: this.configService.get<string>('DB_NAME'),
           autoLoadEntities: true,
           synchronize: false,
-          logging: false,
+          logging: true,
         };
       case 'TESTING':
         return {
