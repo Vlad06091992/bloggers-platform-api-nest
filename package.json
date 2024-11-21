@@ -22,7 +22,11 @@
     "test:e2e": "cross-env MODE=TESTING jest --config ./test/jest-e2e.json --runInBand",
     "test:app": "cross-env MODE=TESTING jest --config ./test/jest-e2e.json --runInBand src/app.controller.spec.ts",
     "test:app.e2e_debug_chrome": "cross-env MODE=TESTING node --inspect-brk node_modules/jest/bin/jest.js --config ./test/jest-e2e2.json --runInBand ./test/app.e2e.spec.ts",
-    "test:app.e2e": "cross-env MODE=TESTING jest --config ./test/jest-e2e2.json --runInBand ./test/app.e2e.spec.ts"
+    "test:app.e2e": "cross-env MODE=TESTING jest --config ./test/jest-e2e2.json --runInBand ./test/app.e2e.spec.ts",
+    "migration:create": "typeorm migration:create ./src/migrations/schema-update",
+    "migration:generate": "cross-env MODE=DEVELOPMENT typeorm-ts-node-commonjs migration:generate -d ./src/database/data-source.ts",
+    "migration:apply": "cross-env MODE=DEVELOPMENT typeorm-ts-node-commonjs migration:run -d ./src/database/data-source.ts",
+    "migration:revert": "cross-env MODE=DEVELOPMENT typeorm-ts-node-commonjs migration:revert -d ./src/database/data-source.ts"
   },
   "dependencies": {
     "@nestjs-modules/mailer": "^2.0.2",
