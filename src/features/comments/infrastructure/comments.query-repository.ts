@@ -3,8 +3,8 @@ import { RequiredParamsValuesForPostsOrComments } from 'src/shared/common-types'
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 import { UsersQueryRepository } from 'src/features/users/infrastructure/users.query-repository';
-import { Posts } from 'src/features/posts/entity/posts';
-import { Comments } from 'src/features/comments/entity/comments';
+import { PostsEntity } from 'src/features/posts/entity/posts.entity';
+import { CommentsEntity } from 'src/features/comments/entity/comments.entity';
 import { mappedCommentsToResponse } from 'src/features/comments/utils';
 
 @Injectable()
@@ -12,8 +12,10 @@ export class CommentsQueryRepository {
   constructor(
     @InjectDataSource() protected dataSource: DataSource,
     @Inject() protected usersQueryRepository: UsersQueryRepository,
-    @InjectRepository(Comments) protected postsRepo: Repository<Posts>,
-    @InjectRepository(Comments) protected commentsRepo: Repository<Comments>,
+    @InjectRepository(CommentsEntity)
+    protected postsRepo: Repository<PostsEntity>,
+    @InjectRepository(CommentsEntity)
+    protected commentsRepo: Repository<CommentsEntity>,
   ) {}
 
   async getCommentById(commentId: string, userId: string | null) {

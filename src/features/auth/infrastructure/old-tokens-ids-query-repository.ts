@@ -1,13 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { OldTokensIds } from 'src/features/auth/entities/old-tokens-ids';
+import { OldTokensIdsEntity } from 'src/features/auth/entities/old-tokens-ids.entity';
 
 @Injectable()
 export class OldTokensIdsQueryRepository {
   constructor(
-    @InjectRepository(OldTokensIds)
-    private readonly repo: Repository<OldTokensIds>,
+    @InjectRepository(OldTokensIdsEntity)
+    private readonly repo: Repository<OldTokensIdsEntity>,
   ) {}
 
   async getOldTokenById(tokenId: string) {

@@ -11,8 +11,8 @@ import { generateUuidV4 } from 'src/utils';
 import { BlogsQueryRepository } from 'src/features/blogs/infrastructure/blogs.query-repository';
 import { UsersQueryRepository } from 'src/features/users/infrastructure/users.query-repository';
 import { PostsReactionsQueryRepository } from 'src/features/posts-reactions/infrastructure/posts-reactions-query-repository';
-import { Posts } from 'src/features/posts/entity/posts';
-import { Blogs } from 'src/features/blogs/entity/blogs';
+import { PostsEntity } from 'src/features/posts/entity/posts.entity';
+import { BlogsEntity } from 'src/features/blogs/entity/blogs.entity';
 
 @Injectable()
 export class PostsService {
@@ -32,7 +32,7 @@ export class PostsService {
     const id = generateUuidV4();
     const blog = (await this.blogsQueryRepository.getBlogById(blogId))!;
     const createdAt = new Date();
-    const newPost = new Posts(
+    const newPost = new PostsEntity(
       id,
       title,
       shortDescription,

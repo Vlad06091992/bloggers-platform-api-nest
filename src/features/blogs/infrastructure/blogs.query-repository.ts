@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { RequiredParamsValuesForBlogs } from 'src/shared/common-types';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
-import { Blogs } from 'src/features/blogs/entity/blogs';
+import { BlogsEntity } from 'src/features/blogs/entity/blogs.entity';
 
 //only query builder
 
@@ -10,7 +10,7 @@ import { Blogs } from 'src/features/blogs/entity/blogs';
 export class BlogsQueryRepository {
   constructor(
     @InjectDataSource() protected dataSource: DataSource,
-    @InjectRepository(Blogs) protected repo: Repository<Blogs>,
+    @InjectRepository(BlogsEntity) protected repo: Repository<BlogsEntity>,
   ) {}
 
   async getBlogById(id: string) {

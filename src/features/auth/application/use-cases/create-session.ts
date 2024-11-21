@@ -1,6 +1,6 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { CreateSessionDto } from 'src/features/auth/api/models/create-session-dto';
-import { AuthDevices } from 'src/features/auth/entities/devices';
+import { AuthDevices } from 'src/features/auth/entities/devices.entity';
 import { AuthDevicesRepository } from 'src/features/auth/infrastructure/auth-devices-repository';
 import { generateUuidV4 } from 'src/utils';
 

@@ -2,16 +2,16 @@ import { Injectable } from '@nestjs/common';
 import { RequiredParamsValuesForPostsOrComments } from 'src/shared/common-types';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
-import { Posts } from 'src/features/posts/entity/posts';
-import { PostsReactions } from 'src/features/posts-reactions/entity/post-reactions';
-import { Users } from 'src/features/users/entities/users';
+import { PostsEntity } from 'src/features/posts/entity/posts.entity';
+import { PostsReactions } from 'src/features/posts-reactions/entity/post-reactions.entity';
+import { UsersEntity } from 'src/features/users/entities/users.entity';
 import { transformPost } from 'src/features/posts/utils';
 
 @Injectable()
 export class PostsQueryRepository {
   constructor(
     @InjectDataSource() protected dataSource: DataSource,
-    @InjectRepository(Posts) protected repo: Repository<Posts>,
+    @InjectRepository(PostsEntity) protected repo: Repository<PostsEntity>,
   ) {}
 
   async getPostByIdWithLikesAndReactions(
@@ -41,7 +41,7 @@ export class PostsQueryRepository {
               .addSelect((qb3) => {
                 return qb3
                   .select('u.login')
-                  .from(Users, 'u')
+                  .from(UsersEntity, 'u')
                   .where('pr.userId = u.id');
               }, 'login')
               .from(PostsReactions, 'pr')
@@ -120,7 +120,7 @@ export class PostsQueryRepository {
               .addSelect((qb3) => {
                 return qb3
                   .select('u.login')
-                  .from(Users, 'u')
+                  .from(UsersEntity, 'u')
                   .where('pr.userId = u.id');
               }, 'login')
               .from(PostsReactions, 'pr')
@@ -204,7 +204,7 @@ export class PostsQueryRepository {
               .addSelect((qb3) => {
                 return qb3
                   .select('u.login')
-                  .from(Users, 'u')
+                  .from(UsersEntity, 'u')
                   .where('pr.userId = u.id');
               }, 'login')
               .from(PostsReactions, 'pr')

@@ -7,17 +7,17 @@ import { EmailService } from 'src/email/email.service';
 import { RecoveryPasswordQueryRepository } from 'src/features/auth/infrastructure/recovery-password-query-repository';
 import { CqrsModule } from '@nestjs/cqrs';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Users } from 'src/features/users/entities/users';
-import { UsersRegistrationData } from 'src/features/users/entities/users-registration-data';
-import { RecoveryPasswordCodes } from 'src/features/auth/entities/recovery-password-codes';
+import { UsersEntity } from 'src/features/users/entities/users.entity';
+import { UsersRegistrationDataEntity } from 'src/features/users/entities/users-registration-data.entity';
+import { RecoveryPasswordCodesEntity } from 'src/features/auth/entities/recovery-password-codes.entity';
 
 @Module({
   imports: [
     CqrsModule,
     TypeOrmModule.forFeature([
-      Users,
-      UsersRegistrationData,
-      RecoveryPasswordCodes,
+      UsersEntity,
+      UsersRegistrationDataEntity,
+      RecoveryPasswordCodesEntity,
     ]),
   ],
   controllers: [UsersController],

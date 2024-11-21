@@ -5,10 +5,10 @@ import { CommentsReactionsQueryRepository } from 'src/features/comments-reaction
 import { CommentsLikesRepository } from 'src/features/comments-reactions/infrastructure/comments-likes-repository';
 import { generateUuidV4 } from 'src/utils';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Comments } from 'src/features/comments/entity/comments';
+import { CommentsEntity } from 'src/features/comments/entity/comments.entity';
 import { Repository } from 'typeorm';
-import { CommentsReactions } from 'src/features/comments-reactions/entity/comment-reactions';
-import { Users } from 'src/features/users/entities/users';
+import { CommentsReactions } from 'src/features/comments-reactions/entity/comment-reactions.entity';
+import { UsersEntity } from 'src/features/users/entities/users.entity';
 
 export class UpdateOrCreateLikeCommentStatusCommand {
   constructor(
@@ -64,8 +64,8 @@ export class UpdateOrCreateLikeCommentStatusHandler
         generateUuidV4(),
         likeStatus,
         new Date(),
-        { id: userId } as Users,
-        { id: commentId } as Comments,
+        { id: userId } as UsersEntity,
+        { id: commentId } as CommentsEntity,
       );
 
       await this.commentsLikesRepository.createLikeStatus(newReactionRecord);

@@ -9,29 +9,29 @@ import { AuthDevicesRepository } from 'src/features/auth/infrastructure/auth-dev
 import { OldTokensIdsRepository } from 'src/features/auth/infrastructure/old-tokens-ids-repository';
 import { CommentsLikesRepository } from 'src/features/comments-reactions/infrastructure/comments-likes-repository';
 import { PostsReactionsRepository } from 'src/features/posts-reactions/infrastructure/posts-reactions-repository';
-import { OldTokensIds } from 'src/features/auth/entities/old-tokens-ids';
+import { OldTokensIdsEntity } from 'src/features/auth/entities/old-tokens-ids.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { AuthDevices } from 'src/features/auth/entities/devices';
 import { AuthDevicesQueryRepository } from 'src/features/auth/infrastructure/auth-devices-query-repository';
-import { Users } from 'src/features/users/entities/users';
-import { UsersRegistrationData } from 'src/features/users/entities/users-registration-data';
-import { Blogs } from 'src/features/blogs/entity/blogs';
-import { Posts } from 'src/features/posts/entity/posts';
-import { PostsReactions } from 'src/features/posts-reactions/entity/post-reactions';
-import { Comments } from 'src/features/comments/entity/comments';
-import { CommentsReactions } from 'src/features/comments-reactions/entity/comment-reactions';
+import { UsersEntity } from 'src/features/users/entities/users.entity';
+import { UsersRegistrationDataEntity } from 'src/features/users/entities/users-registration-data.entity';
+import { BlogsEntity } from 'src/features/blogs/entity/blogs.entity';
+import { PostsEntity } from 'src/features/posts/entity/posts.entity';
+import { PostsReactions } from 'src/features/posts-reactions/entity/post-reactions.entity';
+import { CommentsEntity } from 'src/features/comments/entity/comments.entity';
+import { CommentsReactions } from 'src/features/comments-reactions/entity/comment-reactions.entity';
+import { AuthDevices } from 'src/features/auth/entities/devices.entity';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([
-      OldTokensIds,
+      OldTokensIdsEntity,
       AuthDevices,
-      Users,
-      UsersRegistrationData,
-      Blogs,
-      Posts,
+      UsersEntity,
+      UsersRegistrationDataEntity,
+      BlogsEntity,
+      PostsEntity,
       PostsReactions,
-      Comments,
+      CommentsEntity,
       CommentsReactions,
     ]),
   ],

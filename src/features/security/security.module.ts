@@ -12,12 +12,15 @@ import { DeleteSessionHandler } from 'src/features/security/application/use-case
 import { OldTokensIdsQueryRepository } from 'src/features/auth/infrastructure/old-tokens-ids-query-repository';
 import { OldTokensIdsRepository } from 'src/features/auth/infrastructure/old-tokens-ids-repository';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { OldTokensIds } from 'src/features/auth/entities/old-tokens-ids';
-import { AuthDevices } from 'src/features/auth/entities/devices';
+import { OldTokensIdsEntity } from 'src/features/auth/entities/old-tokens-ids.entity';
+import { AuthDevices } from 'src/features/auth/entities/devices.entity';
 import { IsActiveDeviceHandler } from 'src/features/auth/application/use-cases/is-active-device';
 
 @Module({
-  imports: [CqrsModule, TypeOrmModule.forFeature([OldTokensIds, AuthDevices])],
+  imports: [
+    CqrsModule,
+    TypeOrmModule.forFeature([OldTokensIdsEntity, AuthDevices]),
+  ],
   controllers: [SecurityController],
   providers: [
     IsActiveDeviceHandler,

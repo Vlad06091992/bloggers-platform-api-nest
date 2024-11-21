@@ -13,18 +13,18 @@ import { GetLikeInfoHandler } from 'src/features/comments-reactions/application/
 import { UsersQueryRepository } from 'src/features/users/infrastructure/users.query-repository';
 import { CommentsLikesRepository } from 'src/features/comments-reactions/infrastructure/comments-likes-repository';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Users } from 'src/features/users/entities/users';
-import { UsersRegistrationData } from 'src/features/users/entities/users-registration-data';
-import { Comments } from 'src/features/comments/entity/comments';
-import { CommentsReactions } from 'src/features/comments-reactions/entity/comment-reactions';
+import { UsersEntity } from 'src/features/users/entities/users.entity';
+import { UsersRegistrationDataEntity } from 'src/features/users/entities/users-registration-data.entity';
+import { CommentsEntity } from 'src/features/comments/entity/comments.entity';
+import { CommentsReactions } from 'src/features/comments-reactions/entity/comment-reactions.entity';
 
 @Module({
   imports: [
     CqrsModule,
     TypeOrmModule.forFeature([
-      Users,
-      UsersRegistrationData,
-      Comments,
+      UsersEntity,
+      UsersRegistrationDataEntity,
+      CommentsEntity,
       CommentsReactions,
     ]),
   ],

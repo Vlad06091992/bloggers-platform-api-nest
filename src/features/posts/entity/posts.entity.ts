@@ -1,9 +1,9 @@
 import { Column, Entity, ManyToOne, OneToMany, PrimaryColumn } from 'typeorm';
-import { Blogs } from 'src/features/blogs/entity/blogs';
-import { PostsReactions } from 'src/features/posts-reactions/entity/post-reactions';
+import { BlogsEntity } from '../../blogs/entity/blogs.entity';
+import { PostsReactions } from '../../posts-reactions/entity/post-reactions.entity';
 
 @Entity({ name: 'Posts' })
-export class Posts {
+export class PostsEntity {
   @PrimaryColumn('uuid')
   id: string;
 
@@ -16,8 +16,8 @@ export class Posts {
   @Column()
   content: string;
 
-  @ManyToOne(() => Blogs, { cascade: true, onDelete: 'CASCADE' })
-  blog: Blogs;
+  @ManyToOne(() => BlogsEntity, { cascade: true, onDelete: 'CASCADE' })
+  blog: BlogsEntity;
 
   @OneToMany(
     () => PostsReactions,
@@ -39,7 +39,7 @@ export class Posts {
     title: string,
     shortDescription: string,
     content: string,
-    blog: Blogs,
+    blog: BlogsEntity,
     blogName: string,
     createdAt: Date,
   ) {

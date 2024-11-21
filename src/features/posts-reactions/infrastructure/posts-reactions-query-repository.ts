@@ -1,8 +1,8 @@
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
-import { Posts } from 'src/features/posts/entity/posts';
-import { PostsReactions } from 'src/features/posts-reactions/entity/post-reactions';
-import { Users } from 'src/features/users/entities/users';
+import { PostsEntity } from 'src/features/posts/entity/posts.entity';
+import { PostsReactions } from 'src/features/posts-reactions/entity/post-reactions.entity';
+import { UsersEntity } from 'src/features/users/entities/users.entity';
 import { groupBy } from 'rxjs';
 
 export class PostsReactionsQueryRepository {
@@ -10,8 +10,8 @@ export class PostsReactionsQueryRepository {
     @InjectDataSource() protected dataSource: DataSource,
     @InjectRepository(PostsReactions)
     protected postsReactionsRepository: Repository<PostsReactions>,
-    @InjectRepository(Posts)
-    protected postsRepository: Repository<Posts>,
+    @InjectRepository(PostsEntity)
+    protected postsRepository: Repository<PostsEntity>,
   ) {}
 
   async getLikeRecord(userId: string | null, postId: string) {
@@ -40,7 +40,7 @@ export class PostsReactionsQueryRepository {
               .addSelect((qb3) => {
                 return qb3
                   .select('u.login')
-                  .from(Users, 'u')
+                  .from(UsersEntity, 'u')
                   .where('pr.userId = u.id');
               }, 'login')
               .from(PostsReactions, 'pr')

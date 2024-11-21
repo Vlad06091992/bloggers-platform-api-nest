@@ -3,7 +3,7 @@ import { Injectable } from '@nestjs/common';
 import { LikeStatuses } from 'src/features/comments-reactions/api/models/like-status-dto';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
-import { PostsReactions } from 'src/features/posts-reactions/entity/post-reactions';
+import { PostsReactions } from 'src/features/posts-reactions/entity/post-reactions.entity';
 
 @Injectable()
 export class PostsReactionsRepository {

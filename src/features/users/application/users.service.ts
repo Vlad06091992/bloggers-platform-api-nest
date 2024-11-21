@@ -1,6 +1,6 @@
 import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { CreateUserDto } from 'src/features/users/api/models/create-user.dto';
-import { Users } from 'src/features/users/entities/users';
+import { UsersEntity } from 'src/features/users/entities/users.entity';
 import { UsersRepository } from 'src/features/users/infrastructure/users-repository';
 import * as bcrypt from 'bcrypt';
 import { UsersQueryRepository } from 'src/features/users/infrastructure/users.query-repository';
@@ -9,7 +9,7 @@ import { EmailService } from 'src/email/email.service';
 import { add, isBefore } from 'date-fns';
 import { RecoveryPasswordQueryRepository } from 'src/features/auth/infrastructure/recovery-password-query-repository';
 import { generateUuidV4 } from 'src/utils';
-import { UsersRegistrationData } from 'src/features/users/entities/users-registration-data';
+import { UsersRegistrationDataEntity } from 'src/features/users/entities/users-registration-data.entity';
 
 @Injectable()
 export class UsersService {
@@ -27,7 +27,7 @@ export class UsersService {
     const id = generateUuidV4();
     const confirmationCode = generateUuidV4();
     const regDataId = generateUuidV4();
-    const newUser = new Users(
+    const newUser = new UsersEntity(
       id,
       email,
       login,
@@ -35,7 +35,7 @@ export class UsersService {
       await this.createHash(password),
     );
     const expirationDate = add(new Date(), { hours: 1 });
-    const newUserRegistrationData = new UsersRegistrationData(
+    const newUserRegistrationData = new UsersRegistrationDataEntity(
       regDataId,
       !isRegistration,
       confirmationCode,

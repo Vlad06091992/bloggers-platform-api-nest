@@ -2,16 +2,16 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { RequiredParamsValuesForUsers } from 'src/shared/common-types';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
-import { Users } from 'src/features/users/entities/users';
-import { UsersRegistrationData } from 'src/features/users/entities/users-registration-data';
+import { UsersEntity } from 'src/features/users/entities/users.entity';
+import { UsersRegistrationDataEntity } from 'src/features/users/entities/users-registration-data.entity';
 
 @Injectable()
 export class UsersQueryRepository {
   constructor(
     @InjectDataSource() protected dataSource: DataSource,
-    @InjectRepository(Users) protected userRepo: Repository<Users>,
-    @InjectRepository(UsersRegistrationData)
-    protected userRegDataRepo: Repository<UsersRegistrationData>,
+    @InjectRepository(UsersEntity) protected userRepo: Repository<UsersEntity>,
+    @InjectRepository(UsersRegistrationDataEntity)
+    protected userRegDataRepo: Repository<UsersRegistrationDataEntity>,
   ) {}
 
   async getUserById(id: string) {

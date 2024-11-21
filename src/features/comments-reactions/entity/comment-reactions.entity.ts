@@ -1,6 +1,6 @@
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn } from 'typeorm';
-import { Users } from 'src/features/users/entities/users';
-import { Comments } from 'src/features/comments/entity/comments';
+import { UsersEntity } from '../../users/entities/users.entity';
+import { CommentsEntity } from '../../comments/entity/comments.entity';
 
 @Entity({ name: 'CommentsReactions' })
 export class CommentsReactions {
@@ -13,23 +13,23 @@ export class CommentsReactions {
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   addedAt: Date;
 
-  @ManyToOne(() => Users)
+  @ManyToOne(() => UsersEntity)
   @JoinColumn()
-  user: Users;
+  user: UsersEntity;
 
-  @ManyToOne(() => Comments, (c) => c.commentsReactions)
-  comment: Comments;
+  @ManyToOne(() => CommentsEntity, (c) => c.commentsReactions)
+  comment: CommentsEntity;
   constructor(
     id: string,
     likeStatus: string,
     addedAt: Date,
-    user: Users,
-    comment: Comments,
+    user: UsersEntity,
+    comment: CommentsEntity,
   ) {
     this.id = id;
     this.likeStatus = likeStatus;
     this.addedAt = addedAt;
-    this.user = user; // добавляем свойства user
-    this.comment = comment; // добавляем свойства post
+    this.user = user;
+    this.comment = comment;
   }
 }

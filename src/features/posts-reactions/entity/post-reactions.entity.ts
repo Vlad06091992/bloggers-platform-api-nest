@@ -1,14 +1,6 @@
-import {
-  Column,
-  Entity,
-  JoinColumn,
-  ManyToOne,
-  OneToMany,
-  OneToOne,
-  PrimaryColumn,
-} from 'typeorm';
-import { Posts } from 'src/features/posts/entity/posts';
-import { Users } from 'src/features/users/entities/users';
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn } from 'typeorm';
+import { PostsEntity } from '../../posts/entity/posts.entity';
+import { UsersEntity } from '../../users/entities/users.entity';
 
 @Entity({ name: 'PostsReactions' })
 export class PostsReactions {
@@ -24,19 +16,19 @@ export class PostsReactions {
   // @Column()
   // login: string;
 
-  @ManyToOne(() => Users)
+  @ManyToOne(() => UsersEntity)
   @JoinColumn()
-  user: Users;
+  user: UsersEntity;
 
-  @ManyToOne(() => Posts, (post) => post.postReactions)
-  post: Posts;
+  @ManyToOne(() => PostsEntity, (post) => post.postReactions)
+  post: PostsEntity;
   constructor(
     id: string,
     likeStatus: string,
     addedAt: Date,
     // login: string,
-    user: Users,
-    post: Posts,
+    user: UsersEntity,
+    post: PostsEntity,
   ) {
     this.id = id;
     this.likeStatus = likeStatus;

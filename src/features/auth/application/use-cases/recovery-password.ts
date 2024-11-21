@@ -5,7 +5,7 @@ import { RecoveryPasswordRepository } from 'src/features/auth/infrastructure/rec
 import { EmailService } from 'src/email/email.service';
 import { UsersService } from 'src/features/users/application/users.service';
 import { generateUuidV4 } from 'src/utils';
-import { RecoveryPasswordCodes } from 'src/features/auth/entities/recovery-password-codes';
+import { RecoveryPasswordCodesEntity } from 'src/features/auth/entities/recovery-password-codes.entity';
 
 export class RecoveryPasswordCommand {
   constructor(public email: string) {}
@@ -29,7 +29,7 @@ export class RecoveryPasswordHandler
       const id = generateUuidV4();
       await this.emailService.recoveryPassword(email, recoveryCode);
 
-      const record: RecoveryPasswordCodes = {
+      const record: RecoveryPasswordCodesEntity = {
         id,
         recoveryCode,
         email: user.email,

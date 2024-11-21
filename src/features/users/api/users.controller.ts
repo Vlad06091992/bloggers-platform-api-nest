@@ -29,7 +29,7 @@ import {
   OutputErrorUserDtoSwagger,
   PaginatedResponseUsersOutput,
   UserOutput,
-} from 'src/features/users/entities/swagger';
+} from 'src/features/users/swagger';
 
 @ApiTags('Super admin users')
 @Controller('/sa/users')

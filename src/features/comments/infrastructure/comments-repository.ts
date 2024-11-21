@@ -2,14 +2,15 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
-import { Comments } from 'src/features/comments/entity/comments';
-import { Posts } from 'src/features/posts/entity/posts';
+import { CommentsEntity } from 'src/features/comments/entity/comments.entity';
+import { PostsEntity } from 'src/features/posts/entity/posts.entity';
 
 @Injectable()
 export class CommentsRepository {
   constructor(
     @InjectDataSource() protected dataSource: DataSource,
-    @InjectRepository(Comments) protected repo: Repository<Comments>,
+    @InjectRepository(CommentsEntity)
+    protected repo: Repository<CommentsEntity>,
   ) {}
 
   async updateCommentById(commentId: string, content: string) {
@@ -23,7 +24,7 @@ export class CommentsRepository {
     return (result[1] = 1);
   }
 
-  async createComment(comment: Comments) {
+  async createComment(comment: CommentsEntity) {
     await this.repo.insert(comment);
     return {
       id: comment.id,
