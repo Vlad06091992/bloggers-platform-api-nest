@@ -1,11 +1,11 @@
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { RecoveryPasswordCodes } from 'src/features/auth/entities/recovery-password-codes';
+import { RecoveryPasswordCodesEntity } from 'src/features/auth/entities/recovery-password-codes.entity';
 
 export class RecoveryPasswordQueryRepository {
   constructor(
-    @InjectRepository(RecoveryPasswordCodes)
-    private readonly repo: Repository<RecoveryPasswordCodes>,
+    @InjectRepository(RecoveryPasswordCodesEntity)
+    private readonly repo: Repository<RecoveryPasswordCodesEntity>,
   ) {}
 
   async findUserByRecoveryCode(recoveryCode: string) {
@@ -18,7 +18,7 @@ export class RecoveryPasswordQueryRepository {
         'rpc.recoveryCode',
         'rpc.expirationDate',
       ])
-      .from(RecoveryPasswordCodes, 'rpc')
+      .from(RecoveryPasswordCodesEntity, 'rpc')
       .where('rpc.recoveryCode = :recoveryCode', { recoveryCode: recoveryCode })
       .getOne();
     return res || null;

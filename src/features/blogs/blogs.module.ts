@@ -18,26 +18,26 @@ import { BlogsQueryRepository } from 'src/features/blogs/infrastructure/blogs.qu
 import { UsersQueryRepository } from 'src/features/users/infrastructure/users.query-repository';
 import { PostsReactionsQueryRepository } from 'src/features/posts-reactions/infrastructure/posts-reactions-query-repository';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Users } from 'src/features/users/entities/users';
-import { UsersRegistrationData } from 'src/features/users/entities/users-registration-data';
-import { Blogs } from 'src/features/blogs/entity/blogs';
-import { AuthDevices } from 'src/features/auth/entities/devices';
-import { Posts } from 'src/features/posts/entity/posts';
-import { PostsReactions } from 'src/features/posts-reactions/entity/post-reactions';
+import { UsersEntity } from 'src/features/users/entities/users.entity';
+import { UsersRegistrationDataEntity } from 'src/features/users/entities/users-registration-data.entity';
+import { BlogsEntity } from 'src/features/blogs/entity/blogs.entity';
+import { AuthDevices } from 'src/features/auth/entities/devices.entity';
+import { PostsEntity } from 'src/features/posts/entity/posts.entity';
+import { PostsReactions } from 'src/features/posts-reactions/entity/post-reactions.entity';
 import { PostsReactionsRepository } from 'src/features/posts-reactions/infrastructure/posts-reactions-repository';
-import { Comments } from 'src/features/comments/entity/comments';
+import { CommentsEntity } from 'src/features/comments/entity/comments.entity';
 
 @Module({
   imports: [
     CqrsModule,
     TypeOrmModule.forFeature([
-      Users,
-      UsersRegistrationData,
-      Blogs,
+      UsersEntity,
+      UsersRegistrationDataEntity,
+      BlogsEntity,
       AuthDevices,
-      Posts,
+      PostsEntity,
       PostsReactions,
-      Comments,
+      CommentsEntity,
     ]),
   ],
   controllers: [BlogsController],

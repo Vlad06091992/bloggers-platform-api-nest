@@ -1,11 +1,11 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 
 import { CommentsRepository } from 'src/features/comments/infrastructure/comments-repository';
-import { Comments } from 'src/features/comments/entity/comments';
+import { CommentsEntity } from 'src/features/comments/entity/comments.entity';
 import { CreateCommentDto } from 'src/features/comments/api/models/comment-dto';
 import { generateUuidV4 } from 'src/utils';
 import { UsersQueryRepository } from 'src/features/users/infrastructure/users.query-repository';
-import { Users } from 'src/features/users/entities/users';
+import { UsersEntity } from 'src/features/users/entities/users.entity';
 
 export class CreateCommentForPostCommand {
   constructor(public createCommentDTO: CreateCommentDto) {}
@@ -21,11 +21,11 @@ export class CreateCommentForPostHandler
   ) {}
 
   async execute({ createCommentDTO }: CreateCommentForPostCommand) {
-    const comment = new Comments(
+    const comment = new CommentsEntity(
       generateUuidV4(),
       createCommentDTO.content,
       createCommentDTO.post,
-      { id: createCommentDTO.userId } as Users,
+      { id: createCommentDTO.userId } as UsersEntity,
       new Date(),
     );
 

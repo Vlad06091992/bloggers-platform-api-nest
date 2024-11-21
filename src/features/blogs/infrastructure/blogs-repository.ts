@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { UpdateBlogDto } from 'src/features/blogs/api/models/update-blog.dto';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
-import { Blogs } from 'src/features/blogs/entity/blogs';
+import { BlogsEntity } from 'src/features/blogs/entity/blogs.entity';
 
 //only query builder
 
@@ -10,11 +10,11 @@ import { Blogs } from 'src/features/blogs/entity/blogs';
 export class BlogsRepository {
   constructor(
     @InjectDataSource() protected dataSource: DataSource,
-    @InjectRepository(Blogs)
-    private readonly repo: Repository<Blogs>,
+    @InjectRepository(BlogsEntity)
+    private readonly repo: Repository<BlogsEntity>,
   ) {}
 
-  async createBlog(blog: Blogs) {
+  async createBlog(blog: BlogsEntity) {
     const { createdAt, name, id, isMembership, websiteUrl, description } = blog;
     await this.repo.createQueryBuilder().insert().values(blog).execute();
     return { createdAt, name, id, isMembership, websiteUrl, description };

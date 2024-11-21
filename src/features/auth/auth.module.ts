@@ -38,11 +38,11 @@ import { OldTokensIdsQueryRepository } from 'src/features/auth/infrastructure/ol
 import { OldTokensIdsRepository } from 'src/features/auth/infrastructure/old-tokens-ids-repository';
 import { UpdateSessionHandler } from 'src/features/security/application/use-cases/update-session';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { OldTokensIds } from 'src/features/auth/entities/old-tokens-ids';
-import { AuthDevices } from 'src/features/auth/entities/devices';
-import { Users } from 'src/features/users/entities/users';
-import { UsersRegistrationData } from 'src/features/users/entities/users-registration-data';
-import { RecoveryPasswordCodes } from 'src/features/auth/entities/recovery-password-codes';
+import { OldTokensIdsEntity } from 'src/features/auth/entities/old-tokens-ids.entity';
+import { AuthDevices } from 'src/features/auth/entities/devices.entity';
+import { UsersEntity } from 'src/features/users/entities/users.entity';
+import { UsersRegistrationDataEntity } from 'src/features/users/entities/users-registration-data.entity';
+import { RecoveryPasswordCodesEntity } from 'src/features/auth/entities/recovery-password-codes.entity';
 
 @Module({
   imports: [
@@ -55,11 +55,11 @@ import { RecoveryPasswordCodes } from 'src/features/auth/entities/recovery-passw
       signOptions: { expiresIn: '60m' },
     }),
     TypeOrmModule.forFeature([
-      OldTokensIds,
+      OldTokensIdsEntity,
       AuthDevices,
-      Users,
-      UsersRegistrationData,
-      RecoveryPasswordCodes,
+      UsersEntity,
+      UsersRegistrationDataEntity,
+      RecoveryPasswordCodesEntity,
     ]),
   ],
   controllers: [AuthController],

@@ -16,24 +16,24 @@ import { PostsReactionsRepository } from 'src/features/posts-reactions/infrastru
 import { PostsReactionsQueryRepository } from 'src/features/posts-reactions/infrastructure/posts-reactions-query-repository';
 import { UpdateOrCreateLikePostStatusHandler } from 'src/features/posts-reactions/application/use-cases/update-or-create-like-post-status';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Users } from 'src/features/users/entities/users';
-import { UsersRegistrationData } from 'src/features/users/entities/users-registration-data';
-import { Blogs } from 'src/features/blogs/entity/blogs';
-import { Posts } from 'src/features/posts/entity/posts';
-import { PostsReactions } from 'src/features/posts-reactions/entity/post-reactions';
-import { Comments } from 'src/features/comments/entity/comments';
-import { CommentsReactions } from 'src/features/comments-reactions/entity/comment-reactions';
+import { UsersEntity } from 'src/features/users/entities/users.entity';
+import { UsersRegistrationDataEntity } from 'src/features/users/entities/users-registration-data.entity';
+import { BlogsEntity } from 'src/features/blogs/entity/blogs.entity';
+import { PostsEntity } from 'src/features/posts/entity/posts.entity';
+import { PostsReactions } from 'src/features/posts-reactions/entity/post-reactions.entity';
+import { CommentsEntity } from 'src/features/comments/entity/comments.entity';
+import { CommentsReactions } from 'src/features/comments-reactions/entity/comment-reactions.entity';
 
 @Module({
   imports: [
     CqrsModule,
     TypeOrmModule.forFeature([
-      Users,
-      UsersRegistrationData,
-      Blogs,
-      Posts,
+      UsersEntity,
+      UsersRegistrationDataEntity,
+      BlogsEntity,
+      PostsEntity,
       PostsReactions,
-      Comments,
+      CommentsEntity,
       CommentsReactions,
     ]),
   ],

@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { AuthDevices } from 'src/features/auth/entities/devices';
+import { AuthDevices } from 'src/features/auth/entities/devices.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Not, Repository } from 'typeorm';
 

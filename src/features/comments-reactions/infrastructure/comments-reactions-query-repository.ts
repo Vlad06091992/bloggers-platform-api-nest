@@ -1,8 +1,8 @@
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
-import { Comments } from 'src/features/comments/entity/comments';
-import { CommentsReactions } from 'src/features/comments-reactions/entity/comment-reactions';
-import { Users } from 'src/features/users/entities/users';
+import { CommentsEntity } from 'src/features/comments/entity/comments.entity';
+import { CommentsReactions } from 'src/features/comments-reactions/entity/comment-reactions.entity';
+import { UsersEntity } from 'src/features/users/entities/users.entity';
 
 export class CommentsReactionsQueryRepository {
   constructor(
@@ -14,8 +14,8 @@ export class CommentsReactionsQueryRepository {
   async getLikeRecord(userId: string | null, commentId: string) {
     const result = await this.repo.findOne({
       where: {
-        comment: { id: commentId } as Comments,
-        user: { id: userId } as Users,
+        comment: { id: commentId } as CommentsEntity,
+        user: { id: userId } as UsersEntity,
       },
     });
     debugger;

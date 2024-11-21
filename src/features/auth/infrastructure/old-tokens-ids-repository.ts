@@ -1,17 +1,17 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { OldTokensIds } from 'src/features/auth/entities/old-tokens-ids';
+import { OldTokensIdsEntity } from 'src/features/auth/entities/old-tokens-ids.entity';
 
 @Injectable()
 export class OldTokensIdsRepository {
   constructor(
-    @InjectRepository(OldTokensIds)
-    private readonly repo: Repository<OldTokensIds>,
+    @InjectRepository(OldTokensIdsEntity)
+    private readonly repo: Repository<OldTokensIdsEntity>,
   ) {}
 
   async createRecord(tokenId: string) {
-    const record = new OldTokensIds(tokenId);
+    const record = new OldTokensIdsEntity(tokenId);
     await this.repo.insert(record);
   }
 

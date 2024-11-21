@@ -4,9 +4,9 @@ import { LikeStatuses } from 'src/features/comments-reactions/api/models/like-st
 import { PostsReactionsRepository } from 'src/features/posts-reactions/infrastructure/posts-reactions-repository';
 import { PostsReactionsQueryRepository } from 'src/features/posts-reactions/infrastructure/posts-reactions-query-repository';
 import { generateUuidV4 } from 'src/utils';
-import { PostsReactions } from 'src/features/posts-reactions/entity/post-reactions';
-import { Users } from 'src/features/users/entities/users';
-import { Posts } from 'src/features/posts/entity/posts';
+import { PostsReactions } from 'src/features/posts-reactions/entity/post-reactions.entity';
+import { UsersEntity } from 'src/features/users/entities/users.entity';
+import { PostsEntity } from 'src/features/posts/entity/posts.entity';
 
 export class UpdateOrCreateLikePostStatusCommand {
   constructor(
@@ -64,8 +64,8 @@ export class UpdateOrCreateLikePostStatusHandler
         generateUuidV4(),
         likeStatus,
         new Date(),
-        { id: userId } as Users,
-        { id: postId } as Posts,
+        { id: userId } as UsersEntity,
+        { id: postId } as PostsEntity,
       );
       await this.postsLikesRepository.createLikeStatus(newLikeRecord);
     }

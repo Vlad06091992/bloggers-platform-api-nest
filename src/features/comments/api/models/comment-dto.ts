@@ -1,5 +1,5 @@
 import { Length } from 'class-validator';
-import { Posts } from 'src/features/posts/entity/posts';
+import { PostsEntity } from 'src/features/posts/entity/posts.entity';
 
 export class CommentDto {
   @Length(20, 300)
@@ -9,6 +9,6 @@ export class CommentDto {
 export class CreateCommentDto extends CommentDto {
   userId: string;
   userLogin: string;
-  post: Posts;
+  post: PostsEntity;
   content: string;
 }

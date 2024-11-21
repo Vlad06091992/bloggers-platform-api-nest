@@ -1,11 +1,11 @@
 import { CommandBus, CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { Users } from 'src/features/users/entities/users';
+import { UsersEntity } from 'src/features/users/entities/users.entity';
 import { GenerateJWTCommand } from 'src/features/auth/application/use-cases/generate-jwt';
 import { generateUuidV4 } from 'src/utils';
 
 export class LoginCommand {
   constructor(
-    public user: Users,
+    public user: UsersEntity,
     public deviceId: string,
   ) {}
 }

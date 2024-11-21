@@ -1,21 +1,21 @@
-import { Users } from 'src/features/users/entities/users';
+import { UsersEntity } from 'src/features/users/entities/users.entity';
 import { Injectable } from '@nestjs/common';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { DataSource, FindOneOptions, Repository } from 'typeorm';
-import { UsersRegistrationData } from 'src/features/users/entities/users-registration-data';
+import { UsersRegistrationDataEntity } from 'src/features/users/entities/users-registration-data.entity';
 
 type CreateUserDTO = {
-  newUser: Users;
-  newUserRegistrationData: UsersRegistrationData;
+  newUser: UsersEntity;
+  newUserRegistrationData: UsersRegistrationDataEntity;
 };
 
 @Injectable()
 export class UsersRepository {
   constructor(
     @InjectDataSource() protected dataSource: DataSource,
-    @InjectRepository(Users) protected userRepo: Repository<Users>,
-    @InjectRepository(UsersRegistrationData)
-    protected userRegDataRepo: Repository<UsersRegistrationData>,
+    @InjectRepository(UsersEntity) protected userRepo: Repository<UsersEntity>,
+    @InjectRepository(UsersRegistrationDataEntity)
+    protected userRegDataRepo: Repository<UsersRegistrationDataEntity>,
   ) {}
 
   async createUser({ newUser, newUserRegistrationData }: CreateUserDTO) {
@@ -70,7 +70,7 @@ export class UsersRepository {
       where: {
         user: { id: userId },
       },
-    } as FindOneOptions<UsersRegistrationData>);
+    } as FindOneOptions<UsersRegistrationDataEntity>);
     if (regData) {
       regData.confirmationCode = confirmationCode;
       await this.userRegDataRepo.save(regData);

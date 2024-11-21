@@ -6,7 +6,7 @@ import { PostsService } from 'src/features/posts/application/posts.service';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { generateUuidV4 } from 'src/utils';
 import { BlogsQueryRepository } from 'src/features/blogs/infrastructure/blogs.query-repository';
-import { Blogs } from 'src/features/blogs/entity/blogs';
+import { BlogsEntity } from 'src/features/blogs/entity/blogs.entity';
 
 export class CreateBlogCommand {
   constructor(public createBlogDto: CreateBlogDto) {}
@@ -25,7 +25,7 @@ export class CreateBlogHandler implements ICommandHandler<CreateBlogCommand> {
     const {
       createBlogDto: { name, websiteUrl, description },
     } = command;
-    const newBlog = new Blogs(
+    const newBlog = new BlogsEntity(
       generateUuidV4(),
       new Date(),
       false,
