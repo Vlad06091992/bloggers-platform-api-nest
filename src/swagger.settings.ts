@@ -7,6 +7,9 @@ export const createSwaggerConfig = (app) => {
     .setVersion('1.0')
     .addBasicAuth()
     .addTag('Super admin users')
+    .addTag('Auth')
+    .addCookieAuth('refreshToken')
+    .addBearerAuth()
     .build();
 
   const document = SwaggerModule.createDocument(app, config);

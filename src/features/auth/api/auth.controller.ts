@@ -37,7 +37,18 @@ import { JwtService } from '@nestjs/jwt';
 import { GetRefreshToken } from 'src/infrastructure/decorators/getRefreshToken';
 import { GetUserByAccessToken } from 'src/infrastructure/decorators/getUserByAccessToken';
 import { NotTestingThrottleGuard } from 'src/features/auth/guards/custom-throttle-guard';
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
+import { CreateUserDtoSwagger, OutputErrorUserDtoSwagger, UserOutput } from "src/features/users/swagger";
+import {
+  AuthMeOutputSwagger,
+  LoginDtoOutputSwagger,
+  LoginDtoSwagger, NewPasswordDtoSwagger, OutputRegistrationDtoSwagger,
+  PasswordRecoveryDtoSwagger, RegistrationConfirmationDtoSwagger, RegistrationEmailResendingRecoveryDtoSwagger,
+  RegistrtionDtoSwagger
+} from "src/features/auth/swagger";
+import { ApiCookieAuth } from "@nestjs/swagger/dist/decorators/api-cookie.decorator";
 
+@ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
   constructor(
@@ -50,6 +61,29 @@ export class AuthController {
   @UseGuards(NotTestingThrottleGuard)
   @HttpCode(200)
   @Post('login')
+  @ApiOperation({ summary: 'Залогиниться в системе' })
+  @ApiBody({
+    description: 'Пример объекта c данными',
+    type: LoginDtoSwagger,
+  })
+  @ApiResponse({
+    status: 200,
+    description:
+    'Возвращает JWT accessToken (срок действия истекает через 10 часов) в теле запроса и JWT refreshToken в cookie (http-only, secure) (срок действия истекает через 20 часов).',
+    type: LoginDtoOutputSwagger
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Если пароль или логин неверны',
+  })
+  @ApiResponse({
+    status: 429,
+    description: 'Более 5 попыток с одного IP-адреса в течение 10 секунд.',
+    example: {
+      statusCode: 429,
+      message: "ThrottlerException: Too Many Requests"
+    },
+  })
   async login(
     @Body() loginDTO: LoginDTO,
     @Res({ passthrough: true }) res: Response,
@@ -79,6 +113,18 @@ export class AuthController {
 
   @UseGuards(RefreshTokenGuard)
   @HttpCode(200)
+  @ApiOperation({ summary: 'Получить новую пару токенов' })
+  @ApiCookieAuth()
+  @ApiResponse({
+    status: 200,
+    description:
+      'Возвращает JWT accessToken (срок действия истекает через 10 часов) в теле запроса и JWT refreshToken в cookie (http-only, secure) (срок действия истекает через 20 часов).',
+    type: LoginDtoOutputSwagger
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Если пароль или логин неверны',
+  })
   @Post('refresh-token')
   async refreshToken(
     @Res({ passthrough: true }) res: Response,
@@ -101,7 +147,18 @@ export class AuthController {
 
   @UseGuards(RefreshTokenGuard)
   @HttpCode(204)
+  @ApiCookieAuth()
   @Post('logout')
+  @ApiOperation({ summary: 'Завершение текущей сессии пользователя в приложении.' })
+  @ApiResponse({
+    status: 204,
+    description:
+      'Успешно'
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Пользователь не авторизован',
+  })
   async logout(
     @Res({ passthrough: true }) res: Response,
     @Request() req,
@@ -109,7 +166,26 @@ export class AuthController {
   ) {
     await this.commandBus.execute(new LogoutCommand(refreshToken));
   }
-
+  @ApiOperation({ summary: 'Восстановление пароля через подтверждение по email. Письмо должно быть отправлено с кодом восстановления внутри..' })
+  @ApiBody({
+    description: 'Пример объекта c данными',
+    type: PasswordRecoveryDtoSwagger
+  })
+  @ApiResponse({
+    status: 204,
+    description:
+      'Даже если текущий email не зарегистрирован (для предотвращения обнаружения email пользователя)'
+  })
+  @ApiResponse({
+    status: 400,
+    description:
+      'Если email в inputModel недействителен (например, 222^gmail.com)'
+  })
+  @ApiResponse({
+    status: 429,
+    description:
+      'Более 5 попыток с одного IP-адреса в течение 10 секунд'
+  })
   @UseGuards(ThrottlerGuard)
   @HttpCode(204)
   @Post('password-recovery')
@@ -118,7 +194,36 @@ export class AuthController {
       new RecoveryPasswordCommand(recoveryPasswordDTO.email),
     );
   }
-
+  @ApiOperation({ summary: 'Регистрация в системе. Письмо с кодом подтверждения будет отправлено на указанный email.' })
+  @ApiBody({
+    description: 'Пример объекта c данными',
+    type: RegistrtionDtoSwagger,
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Не валидные данные для регистрации пользователя',
+    type: OutputRegistrationDtoSwagger,
+    example: {
+      errorsMessages: [
+        {
+          message: 'Не правильный емайл',
+          field: 'email',
+        },
+      ],
+    },
+  })
+  @ApiResponse({
+    status: 204,
+    description: 'Данные введены корректно. Письмо с кодом подтверждения будет отправлено на указанный адрес электронной почты. Код подтверждения должен быть в ссылке как параметр запроса, например: https://some-front.com/confirm-registration?code=youtcodehere',
+  })
+  @ApiResponse({
+    status: 429,
+    description: 'Более 5 попыток с одного IP-адреса в течение 10 секунд.',
+    example: {
+      statusCode: 429,
+      message: "ThrottlerException: Too Many Requests"
+    },
+  })
   @UseGuards(ThrottlerGuard)
   @HttpCode(204)
   @Post('registration')
@@ -126,6 +231,43 @@ export class AuthController {
     return this.usersService.create(createUserDto, true);
   }
 
+
+
+
+  @ApiOperation({ summary: 'Повторно отправить письмо с подтверждением регистрации, если пользователь существует' })
+  @ApiBody({
+    description: 'Пример объекта c данными',
+    type: RegistrationEmailResendingRecoveryDtoSwagger,
+  })
+  @ApiResponse({
+    status: 204,
+    description: 'Входные данные приняты. Электронное письмо с кодом подтверждения будет отправлено на указанный адрес. Код подтверждения должен быть в ссылке в виде параметра запроса, например: https://some-front.com/confirm-registration?code=yourcodehere',
+  })
+  @ApiBody({
+    description: 'Пример объекта c данными',
+    type: RegistrtionDtoSwagger,
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Не валидные данные для регистрации пользователя',
+    type: OutputRegistrationDtoSwagger,
+    example: {
+      errorsMessages: [
+        {
+          message: 'Не правильный емайл',
+          field: 'email',
+        },
+      ],
+    },
+  })
+  @ApiResponse({
+    status: 429,
+    description: 'Более 5 попыток с одного IP-адреса в течение 10 секунд.',
+    example: {
+      statusCode: 429,
+      message: "ThrottlerException: Too Many Requests"
+    },
+  })
   @UseGuards(ThrottlerGuard)
   @Post('registration-email-resending')
   @HttpCode(204)
@@ -134,6 +276,31 @@ export class AuthController {
     return this.commandBus.execute(new ResendEmailCommand(email));
   }
 
+
+
+
+
+  @ApiOperation({ summary: 'Подтвердить восстановление пароля.' })
+  @ApiBody({
+    description: 'Пример объекта c данными',
+    type: NewPasswordDtoSwagger,
+  })
+  @ApiResponse({
+    status: 204,
+    description: 'Если код действителен и новый пароль принят',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Если inputModel имеет неправильное значение (например, для некорректной длины пароля), или RecoveryCode неверен либо истёк'
+  })
+  @ApiResponse({
+    status: 429,
+    description: 'Более 5 попыток с одного IP-адреса в течение 10 секунд.',
+    example: {
+      statusCode: 429,
+      message: "ThrottlerException: Too Many Requests"
+    },
+  })
   @UseGuards(ThrottlerGuard)
   @Post('new-password')
   @HttpCode(204)
@@ -143,12 +310,60 @@ export class AuthController {
     );
   }
 
+
+
+
+  @ApiOperation({ summary: 'Подтверждение регистрации.' })
+  @ApiBody({
+    description: 'Пример объекта c данными',
+    type: RegistrationConfirmationDtoSwagger,
+  })
+  @ApiResponse({
+    status: 204,
+    description: 'Электронная почта была подтверждена. Аккаунт был активирован.',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Если код подтверждения неверный, истёк или уже был использован',
+    type: OutputRegistrationDtoSwagger,
+    example: {
+      errorsMessages: [
+        {
+          message: 'Не правильный емайл',
+          field: 'email',
+        },
+      ],
+    },
+  })
+  @ApiResponse({
+    status: 429,
+    description: 'Более 5 попыток с одного IP-адреса в течение 10 секунд.',
+    example: {
+      statusCode: 429,
+      message: "ThrottlerException: Too Many Requests"
+    },
+  })
   @UseGuards(ThrottlerGuard)
   @Post('registration-confirmation')
   @HttpCode(204)
   registrationConfirmation(@Body('code') code: string) {
     return this.commandBus.execute(new ConfirmEmailCommand(code));
   }
+
+
+
+
+  @ApiOperation({ summary: 'Получить информацию о текущем пользователе.' })
+  @ApiBearerAuth()
+  @ApiResponse({
+    status: 200,
+    description: 'Успешно',
+ type:AuthMeOutputSwagger
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Пользователь не авторизован',
+  })
   @UseGuards(JwtAuthGuard)
   @Get('me')
   @HttpCode(200)

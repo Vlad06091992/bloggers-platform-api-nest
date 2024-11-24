@@ -25,10 +25,10 @@ export class LoginHandler implements ICommandHandler<LoginCommand> {
     };
     return {
       accessToken: await this.commandBus.execute(
-        new GenerateJWTCommand(payload, '10m'),
+        new GenerateJWTCommand(payload, '10h'),
       ),
       refreshToken: await this.commandBus.execute(
-        new GenerateJWTCommand(payload, '20m'),
+        new GenerateJWTCommand(payload, '20h'),
       ),
     };
   }
