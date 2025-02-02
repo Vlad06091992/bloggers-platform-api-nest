@@ -16,6 +16,7 @@ import { CqrsModule } from '@nestjs/cqrs';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { BlogsModule } from 'src/features/blogs/blogs.module';
 import { TypeOrmConfigService } from 'src/typeorm.config';
+import { QuizModule } from 'src/features/quiz/quiz.module';
 
 @Module({
   imports: [
@@ -51,6 +52,7 @@ import { TypeOrmConfigService } from 'src/typeorm.config';
     }),
     MongooseModule,
     SaBlogsModule,
+    QuizModule,
     BlogsModule,
     UsersModule,
     CommentsModule,
