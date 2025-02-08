@@ -11,7 +11,7 @@ import {
   Res,
   UseGuards,
 } from '@nestjs/common';
-import { getIdFromParams } from 'src/infrastructure/decorators/getIdFromParams';
+import { GetIdFromParams } from 'src/infrastructure/decorators/getIdFromParams';
 import { Response } from 'express';
 import { UpdateBlogDto } from 'src/features/blogs/api/models/update-blog.dto';
 import { CreateBlogDto } from 'src/features/blogs/api/models/create-blog.dto';
@@ -56,7 +56,7 @@ export class SaBlogsController {
   @UseGuards(BasicAuthGuard)
   @Get(':id')
   async findOne(
-    @getIdFromParams() id: string,
+    @GetIdFromParams() id: string,
     @Res({ passthrough: true }) res: Response,
   ) {
     const blog = await this.commandBus.execute(new FindBlogCommand(id));
@@ -73,7 +73,7 @@ export class SaBlogsController {
     @CheckUserByJWTAccessToken() userId: string | null,
     @getValidQueryParamsForPosts()
     params: RequiredParamsValuesForPostsOrComments,
-    @getIdFromParams() id: string,
+    @GetIdFromParams() id: string,
     @Res({ passthrough: true }) res: Response,
   ) {
     const blog = await this.commandBus.execute(new FindBlogCommand(id));
@@ -92,7 +92,7 @@ export class SaBlogsController {
   @Post(':id/posts')
   async updatePostForSpecificBlog(
     @Body() createPostDto: CreatePostDtoWithoutBlogId,
-    @getIdFromParams() id: string,
+    @GetIdFromParams() id: string,
     @Res({ passthrough: true }) res: Response,
   ) {
     const blog = await this.commandBus.execute(new FindBlogCommand(id));
@@ -112,8 +112,8 @@ export class SaBlogsController {
   @Put(':blogId/posts/:postId')
   async createPostForSpecificBlog(
     @Body() updatePostDto: UpdatePostDto,
-    @getIdFromParams({ paramName: 'blogId' }) blogId: string,
-    @getIdFromParams({ paramName: 'postId' }) postId: string,
+    @GetIdFromParams({ paramName: 'blogId' }) blogId: string,
+    @GetIdFromParams({ paramName: 'postId' }) postId: string,
   ) {
     const blog = await this.commandBus.execute(new FindBlogCommand(blogId)); //TODO подобное унести в Pipe
     const post = await this.postsService.findOnePostByIdWithLikesAndReactions(
@@ -134,8 +134,8 @@ export class SaBlogsController {
   @HttpCode(204) //TODO коды сложить куда то в одно место
   @Delete(':blogId/posts/:postId')
   async deletePostForSpecificBlog(
-    @getIdFromParams({ paramName: 'blogId' }) blogId: string,
-    @getIdFromParams({ paramName: 'postId' }) postId: string,
+    @GetIdFromParams({ paramName: 'blogId' }) blogId: string,
+    @GetIdFromParams({ paramName: 'postId' }) postId: string,
   ) {
     const blog = await this.commandBus.execute(new FindBlogCommand(blogId)); //TODO подобное унести в Pipe
     const post = this.postsService.findOnePostByIdWithLikesAndReactions(
@@ -155,7 +155,7 @@ export class SaBlogsController {
   @UseGuards(BasicAuthGuard)
   @Put(':id')
   async updateOne(
-    @getIdFromParams() id: string,
+    @GetIdFromParams() id: string,
     @Body() updateBlogDto: UpdateBlogDto,
     @Res() res: Response,
   ) {
@@ -171,7 +171,7 @@ export class SaBlogsController {
 
   @UseGuards(BasicAuthGuard)
   @Delete(':id')
-  async remove(@getIdFromParams() id: string, @Res() res: Response) {
+  async remove(@GetIdFromParams() id: string, @Res() res: Response) {
     if (!id) {
       res.sendStatus(404);
       return;

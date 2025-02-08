@@ -11,7 +11,7 @@ import {
   Res,
   UseGuards,
 } from '@nestjs/common';
-import { getIdFromParams } from 'src/infrastructure/decorators/getIdFromParams';
+import { GetIdFromParams } from 'src/infrastructure/decorators/getIdFromParams';
 import { Response } from 'express';
 import { PostsService } from 'src/features/posts/application/posts.service';
 import { CreatePostDto } from 'src/features/posts/api/models/create-post.dto';
@@ -52,7 +52,7 @@ export class PostsController {
   @Get(':id/comments')
   async findComments(
     @CheckUserByJWTAccessToken() userId: string | null,
-    @getIdFromParams() id: string,
+    @GetIdFromParams() id: string,
     @getValidQueryParamsForComments()
     params: RequiredParamsValuesForPostsOrComments,
   ) {
@@ -71,7 +71,7 @@ export class PostsController {
   @Post(':id/comments')
   async createCommentForPost(
     @Request() req,
-    @getIdFromParams() id: string,
+    @GetIdFromParams() id: string,
     @Body() { content }: CommentDto,
     @Res({ passthrough: true }) res: Response,
   ) {
@@ -98,7 +98,7 @@ export class PostsController {
   @HttpCode(204)
   @Put(':id/like-status')
   async updatePostLikeStatus(
-    @getIdFromParams() id: string,
+    @GetIdFromParams() id: string,
     @Body() { likeStatus }: LikeStatusDto,
     @Request() req,
   ) {
@@ -124,7 +124,7 @@ export class PostsController {
 
   @Get(':id')
   async findOne(
-    @getIdFromParams() id: string,
+    @GetIdFromParams() id: string,
     @CheckUserByJWTAccessToken() userId: string | null,
     @Res({ passthrough: true }) res: Response,
   ) {
@@ -143,7 +143,7 @@ export class PostsController {
   @UseGuards(BasicAuthGuard)
   @Put(':id')
   async updateOne(
-    @getIdFromParams() id: string,
+    @GetIdFromParams() id: string,
     @Body() updatePostDto: UpdatePostDto,
     @Res() res: Response,
   ) {
@@ -156,7 +156,7 @@ export class PostsController {
   }
   @UseGuards(BasicAuthGuard)
   @Delete(':id')
-  async remove(@getIdFromParams() id: string, @Res() res: Response) {
+  async remove(@GetIdFromParams() id: string, @Res() res: Response) {
     if (!id) {
       res.sendStatus(404);
       return;

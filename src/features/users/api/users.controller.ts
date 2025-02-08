@@ -10,7 +10,7 @@ import {
 } from '@nestjs/common';
 import { UsersService } from 'src/features/users/application/users.service';
 import { CreateUserDto } from 'src/features/users/api/models/create-user.dto';
-import { getIdFromParams } from 'src/infrastructure/decorators/getIdFromParams';
+import { GetIdFromParams } from 'src/infrastructure/decorators/getIdFromParams';
 import { IsExistUserValidationPipe } from 'src/infrastructure/pipes/isExistUser';
 import { BasicAuthGuard } from 'src/features/auth/guards/basic-auth.guard';
 import { getValidQueryParamsForUsers } from 'src/infrastructure/decorators/getValidQueryParamsForUsers';
@@ -138,7 +138,7 @@ export class UsersController {
   @ApiResponse({ status: 401, description: 'Вы не авторизованы' })
   @ApiResponse({ status: 200, description: 'Успешно' })
   @ApiResponse({ status: 404, description: 'Пользователь не найден' })
-  async findOne(@getIdFromParams() id: string) {
+  async findOne(@GetIdFromParams() id: string) {
     const user = await this.usersService.findOne(id);
 
     if (!id) {
@@ -165,7 +165,7 @@ export class UsersController {
   @ApiResponse({ status: 401, description: 'Вы не авторизованы' })
   @ApiResponse({ status: 204, description: 'Успешно' })
   @ApiResponse({ status: 404, description: 'Пользователь не найден' })
-  async remove(@getIdFromParams() id: string) {
+  async remove(@GetIdFromParams() id: string) {
     if (!id) {
       throw new NotFoundException();
     }

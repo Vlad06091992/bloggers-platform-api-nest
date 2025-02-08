@@ -11,7 +11,7 @@ import {
   Res,
   UseGuards,
 } from '@nestjs/common';
-import { getIdFromParams } from 'src/infrastructure/decorators/getIdFromParams';
+import { GetIdFromParams } from 'src/infrastructure/decorators/getIdFromParams';
 import { Response } from 'express';
 import { CommandBus } from '@nestjs/cqrs';
 import { FindCommentByIdCommand } from 'src/features/comments/application/use-cases/find-comment-by-id';
@@ -29,7 +29,7 @@ export class CommentsController {
 
   @Get(':id')
   async findOne(
-    @getIdFromParams() id: string,
+    @GetIdFromParams() id: string,
     @CheckUserByJWTAccessToken() userId: string | null,
     @Res({ passthrough: true }) res: Response,
   ) {
@@ -49,7 +49,7 @@ export class CommentsController {
   @Put(':id')
   async updateOne(
     @Request() req,
-    @getIdFromParams() id: string,
+    @GetIdFromParams() id: string,
     @Body() { content }: CommentDto,
   ) {
     const comment = await this.commandBus.execute(
@@ -80,7 +80,7 @@ export class CommentsController {
   @HttpCode(204)
   @Put(':id/like-status')
   async updateCommentLikeStatus(
-    @getIdFromParams() id: string,
+    @GetIdFromParams() id: string,
     @Body() { likeStatus }: LikeStatusDto,
     @Request() req,
   ) {
@@ -111,7 +111,7 @@ export class CommentsController {
   @Delete(':id')
   @HttpCode(204)
   async deleteOne(
-    @getIdFromParams() id: string,
+    @GetIdFromParams() id: string,
     @Request() req,
     @Res({ passthrough: true }) res: Response,
   ) {

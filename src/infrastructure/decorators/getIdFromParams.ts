@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { isValidUUIDv4 } from 'src/utils';
 
-export const getIdFromParams = createParamDecorator(
+export const GetIdFromParams = createParamDecorator(
   (data: { paramName: string }, ctx: ExecutionContext) => {
     const request = ctx.switchToHttp().getRequest();
     const id = request.params[data?.paramName || 'id'];

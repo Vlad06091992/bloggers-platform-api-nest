@@ -1,5 +1,5 @@
 import { Controller, Get, Res } from '@nestjs/common';
-import { getIdFromParams } from 'src/infrastructure/decorators/getIdFromParams';
+import { GetIdFromParams } from 'src/infrastructure/decorators/getIdFromParams';
 import { Response } from 'express';
 import { CommandBus } from '@nestjs/cqrs';
 import { FindBlogCommand } from 'src/features/blogs/application/use-cases/find-blog';
@@ -23,7 +23,7 @@ export class BlogsController {
 
   @Get(':id')
   async findOne(
-    @getIdFromParams() id: string,
+    @GetIdFromParams() id: string,
     @Res({ passthrough: true }) res: Response,
   ) {
     const blog = await this.commandBus.execute(new FindBlogCommand(id));
@@ -38,7 +38,7 @@ export class BlogsController {
     @CheckUserByJWTAccessToken() userId: string | null,
     @getValidQueryParamsForPosts()
     params: RequiredParamsValuesForPostsOrComments,
-    @getIdFromParams() id: string,
+    @GetIdFromParams() id: string,
     @Res({ passthrough: true }) res: Response,
   ) {
     const blog = await this.commandBus.execute(new FindBlogCommand(id));
