@@ -1,4 +1,5 @@
 export type SortDirection = 'ASC' | 'DESC';
+export type PublishedStatus = 'all' | 'published' | 'notPublished';
 
 export type ParamsValues =
   | 'sortBy'
@@ -29,4 +30,13 @@ export type RequiredParamsValuesForPostsOrComments = Omit<
   'searchLoginTerm' | 'searchEmailTerm' | 'searchNameTerm' | 'sortDirection'
 > & {
   sortDirection: SortDirection;
+};
+
+export type RequiredParamsValuesForQuizQuestions = Omit<
+  Record<ParamsValues, string>,
+  'searchLoginTerm' | 'searchEmailTerm' | 'searchNameTerm' | 'sortDirection'
+> & {
+  sortDirection: SortDirection;
+  bodySearchTerm: string;
+  publishedStatus: PublishedStatus;
 };
