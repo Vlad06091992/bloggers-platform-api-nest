@@ -47,14 +47,22 @@ export class QuizQuestionRepository {
       .orderBy(`q.${sortBy}`, `${sortDirection}`)
       .offset(+skip)
       .limit(+pageSize);
-
-    const questionCount = await questionsQuery.getCount();
-    const questions = await questionsQuery.getMany();
-    return { questionCount, questions };
+    const [items, count] = await questionsQuery.getManyAndCount();
+    return { count, items };
   }
 
   async createQuestion(quizQuestionsEntity: QuizQuestionsEntity) {
     await this.quizQuestionRepo.insert(quizQuestionsEntity);
+  }
+
+  async getRandomQuestions(quantity: number) {
+    return await this.quizQuestionRepo
+      .createQueryBuilder('q')
+      .select()
+      .where('q."isPublished" = TRUE')
+      .orderBy('RANDOM()')
+      .limit(quantity)
+      .getMany();
   }
 
   async updateQuestion(

@@ -9,9 +9,14 @@ import { DeleteQuestionHandler } from 'src/features/quizQuestions/application/us
 import { UpdateQuestionHandler } from 'src/features/quizQuestions/application/use-cases/update-question';
 import { PublishQuestionHandler } from 'src/features/quizQuestions/application/use-cases/publish-question';
 import { GetQuestionHandler } from 'src/features/quizQuestions/application/use-cases/get-question';
+import { GameEntity } from 'src/features/quiz/entities/game.entity';
+import { PlayerEntity } from 'src/features/quiz/entities/player.entity';
 
 @Module({
-  imports: [CqrsModule, TypeOrmModule.forFeature([QuizQuestionsEntity])],
+  imports: [
+    CqrsModule,
+    TypeOrmModule.forFeature([QuizQuestionsEntity, PlayerEntity, GameEntity]),
+  ],
   controllers: [QuizQuestionsController],
   providers: [
     CreateQuestionHandler,

@@ -27,22 +27,21 @@ export class GetQuestionHandler implements ICommandHandler<GetQuestionComamnd> {
       },
     } = command;
 
-    const { questionCount, questions } =
-      await this.quizQuestionRepository.getQuestions({
-        pageNumber,
-        pageSize,
-        bodySearchTerm,
-        sortDirection,
-        sortBy,
-        publishedStatus,
-      });
+    const { items, count } = await this.quizQuestionRepository.getQuestions({
+      pageNumber,
+      pageSize,
+      bodySearchTerm,
+      sortDirection,
+      sortBy,
+      publishedStatus,
+    });
 
     return {
-      pagesCount: Math.ceil(questionCount / +pageSize),
+      pagesCount: Math.ceil(count / +pageSize),
       page: pageNumber,
       pageSize: pageSize,
-      totalCount: questionCount,
-      items: questions,
+      totalCount: count,
+      items,
     };
   }
 }
