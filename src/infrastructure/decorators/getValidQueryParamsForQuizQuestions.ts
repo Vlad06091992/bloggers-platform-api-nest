@@ -11,6 +11,7 @@ export const getValidQueryParamsForQuizQuestions = createParamDecorator(
         'blogId',
         'blogName',
         'createdAt',
+        'body',
       ];
       return validSortValues.includes(value);
     };

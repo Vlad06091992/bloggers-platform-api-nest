@@ -20,6 +20,13 @@ import { PostsReactions } from 'src/features/posts-reactions/entity/post-reactio
 import { CommentsEntity } from 'src/features/comments/entity/comments.entity';
 import { CommentsReactions } from 'src/features/comments-reactions/entity/comment-reactions.entity';
 import { AuthDevices } from 'src/features/auth/entities/devices.entity';
+import { QuizQuestionRepository } from 'src/features/quizQuestions/infrastructure/quiz-question-repository';
+import { QuizRepository } from 'src/features/quiz/infrastructure/quiz-repository';
+import { QuizQuestionsEntity } from 'src/features/quizQuestions/entity/quiz-questions.entity';
+import { GameEntity } from 'src/features/quiz/entities/game.entity';
+import { PlayerEntity } from 'src/features/quiz/entities/player.entity';
+import { QuestionsForGameEntity } from 'src/features/quiz/entities/questions-for-game.entity';
+import { AnswersForGameEntity } from 'src/features/quiz/entities/answers-for-game.entity';
 
 @Module({
   imports: [
@@ -32,6 +39,11 @@ import { AuthDevices } from 'src/features/auth/entities/devices.entity';
       PostsEntity,
       PostsReactions,
       CommentsEntity,
+      QuizQuestionsEntity,
+      GameEntity,
+      PlayerEntity,
+      QuestionsForGameEntity,
+      AnswersForGameEntity,
       CommentsReactions,
     ]),
   ],
@@ -47,6 +59,8 @@ import { AuthDevices } from 'src/features/auth/entities/devices.entity';
     PostsReactionsRepository,
     AuthDevicesRepository,
     AuthDevicesQueryRepository,
+    QuizQuestionRepository,
+    QuizRepository,
   ],
 })
 export class TestModule {}

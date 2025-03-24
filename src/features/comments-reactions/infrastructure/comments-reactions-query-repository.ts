@@ -18,13 +18,11 @@ export class CommentsReactionsQueryRepository {
         user: { id: userId } as UsersEntity,
       },
     });
-    debugger;
     // const result = await this.repo.findOne({
     //   userId,
     //   commentId,
     // });
 
-    debugger;
     return result;
   }
 

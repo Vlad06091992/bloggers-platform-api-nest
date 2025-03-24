@@ -21,9 +21,6 @@ export class PlayerEntity {
   @JoinColumn()
   game: GameEntity | null;
 
-  @Column({ default: 'pending' })
-  status: string;
-
   @Column()
   userLogin: string;
 
@@ -35,7 +32,6 @@ export class PlayerEntity {
 
   constructor(
     id: string,
-    status: string,
     game: GameEntity | null,
     createdAt: Date,
     user: UsersEntity,
@@ -44,7 +40,6 @@ export class PlayerEntity {
     this.id = id;
     this.user = user;
     this.game = game;
-    this.status = status;
     this.createdAt = createdAt;
     this.userLogin = userLogin;
   }

@@ -9,7 +9,7 @@ export class QuizQuestionsEntity {
   body: string;
 
   @Column({ default: false })
-  isPublished: boolean;
+  published: boolean;
 
   @Column({ type: 'jsonb' })
   correctAnswers: string[];
@@ -17,20 +17,25 @@ export class QuizQuestionsEntity {
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;
 
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
-  updatedAt: Date;
+  @Column({
+    nullable: true,
+    type: 'timestamp',
+    default: () => 'CURRENT_TIMESTAMP',
+  })
+  updatedAt: Date | null;
 
   constructor(
     id: string,
     body: string,
     correctAnswers: string[],
     createdAt: Date,
+    updatedAt: Date | null,
   ) {
     this.id = id;
     this.body = body;
-    this.isPublished = false;
+    this.published = false;
     this.correctAnswers = correctAnswers;
     this.createdAt = createdAt;
-    this.updatedAt = createdAt;
+    this.updatedAt = updatedAt;
   }
 }

@@ -24,6 +24,7 @@ export class CreateQuestionHandler
       body,
       correctAnswers,
       new Date(),
+      null,
     );
 
     await this.quizQuestionRepository.createQuestion(question);

@@ -21,5 +21,5 @@ export class CreateOrUpdateQuestionDto {
 
 export class UpdateQuestionPublishDto {
   @IsBoolean()
-  isPublish: boolean;
+  published: boolean;
 }

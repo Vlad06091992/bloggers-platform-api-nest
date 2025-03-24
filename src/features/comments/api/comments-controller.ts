@@ -84,7 +84,6 @@ export class CommentsController {
     @Body() { likeStatus }: LikeStatusDto,
     @Request() req,
   ) {
-    debugger;
     const { userId, userLogin } = req.user;
     const comment = await this.commandBus.execute(
       new FindCommentByIdCommand(id, userId),

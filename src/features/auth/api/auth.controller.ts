@@ -47,7 +47,7 @@ export class AuthController {
     private readonly jwtService: JwtService,
   ) {}
   @UseGuards(LocalAuthGuard)
-  @UseGuards(NotTestingThrottleGuard)
+  // @UseGuards(NotTestingThrottleGuard)
   @HttpCode(200)
   @Post('login')
   async login(
@@ -110,7 +110,7 @@ export class AuthController {
     await this.commandBus.execute(new LogoutCommand(refreshToken));
   }
 
-  @UseGuards(ThrottlerGuard)
+  //@UseGuards(ThrottlerGuard)
   @HttpCode(204)
   @Post('password-recovery')
   async recoveryPassword(@Body() recoveryPasswordDTO: RecoveryPasswordDto) {
@@ -119,14 +119,14 @@ export class AuthController {
     );
   }
 
-  @UseGuards(ThrottlerGuard)
+  //@UseGuards(ThrottlerGuard)
   @HttpCode(204)
   @Post('registration')
   registration(@Body(IsExistUserValidationPipe) createUserDto: CreateUserDto) {
     return this.usersService.create(createUserDto, true);
   }
 
-  @UseGuards(ThrottlerGuard)
+  //@UseGuards(ThrottlerGuard)
   @Post('registration-email-resending')
   @HttpCode(204)
   registrationEmailResending(@Body() emailResendingDto: EmailResendingDto) {
@@ -134,7 +134,7 @@ export class AuthController {
     return this.commandBus.execute(new ResendEmailCommand(email));
   }
 
-  @UseGuards(ThrottlerGuard)
+  //@UseGuards(ThrottlerGuard)
   @Post('new-password')
   @HttpCode(204)
   newPassword(@Body() { newPassword, recoveryCode }: NewPasswordDto) {
@@ -143,7 +143,7 @@ export class AuthController {
     );
   }
 
-  @UseGuards(ThrottlerGuard)
+  //@UseGuards(ThrottlerGuard)
   @Post('registration-confirmation')
   @HttpCode(204)
   registrationConfirmation(@Body('code') code: string) {

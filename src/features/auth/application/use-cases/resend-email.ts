@@ -18,8 +18,6 @@ export class ResendEmailHandler implements ICommandHandler<ResendEmailCommand> {
   async execute({ email }: ResendEmailCommand) {
     const user = await this.usersService.findUserByEmail(email);
 
-    console.log(user);
-
     if (!user) {
       throw new BadRequestException({
         errorsMessages: [{ message: 'user not exist', field: 'email' }],

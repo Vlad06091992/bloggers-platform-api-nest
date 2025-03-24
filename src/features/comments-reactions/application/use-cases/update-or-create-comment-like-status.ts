@@ -51,7 +51,6 @@ export class UpdateOrCreateLikeCommentStatusHandler
       statusRecord.likeStatus !== likeStatus &&
       likeStatus !== 'None'
     ) {
-      debugger;
       await this.commentsLikesRepository.updateLikeStatus(
         statusRecord.id,
         likeStatus,
@@ -59,7 +58,6 @@ export class UpdateOrCreateLikeCommentStatusHandler
       return true;
     }
     if (!statusRecord && likeStatus !== 'None') {
-      debugger;
       const newReactionRecord = new CommentsReactions(
         generateUuidV4(),
         likeStatus,

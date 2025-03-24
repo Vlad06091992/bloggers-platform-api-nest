@@ -38,8 +38,8 @@ export class GetQuestionHandler implements ICommandHandler<GetQuestionComamnd> {
 
     return {
       pagesCount: Math.ceil(count / +pageSize),
-      page: pageNumber,
-      pageSize: pageSize,
+      page: +pageNumber,
+      pageSize: +pageSize,
       totalCount: count,
       items,
     };

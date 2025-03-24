@@ -38,8 +38,8 @@ export class QuizQuestionRepository {
       })
       .andWhere(
         publishedStatus === 'all'
-          ? '"isPublished" IN(:...ids)'
-          : `"isPublished" = ${pblsStatus}`,
+          ? '"published" IN(:...ids)'
+          : `"published" = ${pblsStatus}`,
         {
           ids: [true, false],
         },
@@ -59,7 +59,7 @@ export class QuizQuestionRepository {
     return await this.quizQuestionRepo
       .createQueryBuilder('q')
       .select()
-      .where('q."isPublished" = TRUE')
+      .where('q."published" = TRUE')
       .orderBy('RANDOM()')
       .limit(quantity)
       .getMany();
@@ -83,10 +83,11 @@ export class QuizQuestionRepository {
     }
   }
 
-  async publishQuestion(id: string) {
+  async publishQuestion(id: string, publish: boolean) {
     const question = await this.quizQuestionRepo.findOne({ where: { id } });
     if (question) {
-      question.isPublished = true;
+      question.published = publish;
+      question.updatedAt = new Date();
       await this.quizQuestionRepo.save(question);
       return true;
     } else {

@@ -7,6 +7,8 @@ import { CommentsLikesRepository } from 'src/features/comments-reactions/infrast
 import { AuthDevicesRepository } from 'src/features/auth/infrastructure/auth-devices-repository';
 import { OldTokensIdsRepository } from 'src/features/auth/infrastructure/old-tokens-ids-repository';
 import { PostsReactionsRepository } from 'src/features/posts-reactions/infrastructure/posts-reactions-repository';
+import { QuizQuestionRepository } from 'src/features/quizQuestions/infrastructure/quiz-question-repository';
+import { QuizRepository } from 'src/features/quiz/infrastructure/quiz-repository';
 
 @Injectable()
 export class TestingService {
@@ -19,6 +21,8 @@ export class TestingService {
     @Inject() protected postsLikesRepository: PostsReactionsRepository,
     @Inject() protected authDevicesRepository: AuthDevicesRepository,
     @Inject() protected oldTokensIdsRepository: OldTokensIdsRepository,
+    @Inject() protected quizQuestionRepository: QuizQuestionRepository,
+    @Inject() protected quizRepository: QuizRepository,
   ) {}
 
   async clearDatabase() {
@@ -31,6 +35,8 @@ export class TestingService {
       await this.usersRepository.clearData();
       await this.blogsRepository.clearData();
       await this.oldTokensIdsRepository.clearData();
+      await this.quizQuestionRepository.clearData();
+      await this.quizRepository.clearData();
       return true;
     } catch (e) {
       return false;

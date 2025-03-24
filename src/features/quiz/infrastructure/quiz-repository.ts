@@ -25,49 +25,79 @@ export class QuizRepository {
   }
 
   async updatePlayerScore(player: PlayerEntity) {
-    player.score++;
+    const newScore = ++player.score;
     await this.playerRepo.save(player);
+    return newScore;
   }
 
   async addSecondPlayerForGame(gameA: any, player: PlayerEntity): Promise<any> {
-    debugger;
     const game = await this.gameRepo.findOne({ where: { id: gameA!.id } });
-    game!.player2 = { id: player.id } as PlayerEntity;
-    game!.status = 'active';
-    await this.gameRepo.save(game!);
-    debugger;
+
+    if (!game?.player2) {
+      game!.player2 = { id: player.id } as PlayerEntity;
+      game!.status = 'Active';
+      game!.startGameDate = new Date();
+      await this.gameRepo.save(game!);
+    }
+
     return { ...game, player1: { id: gameA.player1id } };
   }
 
-  async findPlayerByUserId(userId: string) {
+  async finishedGame(gameA: any): Promise<any> {
+    const game = await this.gameRepo.findOne({ where: { id: gameA!.id } });
+    game!.status = 'Finished';
+    game!.finishGameDate = new Date();
+    await this.gameRepo.save(game!);
+  }
+
+  async findActivePlayerByUserId(userId: string | undefined) {
+    if (!userId) return null;
     return await this.playerRepo.findOne({
-      where: { user: { id: userId }, status: 'active' },
+      where: { user: { id: userId } },
     });
+  }
+
+  async findPlayerByGameId(gameId: string | undefined) {
+    if (!gameId) return null;
+    return await this.playerRepo.find({
+      where: { game: { id: gameId } },
+    });
+  }
+
+  async findPlayerByUserId(userId: string | undefined) {
+    if (!userId) return null;
+    return await this.playerRepo.findOne({
+      where: { user: { id: userId } },
+    });
+  }
+
+  async findGameByPlayerId(
+    playerId: string | undefined | null,
+    onlyFinishedGame = false,
+  ) {
+    if (!playerId) return null;
+    const res = await this.gameRepo.findOne({
+      where: [{ player1: { id: playerId! } }, { player2: { id: playerId! } }],
+      relations: ['player1', 'player2'],
+    });
+
+    if (res?.status === 'Finished' && onlyFinishedGame) return null;
+    return res;
   }
 
   async findPlayerById(playerId: string | null) {
     if (!playerId) return null;
-    debugger;
     const res = await this.playerRepo.findOne({
       where: { id: playerId },
+      relations: ['user'],
     });
-    debugger;
     return res;
   }
 
   async findActiveGameByPlayerId(playerId: string | undefined) {
     if (!playerId) {
-      debugger;
       return null;
     } else {
-      debugger;
-      // const res = await this.gameRepo.findOne({
-      //   where: [
-      //     { status: 'active', player1: { id: playerId! } },
-      //     { status: 'active', player2: { id: playerId! } },
-      //   ],
-      // });
-
       const res = await this.gameRepo
         .createQueryBuilder('g')
         .select([
@@ -77,23 +107,14 @@ export class QuizRepository {
           'g.player2Id as player2Id',
           'g.status as status',
         ])
-        .where("g.status = 'active'")
+        .where("g.status = 'Active'")
         .andWhere('g."player1Id" = :playerId OR g."player2Id" = :playerId', {
           playerId,
         })
         .getRawOne();
-      debugger;
       return res;
     }
   }
-
-  // async updatePlayerStatus(status: string, playerId: string) {
-  //   const player = await this.playerRepo.findOne({ where: { id: playerId } });
-  //   if (!player) return false;
-  //   player.status = status;
-  //   await this.playerRepo.save(player);
-  //   return true;
-  // }
 
   async setQuestionsForGame(questions: Array<QuestionsForGameEntity>) {
     await this.questionsForGameEntityRepository.insert(questions);
@@ -133,13 +154,15 @@ export class QuizRepository {
     return res.sort((a, b) => a.position - b.position);
   }
 
-  async updatePlayerStatus(player: PlayerEntity, status: string) {
-    if (!player) return false;
-    debugger;
-    player.status = status;
-    await this.playerRepo.save(player);
-    return true;
-  }
+  // async updatePlayerStatus(player: PlayerEntity, status: string) {
+  //   if (!player) {
+  //     debugger;
+  //     return false;
+  //   }
+  //   player.status = status;
+  //   await this.playerRepo.save(player);
+  //   return true;
+  // }
 
   async setGameForPlayer(player: PlayerEntity, game: GameEntity) {
     if (!player) return false;
@@ -161,6 +184,7 @@ export class QuizRepository {
         'g.player2Id as player2Id',
         'g.status as status',
         'g.createdAt as "createdAt"',
+        'g.finishGameDate as "finishGameDate"',
       ])
       .getRawOne();
   }
@@ -173,28 +197,119 @@ export class QuizRepository {
   }
 
   async getLastCreatedGame() {
-    const game = await this.gameRepo
-      .createQueryBuilder('g')
-      .orderBy('g."createdAt"', 'DESC')
-      .select([
-        'g.player1Id as player1Id',
-        'g.player2Id as player2Id',
-        'g.status as status',
-        'g.createdAt as "createdAt"',
-      ])
-      .getRawOne();
+    const queryRunner = this.gameRepo.manager.connection.createQueryRunner();
 
-    return game;
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      await queryRunner.query('LOCK TABLE "Game" IN ACCESS EXCLUSIVE MODE;');
+
+      // Выполняем операции с таблицей здесь
+      const game = await queryRunner.manager
+        .createQueryBuilder('GameEntity', 'g')
+        .orderBy('g."createdAt"', 'DESC')
+        .select([
+          'g.player1Id as player1Id',
+          'g.id as id',
+          'g.player2Id as player2Id',
+          'g.status as status',
+          'g.createdAt as "createdAt"',
+        ])
+        .getRawOne();
+
+      // Завершаем транзакцию и снятие блокировки
+      await queryRunner.commitTransaction();
+
+      return game;
+    } catch (err) {
+      // Если произошла ошибка, откатываем транзакцию
+      await queryRunner.rollbackTransaction();
+      throw err;
+    } finally {
+      // Закрываем временное соединение
+      await queryRunner.release();
+    }
+    // const game = await this.gameRepo
+    //   .createQueryBuilder('g')
+    //   .orderBy('g."createdAt"', 'DESC')
+    //   .select([
+    //     'g.player1Id as player1Id',
+    //     'g.player2Id as player2Id',
+    //     'g.status as status',
+    //     'g.createdAt as "createdAt"',
+    //   ])
+    //   .getRawOne();
+    //
+    // return game;
   }
 
-  async getUserAnsweredQuestionCount(playerId: string) {
+  async getUserAnsweredQuestionCount(
+    playerId: string | undefined,
+    gameId: string | undefined,
+  ) {
+    if (!playerId || !gameId) return null;
+    const queryRunner =
+      this.answersForGameEntityRepository.manager.connection.createQueryRunner();
+
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    // Начинаем транзакцию
+
+    try {
+      // Блокируем таблицу на уровне ACCESS EXCLUSIVE
+      await queryRunner.query(
+        'LOCK TABLE "AnswersForGameEntity" IN ACCESS EXCLUSIVE MODE',
+      );
+      // Выполняем запрос
+      const count = await queryRunner.manager
+        .createQueryBuilder('AnswersForGameEntity', 'aq')
+        .where('aq."playerId" = :playerId', { playerId })
+        .andWhere('aq."gameId" = :gameId', { gameId })
+        .getCount();
+
+      // Фиксируем транзакцию
+      await queryRunner.commitTransaction();
+
+      return count;
+    } catch (err) {
+      // В случае ошибки откатываем транзакцию
+      await queryRunner.rollbackTransaction();
+      throw err;
+    } finally {
+      // Освобождаем ресурсы
+      await queryRunner.release();
+    }
+  }
+
+  async getPlayerAnsweredQuestion(
+    playerId: string,
+    withPlayer = false,
+  ): Promise<
+    {
+      questionId: string;
+      answerStatus: string;
+      addedAt: string;
+      playerId: string;
+    }[]
+  > {
+    const selection = [
+      'aq.questionId as "questionId"',
+      'aq.playerResponseStatus as "answerStatus"',
+      'aq.createdAt as "addedAt"',
+    ];
+
+    withPlayer && selection.push('aq."playerId" as "playerId"');
+
     return await this.answersForGameEntityRepository
       .createQueryBuilder('aq')
+      .select(selection)
       .where('aq."playerId" =:playerId', { playerId })
-      .getCount();
+      .getRawMany();
   }
 
-  async getUserAnsweredQuestion(
+  async getAnswersByPlayerId(
     playerId: string,
   ): Promise<{ questionId: string; status: string; addedAt: string }[]> {
     return await this.answersForGameEntityRepository
@@ -209,19 +324,33 @@ export class QuizRepository {
   }
 
   async writeAnswerForPlayer(answer: AnswersForGameEntity) {
-    return await this.answersForGameEntityRepository.insert(answer);
-  }
+    const queryRunner =
+      this.answersForGameEntityRepository.manager.connection.createQueryRunner();
 
-  async isAlreadyPendingPlayer(userId: string) {
-    const res = await this.playerRepo
-      .createQueryBuilder('p')
-      .where(
-        // `p."status" = 'pending' AND p."gameId" IS NULL AND p.userId =:userId`,
-        `p."status" = 'pendingSecondPlayer' AND p.userId =:userId`,
-        { userId },
-      )
-      .getOne();
-    return res;
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      // Блокируем всю таблицу для записи
+      await queryRunner.query(
+        'LOCK TABLE "AnswersForGameEntity" IN ACCESS EXCLUSIVE MODE',
+      );
+
+      // Выполняем операцию вставки
+      await queryRunner.manager
+        .getRepository(AnswersForGameEntity)
+        .insert(answer);
+
+      // Фиксируем транзакцию
+      await queryRunner.commitTransaction();
+    } catch (err) {
+      // В случае ошибки откатываем транзакцию
+      await queryRunner.rollbackTransaction();
+      throw err;
+    } finally {
+      // Освобождаем ресурсы
+      await queryRunner.release();
+    }
   }
 
   async clearData() {

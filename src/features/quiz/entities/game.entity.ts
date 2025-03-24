@@ -30,6 +30,18 @@ export class GameEntity {
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;
 
+  @Column({
+    type: 'timestamp',
+    nullable: true,
+  })
+  startGameDate: Date;
+
+  @Column({
+    type: 'timestamp',
+    nullable: true,
+  })
+  finishGameDate: Date;
+
   @Column({ default: 'active' })
   status: string;
 

@@ -17,9 +17,7 @@ export class CommentsLikesRepository {
   }
 
   async updateLikeStatus(recordId: string, likeStatus: LikeStatuses) {
-    debugger;
     const record = await this.repo.findOne({ where: { id: recordId } });
-    debugger;
     if (record) {
       record.likeStatus = likeStatus;
       await this.repo.save(record);

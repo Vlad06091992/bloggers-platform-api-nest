@@ -1,6 +1,7 @@
-import { Column, Entity, ManyToOne, PrimaryColumn } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn } from 'typeorm';
 import { PlayerEntity } from '../entities/player.entity';
 import { QuizQuestionsEntity } from '../../quizQuestions/entity/quiz-questions.entity';
+import { GameEntity } from '../../../features/quiz/entities/game.entity';
 
 @Entity({ name: 'AnswersForGameEntity' })
 export class AnswersForGameEntity {
@@ -12,6 +13,10 @@ export class AnswersForGameEntity {
 
   @ManyToOne(() => QuizQuestionsEntity, (p) => p.id)
   question: QuizQuestionsEntity;
+
+  @ManyToOne(() => GameEntity, (g) => g.id)
+  @JoinColumn()
+  game: GameEntity | null;
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;
@@ -29,6 +34,7 @@ export class AnswersForGameEntity {
     playerResponseStatus,
     createdAt: Date,
     answer: string,
+    game: GameEntity | null,
   ) {
     this.id = id;
     this.question = question;
@@ -36,5 +42,6 @@ export class AnswersForGameEntity {
     this.createdAt = createdAt;
     this.playerResponseStatus = playerResponseStatus;
     this.answer = answer;
+    this.game = game;
   }
 }

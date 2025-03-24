@@ -17,6 +17,123 @@ export class AnswerCommand {
   ) {}
 }
 
+type AnswersAndTime = {
+  questionId: string;
+  answerStatus: string;
+  addedAt: string;
+  playerId: string;
+}[];
+
+const checkAnswersAndTime = (
+  questionOne: AnswersAndTime,
+  questionTwo: AnswersAndTime,
+): {
+  isExistCorrectAnswerFirstPlayer: true;
+  allAnswersFaster: true;
+  playerId: string;
+} | null => {
+  //проверяем, могут ли ответы первого игрока подходить под условия
+
+  console.log('--------------------------------');
+  console.log('checkAnswersAndTime');
+  console.log('questionOne', questionOne);
+  console.log('questionTwo', questionTwo);
+  console.log('--------------------------------');
+
+  let isExistCorrectAnswerFirstPlayer = false;
+  let allAnswersFaster = false;
+
+  // const lastQuestionOne = questionOne[questionOne.length - 1];
+  // const lastQuestionTwo = questionOne[questionTwo.length - 1];
+
+  const lastQuestionOne = questionOne[4];
+  const lastQuestionTwo = questionTwo[4];
+
+  try {
+    if (
+      new Date(lastQuestionOne.addedAt).getTime() <
+      new Date(lastQuestionTwo.addedAt).getTime()
+    ) {
+      allAnswersFaster = true;
+    }
+    for (let i = 0; i < questionOne.length; i++) {
+      const curr1 = questionOne[i];
+      if (curr1.answerStatus === 'Correct') {
+        isExistCorrectAnswerFirstPlayer = true;
+      }
+    }
+
+    if (isExistCorrectAnswerFirstPlayer && allAnswersFaster) {
+      debugger;
+      return {
+        isExistCorrectAnswerFirstPlayer,
+        allAnswersFaster,
+        playerId: questionOne[0].playerId,
+      };
+    } else {
+      return null;
+    }
+  } catch (e) {
+    debugger;
+    return null;
+  }
+};
+
+// const checkAnswersAndTime = (
+//   questionOne: AnswersAndTime,
+//   questionTwo: AnswersAndTime,
+// ): {
+//   isExistCorrectAnswerFirstPlayer: true;
+//   allAnswersFaster: true;
+//   playerId: string;
+// } | null => {
+//   //проверяем, могут ли ответы первого игрока подходить под условия
+//
+//   console.log('--------------------------------');
+//   console.log('checkAnswersAndTime');
+//   console.log('questionOne', questionOne);
+//   console.log('questionTwo', questionTwo);
+//   console.log('--------------------------------');
+//
+//   let isExistCorrectAnswerFirstPlayer = false;
+//   let allAnswersFaster = true;
+//
+//   for (let i = 0; i < questionOne.length; i++) {
+//     const curr1 = questionOne[i];
+//     const curr2 = questionTwo[i];
+//
+//     if (curr1.addedAt < curr2.addedAt) allAnswersFaster = false;
+//     if (curr1.status === 'Correct') isExistCorrectAnswerFirstPlayer = true;
+//   }
+//
+//   if (isExistCorrectAnswerFirstPlayer && allAnswersFaster)
+//     return {
+//       isExistCorrectAnswerFirstPlayer,
+//       allAnswersFaster,
+//       playerId: questionOne[0].playerId,
+//     };
+//
+//   isExistCorrectAnswerFirstPlayer = false;
+//   allAnswersFaster = true;
+//
+//   for (let i = 0; i < questionOne.length; i++) {
+//     const curr1 = questionOne[i];
+//     const curr2 = questionTwo[i];
+//
+//     if (curr1.addedAt > curr2.addedAt) allAnswersFaster = false;
+//     if (curr2.status === 'Correct') isExistCorrectAnswerFirstPlayer = true;
+//   }
+//
+//   if (isExistCorrectAnswerFirstPlayer && allAnswersFaster)
+//     return {
+//       isExistCorrectAnswerFirstPlayer,
+//       allAnswersFaster,
+//       playerId: questionTwo[0].playerId,
+//     };
+//
+//   return null;
+// };
+
 @CommandHandler(AnswerCommand)
 export class AnswerHandler implements ICommandHandler<AnswerCommand> {
   constructor(
@@ -25,86 +142,114 @@ export class AnswerHandler implements ICommandHandler<AnswerCommand> {
   ) {}
 
   async execute({ userId, answer }: AnswerCommand) {
-    // console.log('userId', userId);
-    // console.log('answer', answer);
-    // // userId 7dad3245-6265-4992-855b-2c7020555a77
-    // // answer my answer
-    //
-    // debugger;
     const player = await this.quizRepository.findPlayerByUserId(userId);
 
-    if (!player) {
+    const game = await this.quizRepository.findActiveGameByPlayerId(player?.id);
+
+    if (!game) {
       throw new ForbiddenException();
     }
 
-    // debugger;
-    // // player PlayerEntity {
-    // //   id: '3f707a53-af27-4f2a-a8d2-998b33d7b84d',
-    // //     user: undefined,
-    // //     game: undefined,
-    // //     status: 'active',
-    // //     createdAt: 2025-02-13T05:34:09.839Z,
-    // //     score: 0
-    // // }
-    //
-    const game = await this.quizRepository.findActiveGameByPlayerId(player!.id);
-    // // game {
-    // //   id: '0a950b2f-f725-4376-915c-017c84dd1d5f',
-    // //     createdat: 2025-02-13T05:34:12.873Z,
-    // //     player1id: 'f750bb76-de96-4fd6-ae5a-93278495ae7f',
-    // //     player2id: '3f707a53-af27-4f2a-a8d2-998b33d7b84d',
-    // //     status: 'active'
-    // // }
-
-    const questions = await this.quizRepository.getQuestionsByGameId(game.id);
-
-    debugger;
-    // console.log('player', player);
-    // console.log('game', game);
-    console.log('questions', questions);
-
-    //нужно определить, на какой вопрос был дан ответ игроком, и правильный ли он
-
     //1) определяем,ответ на какой вопрос ждем от игрока
     const answeredQuestionCount =
-      await this.quizRepository.getUserAnsweredQuestionCount(player?.id);
+      await this.quizRepository.getUserAnsweredQuestionCount(
+        player?.id,
+        game.id,
+      );
+
+    if (!player || answeredQuestionCount === 5) {
+      throw new ForbiddenException();
+    }
+
+    const otherPlayer = (game, playerId: string) => {
+      const { player1id, player2id } = game;
+      return playerId === player1id ? player2id : player1id;
+    };
+
+    const otherPlayerId = otherPlayer(game, player.id);
+
     //2 ищем вопрос
     const question = await this.quizRepository.getQuestionByGameIdAndPosition(
       game.id,
-      answeredQuestionCount,
+      answeredQuestionCount as number,
     );
-    console.log('question', question);
-    console.log('correctanswers', question.correctanswers);
-    console.log('answers', answer);
-    debugger;
-
     //сравниваем, правильно ли ответил игрок
     const isCorrect = question.correctanswers.find((a) => a === answer);
-    console.log('isCorrect', !!isCorrect);
+
+    const addedAt = new Date();
+
+    const playerResponseStatus = isCorrect ? 'Correct' : 'Incorrect';
+    const id = generateUuidV4();
+
+    const playerAnswer = new AnswersForGameEntity(
+      id,
+      { id: player.id } as PlayerEntity,
+      { id: question.id } as QuizQuestionsEntity,
+      playerResponseStatus,
+      addedAt,
+      answer,
+      game,
+    );
+    await this.quizRepository.writeAnswerForPlayer(playerAnswer);
+
+    const answeredQuestionCountAfterResponse = answeredQuestionCount! + 1;
 
     //если правильно, записываем очко игроку
     if (isCorrect) {
       await this.quizRepository.updatePlayerScore(player);
     }
 
-    //записываем ответ юзера
+    const answeredQuestionCountOtherPlayer =
+      await this.quizRepository.getUserAnsweredQuestionCount(
+        otherPlayerId,
+        game.id,
+      );
 
-    const playerResponseStatus = isCorrect ? 'Correct' : 'Incorrect';
-    const playerAnswer = new AnswersForGameEntity(
-      generateUuidV4(),
-      { id: player.id } as PlayerEntity,
-      { id: question.id } as QuizQuestionsEntity,
-      playerResponseStatus,
-      new Date(),
-      answer,
+    console.log(
+      'answeredQuestionCountOtherPlayer',
+      answeredQuestionCountOtherPlayer,
     );
-    debugger;
-    await this.quizRepository.writeAnswerForPlayer(playerAnswer);
+    console.log(
+      'answeredQuestionCountAfterResponse',
+      answeredQuestionCountAfterResponse,
+    );
+
+    if (
+      // answeredQuestionCountOtherPlayer &&
+      // answeredQuestionCountOtherPlayer >= 5 &&
+      // answeredQuestionCountAfterResponse >= 5
+
+      answeredQuestionCountOtherPlayer === 5 &&
+      answeredQuestionCountAfterResponse === 5
+    ) {
+      //закончить игру, определить лучшего игрока
+
+      const res1 = await this.quizRepository.getPlayerAnsweredQuestion(
+        player.id,
+        true,
+      );
+      const res2 = await this.quizRepository.getPlayerAnsweredQuestion(
+        otherPlayerId,
+        true,
+      );
+      let res = checkAnswersAndTime(res1, res2);
+
+      if (!res) {
+        res = checkAnswersAndTime(res2, res1);
+      }
+
+      if (res) {
+        const player = await this.quizRepository.findPlayerById(res.playerId);
+        await this.quizRepository.updatePlayerScore(player!);
+      }
+
+      await this.quizRepository.finishedGame(game);
+    }
 
     return {
       questionId: question.id,
       answerStatus: playerResponseStatus,
-      addedAt: new Date(),
+      addedAt,
     };
   }
 }

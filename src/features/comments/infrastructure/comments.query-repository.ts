@@ -47,7 +47,6 @@ export class CommentsQueryRepository {
       );
 
     if (userId) {
-      console.log(userId);
       commentsFromBuilder.addSelect(
         `(SELECT "likeStatus" FROM public."CommentsReactions" AS "cr"
          WHERE "cr"."userId" = '${userId}' AND "cr"."commentId" = '${commentId}')`,
@@ -70,8 +69,6 @@ export class CommentsQueryRepository {
     ]);
 
     const { pageNumber, pageSize, sortDirection, sortBy } = params;
-
-    debugger;
 
     const skip = (+pageNumber - 1) * +pageSize;
     const commentsFromBuilder = this.commentsRepo
@@ -108,22 +105,6 @@ export class CommentsQueryRepository {
         'myStatus',
       );
     }
-
-    console.log('----------------------------');
-    console.log(sortDirection);
-    console.log('----------------------------');
-
-    console.log('----------------------------');
-    console.log(sortBy);
-    console.log('----------------------------');
-
-    console.log('----------------------------');
-    console.log(+skip);
-    console.log('----------------------------');
-
-    console.log('----------------------------');
-    console.log(+pageSize);
-    console.log('----------------------------');
 
     const result = await commentsFromBuilder
       // .orderBy(`"${sortBy}"`, `${sortDirection}`)

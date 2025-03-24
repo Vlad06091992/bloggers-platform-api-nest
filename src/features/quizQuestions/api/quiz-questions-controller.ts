@@ -13,7 +13,10 @@ import { CommandBus } from '@nestjs/cqrs';
 import { BasicAuthGuard } from 'src/features/auth/guards/basic-auth.guard';
 import { getValidQueryParamsForQuizQuestions } from 'src/infrastructure/decorators/getValidQueryParamsForQuizQuestions';
 import { RequiredParamsValuesForQuizQuestions } from 'src/shared/common-types';
-import { CreateOrUpdateQuestionDto } from 'src/features/quizQuestions/api/models/create-or-update-question-dto';
+import {
+  CreateOrUpdateQuestionDto,
+  UpdateQuestionPublishDto,
+} from 'src/features/quizQuestions/api/models/create-or-update-question-dto';
 import { GetIdFromParams } from 'src/infrastructure/decorators/getIdFromParams';
 import { CreateQuestionComamnd } from 'src/features/quizQuestions/application/use-cases/create-question';
 import { DeleteQuestionComamnd } from 'src/features/quizQuestions/application/use-cases/delete-question';
@@ -35,7 +38,7 @@ export class QuizQuestionsController {
   }
 
   @UseGuards(BasicAuthGuard)
-  @HttpCode(200)
+  @HttpCode(201)
   @Post('')
   async createQuestion(@Body() createQuestionDto: CreateOrUpdateQuestionDto) {
     return this.commandBus.execute(
@@ -73,9 +76,12 @@ export class QuizQuestionsController {
   @UseGuards(BasicAuthGuard)
   @HttpCode(204)
   @Put('/:id/publish')
-  async updateQuestionPublishStatus(@GetIdFromParams() id: string) {
+  async updateQuestionPublishStatus(
+    @GetIdFromParams() id: string,
+    @Body() { published }: UpdateQuestionPublishDto,
+  ) {
     const result = await this.commandBus.execute(
-      new PublishQuestionComamnd(id),
+      new PublishQuestionComamnd(id, published),
     );
 
     if (!result) {
