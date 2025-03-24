@@ -4,8 +4,6 @@ import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 import { BlogsEntity } from 'src/features/blogs/entity/blogs.entity';
 
-//only query builder
-
 @Injectable()
 export class BlogsRepository {
   constructor(

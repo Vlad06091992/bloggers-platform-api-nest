@@ -5,17 +5,14 @@ import { AppModule } from 'src/app.module';
 import { writeFile } from 'fs/promises';
 import { applyAppSettings } from 'src/settings/apply-app-settings';
 import {
-  authMe,
   createBlogBySuperAdmin,
   createCommentForPostByUser,
   createPostBySuperAdmin,
-  createUser,
   createUsers,
   getAllPostsWithPaginationAndSorting,
   getCommentById,
   getCommentsForPostByUser,
   getPostById,
-  loginUserInSystem,
   loginUsersInSystem,
   setReactionOnCommentByUser,
   setReactionOnPostByUser,

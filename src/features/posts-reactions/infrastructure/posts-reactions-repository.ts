@@ -36,12 +36,7 @@ export class PostsReactionsRepository {
   }
 
   async deleteRecord(id: string) {
-    const result = await this.repo.delete(id);
-
-    // const query = `DELETE FROM public."PostsReactions"
-    //      WHERE "id" = $1`;
-    // const result = await this.dataSource.query(query, [id]);
-    // return result[1] == 1;
+    await this.repo.delete(id);
   }
 
   async clearData() {

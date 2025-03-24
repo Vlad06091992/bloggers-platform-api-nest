@@ -3,7 +3,6 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 import { CommentsEntity } from 'src/features/comments/entity/comments.entity';
-import { PostsEntity } from 'src/features/posts/entity/posts.entity';
 
 @Injectable()
 export class CommentsRepository {

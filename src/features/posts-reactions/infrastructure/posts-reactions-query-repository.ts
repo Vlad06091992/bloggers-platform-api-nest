@@ -3,7 +3,6 @@ import { DataSource, Repository } from 'typeorm';
 import { PostsEntity } from 'src/features/posts/entity/posts.entity';
 import { PostsReactions } from 'src/features/posts-reactions/entity/post-reactions.entity';
 import { UsersEntity } from 'src/features/users/entities/users.entity';
-import { groupBy } from 'rxjs';
 
 export class PostsReactionsQueryRepository {
   constructor(

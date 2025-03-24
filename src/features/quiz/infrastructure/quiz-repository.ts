@@ -154,16 +154,6 @@ export class QuizRepository {
     return res.sort((a, b) => a.position - b.position);
   }
 
-  // async updatePlayerStatus(player: PlayerEntity, status: string) {
-  //   if (!player) {
-  //     debugger;
-  //     return false;
-  //   }
-  //   player.status = status;
-  //   await this.playerRepo.save(player);
-  //   return true;
-  // }
-
   async setGameForPlayer(player: PlayerEntity, game: GameEntity) {
     if (!player) return false;
     player.game = game;
@@ -205,7 +195,6 @@ export class QuizRepository {
     try {
       await queryRunner.query('LOCK TABLE "Game" IN ACCESS EXCLUSIVE MODE;');
 
-      // Выполняем операции с таблицей здесь
       const game = await queryRunner.manager
         .createQueryBuilder('GameEntity', 'g')
         .orderBy('g."createdAt"', 'DESC')
@@ -218,30 +207,15 @@ export class QuizRepository {
         ])
         .getRawOne();
 
-      // Завершаем транзакцию и снятие блокировки
       await queryRunner.commitTransaction();
 
       return game;
     } catch (err) {
-      // Если произошла ошибка, откатываем транзакцию
       await queryRunner.rollbackTransaction();
       throw err;
     } finally {
-      // Закрываем временное соединение
       await queryRunner.release();
     }
-    // const game = await this.gameRepo
-    //   .createQueryBuilder('g')
-    //   .orderBy('g."createdAt"', 'DESC')
-    //   .select([
-    //     'g.player1Id as player1Id',
-    //     'g.player2Id as player2Id',
-    //     'g.status as status',
-    //     'g.createdAt as "createdAt"',
-    //   ])
-    //   .getRawOne();
-    //
-    // return game;
   }
 
   async getUserAnsweredQuestionCount(
@@ -255,30 +229,23 @@ export class QuizRepository {
     await queryRunner.connect();
     await queryRunner.startTransaction();
 
-    // Начинаем транзакцию
-
     try {
-      // Блокируем таблицу на уровне ACCESS EXCLUSIVE
       await queryRunner.query(
         'LOCK TABLE "AnswersForGameEntity" IN ACCESS EXCLUSIVE MODE',
       );
-      // Выполняем запрос
       const count = await queryRunner.manager
         .createQueryBuilder('AnswersForGameEntity', 'aq')
         .where('aq."playerId" = :playerId', { playerId })
         .andWhere('aq."gameId" = :gameId', { gameId })
         .getCount();
 
-      // Фиксируем транзакцию
       await queryRunner.commitTransaction();
 
       return count;
     } catch (err) {
-      // В случае ошибки откатываем транзакцию
       await queryRunner.rollbackTransaction();
       throw err;
     } finally {
-      // Освобождаем ресурсы
       await queryRunner.release();
     }
   }
@@ -331,24 +298,18 @@ export class QuizRepository {
     await queryRunner.startTransaction();
 
     try {
-      // Блокируем всю таблицу для записи
       await queryRunner.query(
         'LOCK TABLE "AnswersForGameEntity" IN ACCESS EXCLUSIVE MODE',
       );
-
-      // Выполняем операцию вставки
       await queryRunner.manager
         .getRepository(AnswersForGameEntity)
         .insert(answer);
 
-      // Фиксируем транзакцию
       await queryRunner.commitTransaction();
     } catch (err) {
-      // В случае ошибки откатываем транзакцию
       await queryRunner.rollbackTransaction();
       throw err;
     } finally {
-      // Освобождаем ресурсы
       await queryRunner.release();
     }
   }

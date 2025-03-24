@@ -27,8 +27,6 @@ export class QuizQuestionRepository {
 
     const skip = (+pageNumber - 1) * +pageSize;
 
-    console.log('bodySearchTerm', bodySearchTerm);
-
     const pblsStatus = publishedStatus === 'published';
 
     const questionsQuery = this.quizQuestionRepo

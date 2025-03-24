@@ -1,4 +1,3 @@
-import { NestFactory } from '@nestjs/core';
 import { AppModule } from 'src/app.module';
 import { createSwaggerConfig } from 'src/swagger.settings';
 import { useContainer } from 'class-validator';

@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 
 import { LikeStatuses } from 'src/features/comments-reactions/api/models/like-status-dto';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
-import { DataSource, Not, Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { CommentsReactions } from 'src/features/comments-reactions/entity/comment-reactions.entity';
 
 @Injectable()

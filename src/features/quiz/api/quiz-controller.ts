@@ -4,7 +4,6 @@ import {
   Get,
   HttpCode,
   NotFoundException,
-  Param,
   Post,
   UseGuards,
 } from '@nestjs/common';
@@ -92,16 +91,8 @@ export class QuizController {
   @Get('/:id')
   async getGameById(
     @getUserAfterJwtAuthGuard() user: { userId: string; userLogin: string },
-    // @Param('id') id: string,
     @GetIdFromParams() id: string,
   ) {
-    /*
-    возвращает игру текущего пользователя (того, кто делает запрос)  в любом статусе.
-       Если игра в статусе ожидания второго игрока (status: "PendingSecondPlayer")
-        - поля secondPlayerProgress: null, questions: null, startGameDate: null, finishGameDate: null;
-
-*/
-
     return await this.commandBus.execute(
       new GetGameExtendedInfoCommand(id, user.userId),
     );
@@ -113,17 +104,6 @@ export class QuizController {
   async connection(
     @getUserAfterJwtAuthGuard() user: { userId: string; userLogin: string },
   ) {
-    /* 1. Я как зарегестрированный пользователь могу соревноваться в квизе попарно (с другим зарегестрированным пользователем);
-
-    2. Я нажимают кнопку: соревноваться (join);
-
-    3. Если есть игрок в ожидании - создаётся пара: я + этот игрок;
-
-    4. Если нет, я становлюсь игроком в ожидании и могу стать парой для следующего, кто нажмёт соревноваться;
-
-
-    */
-
     return await this.commandBus.execute(
       new ConnectionCommand(user.userId, user.userLogin),
     );
@@ -139,6 +119,5 @@ export class QuizController {
     return await this.commandBus.execute(
       new AnswerCommand(user.userId, answer),
     );
-    // return { user, answer };
   }
 }

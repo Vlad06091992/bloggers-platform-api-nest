@@ -11,10 +11,7 @@ import { QuizQuestionsEntity } from 'src/features/quizQuestions/entity/quiz-ques
 import { QuestionsForGameEntity } from 'src/features/quiz/entities/questions-for-game.entity';
 import { AnswerHandler } from 'src/features/quiz/application/use-cases/answer';
 import { AnswersForGameEntity } from 'src/features/quiz/entities/answers-for-game.entity';
-import {
-  GetGameExtendedInfoCommand,
-  GetGameExtendedInfoHandler,
-} from 'src/features/quiz/application/use-cases/get-game-extended-info';
+import { GetGameExtendedInfoHandler } from 'src/features/quiz/application/use-cases/get-game-extended-info';
 
 @Module({
   imports: [

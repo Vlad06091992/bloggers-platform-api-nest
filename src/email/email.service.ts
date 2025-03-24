@@ -6,11 +6,10 @@ export class EmailService {
   constructor(private readonly mailerService: MailerService) {}
 
   async sendEmail(email: string, subject: string, text: string) {
-    // Отправка почты
     await this.mailerService.sendMail({
-      from: '"Vlad" <Smirnov.ru92@mail.ru>', // sender address
-      to: email, // list of receivers
-      subject: subject, // Subject line
+      from: '"Vlad" <Smirnov.ru92@mail.ru>',
+      to: email,
+      subject: subject,
       text: text,
     });
     return;
@@ -21,12 +20,10 @@ export class EmailService {
     <p>To finish registration please follow the link below:
       <a href='https://some-front.com/confirm-registration?code=${confirmationCode}'>complete registration</a>
     </p>`;
-
-    // Отправка почты
     await this.mailerService.sendMail({
-      from: '"bloggersAPI@testing" <Smirnov.ru92@mail.ru>', // sender address
-      to: email, // list of receivers
-      subject: 'Confirmation of registration', // Subject line
+      from: '"bloggersAPI@testing" <Smirnov.ru92@mail.ru>',
+      to: email,
+      subject: 'Confirmation of registration',
       html: text,
     });
     return;
@@ -38,11 +35,10 @@ export class EmailService {
       <a href='https://somesite.com/recovery-password?code=${recoveryCode}'>recovery password</a>
     </p>`;
 
-    // Отправка почты
     await this.mailerService.sendMail({
-      from: '"bloggersAPI@testing" <Smirnov.ru92@mail.ru>', // sender address
-      to: email, // list of receivers
-      subject: 'Recovery password', // Subject line
+      from: '"bloggersAPI@testing" <Smirnov.ru92@mail.ru>',
+      to: email,
+      subject: 'Recovery password',
       html: html,
     });
     return;

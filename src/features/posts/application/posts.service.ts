@@ -12,7 +12,6 @@ import { BlogsQueryRepository } from 'src/features/blogs/infrastructure/blogs.qu
 import { UsersQueryRepository } from 'src/features/users/infrastructure/users.query-repository';
 import { PostsReactionsQueryRepository } from 'src/features/posts-reactions/infrastructure/posts-reactions-query-repository';
 import { PostsEntity } from 'src/features/posts/entity/posts.entity';
-import { BlogsEntity } from 'src/features/blogs/entity/blogs.entity';
 
 @Injectable()
 export class PostsService {

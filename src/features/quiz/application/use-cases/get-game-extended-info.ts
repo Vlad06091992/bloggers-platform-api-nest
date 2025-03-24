@@ -1,6 +1,5 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { QuizRepository } from 'src/features/quiz/infrastructure/quiz-repository';
-import { QuizQuestionRepository } from 'src/features/quizQuestions/infrastructure/quiz-question-repository';
 import { ForbiddenException, NotFoundException } from '@nestjs/common';
 
 export class GetGameExtendedInfoCommand {
@@ -14,26 +13,15 @@ export class GetGameExtendedInfoCommand {
 export class GetGameExtendedInfoHandler
   implements ICommandHandler<GetGameExtendedInfoCommand>
 {
-  constructor(
-    protected quizRepository: QuizRepository,
-    protected quizQuestionRepository: QuizQuestionRepository,
-  ) {}
+  constructor(protected quizRepository: QuizRepository) {}
 
   async execute({ gameId, userId }: GetGameExtendedInfoCommand) {
     const player = await this.quizRepository.findPlayerByUserId(userId);
 
     const game = await this.quizRepository.getGameInfoById(gameId);
-    // console.log(game);
-    // debugger;
-
     if (!game) {
       throw new NotFoundException();
     }
-
-    // const players = await this.quizRepository.findPlayerByGameId(game.id);
-    // if (players && players?.length >= 2) {
-    //   debugger;
-    // }
 
     const gameForUser = await this.quizRepository.findGameByPlayerId(
       player?.id,
@@ -82,36 +70,6 @@ export class GetGameExtendedInfoHandler
         game.status === 'PendingSecondPlayer' ? null : game.createdAt,
       finishGameDate: game.status === 'Finished' ? game.finishGameDate : null,
     };
-
-    // const response = {
-    //   id: gameId,
-    //   firstPlayerProgress: {
-    //     answers: player?.id === player1?.id ? answeredQuestionsPlayer1 : [],
-    //     player: {
-    //       id: player1?.user.id,
-    //       login: player1?.userLogin,
-    //     },
-    //     score: player?.id === player1?.id ? player1?.score : 0,
-    //   },
-    //   secondPlayerProgress:
-    //     game.status === 'PendingSecondPlayer'
-    //       ? null
-    //       : {
-    //           answers:
-    //             player?.id === player2?.id ? answeredQuestionsPlayer2 : [],
-    //           player: {
-    //             id: player2?.user.id,
-    //             login: player2?.userLogin,
-    //           },
-    //           score: player?.id === player2?.id ? player2?.score : 0,
-    //         },
-    //   questions: game.status === 'PendingSecondPlayer' ? null : questions,
-    //   status: game.status,
-    //   pairCreatedDate: game.createdAt,
-    //   startGameDate:
-    //     game.status === 'PendingSecondPlayer' ? null : game.createdAt,
-    //   finishGameDate: game.status === 'Finished' ? game.finishGameDate : null,
-    // };
 
     return response;
   }

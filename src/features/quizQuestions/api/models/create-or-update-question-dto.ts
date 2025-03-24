@@ -4,7 +4,6 @@ import {
   IsBoolean,
   IsString,
   Length,
-  MinLength,
 } from 'class-validator';
 import { IsNotOnlySpaces } from 'src/shared/validators/is-not-only-spaces';
 

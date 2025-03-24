@@ -21,7 +21,6 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsersEntity } from 'src/features/users/entities/users.entity';
 import { UsersRegistrationDataEntity } from 'src/features/users/entities/users-registration-data.entity';
 import { BlogsEntity } from 'src/features/blogs/entity/blogs.entity';
-import { AuthDevicesRepository } from 'src/features/auth/infrastructure/auth-devices-repository';
 import { AuthDevices } from 'src/features/auth/entities/devices.entity';
 import { PostsEntity } from 'src/features/posts/entity/posts.entity';
 import { PostsReactions } from 'src/features/posts-reactions/entity/post-reactions.entity';

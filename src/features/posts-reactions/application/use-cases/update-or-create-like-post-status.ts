@@ -30,7 +30,6 @@ export class UpdateOrCreateLikePostStatusHandler
     userId,
     likeStatus,
     postId,
-    userLogin,
   }: UpdateOrCreateLikePostStatusCommand) {
     const statusRecord = await this.postsLikesQueryRepository.getLikeRecord(
       userId,

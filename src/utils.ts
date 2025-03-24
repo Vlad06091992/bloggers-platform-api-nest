@@ -123,7 +123,6 @@ export async function mapRawCommentToExtendedModel(rawResult) {
       myStatus: rawResult.mystatus,
     },
   };
-  // console.log(res);
   return res;
 }
 
