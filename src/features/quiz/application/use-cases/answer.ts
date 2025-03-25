@@ -71,7 +71,7 @@ export class AnswerHandler implements ICommandHandler<AnswerCommand> {
   ) {}
 
   async execute({ userId, answer }: AnswerCommand) {
-    const player = await this.quizRepository.findPlayerByUserId(userId);
+    const player = await this.quizRepository.findLastPlayerByUserId(userId);
 
     const game = await this.quizRepository.findActiveGameByPlayerId(player?.id);
 

@@ -26,7 +26,7 @@ export class ConnectionHandler implements ICommandHandler<ConnectionCommand> {
   ) {}
 
   async execute({ userId, userLogin }: ConnectionCommand) {
-    const player = await this.quizRepository.findPlayerByUserId(userId);
+    const player = await this.quizRepository.findLastPlayerByUserId(userId);
 
     const gameForUser = await this.quizRepository.findGameByPlayerId(
       player?.id,
