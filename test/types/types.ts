@@ -26,6 +26,16 @@ export type CreateBlogDto = {
   description: string;
 };
 
+export type CreateQuestionDto = {
+  body: string;
+  correctAnswers: string[];
+};
+
+export type PublishQuestionDto = {
+  published: boolean;
+  id: string;
+};
+
 export type OutputBlog = {
   createdAt: string;
   name: string;
@@ -33,6 +43,15 @@ export type OutputBlog = {
   isMembership: boolean;
   websiteUrl: string;
   description: string;
+};
+
+export type OutputQuestion = {
+  id: string;
+  body: string;
+  published: boolean;
+  correctAnswers: string[];
+  createdAt: string;
+  updatedAt: string | null;
 };
 
 export type CreatePostDto = {

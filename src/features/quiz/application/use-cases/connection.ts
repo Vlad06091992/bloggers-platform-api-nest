@@ -61,8 +61,8 @@ export class ConnectionHandler implements ICommandHandler<ConnectionCommand> {
         generateUuidV4(),
         { id: newPlayer.id } as PlayerEntity,
         null,
-        new Date(),
         'PendingSecondPlayer',
+        // new Date(),
       );
       const players = await this.quizRepository.findPlayerByGameId(game.id);
       if (players && players?.length >= 2) {

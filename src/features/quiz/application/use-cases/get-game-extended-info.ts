@@ -16,8 +16,7 @@ export class GetGameExtendedInfoHandler
   constructor(protected quizRepository: QuizRepository) {}
 
   async execute({ gameId, userId }: GetGameExtendedInfoCommand) {
-    const player = await this.quizRepository.findPlayerByUserId(userId);
-
+    const player = await this.quizRepository.findLastPlayerByUserId(userId);
     const game = await this.quizRepository.getGameInfoById(gameId);
     if (!game) {
       throw new NotFoundException();

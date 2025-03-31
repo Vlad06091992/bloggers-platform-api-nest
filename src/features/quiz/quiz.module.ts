@@ -12,11 +12,15 @@ import { QuestionsForGameEntity } from 'src/features/quiz/entities/questions-for
 import { AnswerHandler } from 'src/features/quiz/application/use-cases/answer';
 import { AnswersForGameEntity } from 'src/features/quiz/entities/answers-for-game.entity';
 import { GetGameExtendedInfoHandler } from 'src/features/quiz/application/use-cases/get-game-extended-info';
+import { GetMyGamesExtendedInfoHandler } from 'src/features/quiz/application/use-cases/get-my-games';
+import { StatisticHandler } from 'src/features/quiz/application/use-cases/statistics';
+import { GameResultEntity } from 'src/features/quiz/entities/game_result.entity';
 
 @Module({
   imports: [
     CqrsModule,
     TypeOrmModule.forFeature([
+      GameResultEntity,
       PlayerEntity,
       GameEntity,
       QuizQuestionsEntity,
@@ -31,6 +35,8 @@ import { GetGameExtendedInfoHandler } from 'src/features/quiz/application/use-ca
     QuizRepository,
     QuizQuestionRepository,
     GetGameExtendedInfoHandler,
+    GetMyGamesExtendedInfoHandler,
+    StatisticHandler,
   ],
 })
 export class QuizModule {}

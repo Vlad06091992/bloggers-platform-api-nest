@@ -8,7 +8,7 @@ export class AnswersForGameEntity {
   @PrimaryColumn('uuid')
   id: string;
 
-  @ManyToOne(() => PlayerEntity)
+  @ManyToOne(() => PlayerEntity, (p) => p.id)
   player: PlayerEntity;
 
   @ManyToOne(() => QuizQuestionsEntity, (p) => p.id)

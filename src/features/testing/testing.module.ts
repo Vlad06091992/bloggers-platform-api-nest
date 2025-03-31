@@ -27,6 +27,7 @@ import { GameEntity } from 'src/features/quiz/entities/game.entity';
 import { PlayerEntity } from 'src/features/quiz/entities/player.entity';
 import { QuestionsForGameEntity } from 'src/features/quiz/entities/questions-for-game.entity';
 import { AnswersForGameEntity } from 'src/features/quiz/entities/answers-for-game.entity';
+import { GameResultEntity } from 'src/features/quiz/entities/game_result.entity';
 
 @Module({
   imports: [
@@ -45,6 +46,7 @@ import { AnswersForGameEntity } from 'src/features/quiz/entities/answers-for-gam
       QuestionsForGameEntity,
       AnswersForGameEntity,
       CommentsReactions,
+      GameResultEntity,
     ]),
   ],
   controllers: [TestingController],

@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryColumn } from 'typeorm';
+import { Column, Entity, OneToMany, PrimaryColumn } from 'typeorm';
+import { QuestionsForGameEntity } from '../../quiz/entities/questions-for-game.entity';
 
 @Entity({ name: 'QuizQuestions' })
 export class QuizQuestionsEntity {
@@ -7,6 +8,9 @@ export class QuizQuestionsEntity {
 
   @Column()
   body: string;
+
+  @OneToMany(() => QuestionsForGameEntity, (qfgm) => qfgm.question)
+  question: QuestionsForGameEntity;
 
   @Column({ default: false })
   published: boolean;

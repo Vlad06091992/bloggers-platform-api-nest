@@ -14,6 +14,9 @@ import {
   CreatedCommentResponse,
   PaginatedCommentsResponse,
   CommentResponse,
+  CreateQuestionDto,
+  PublishQuestionDto,
+  OutputQuestion,
 } from 'test/types/types';
 
 export const createUser = async (
@@ -273,6 +276,101 @@ export const getCommentById = async (
   const response = await requestApi;
 
   expect(response.status).toBe(200);
+
+  return response.body;
+};
+
+export const createQuestionBySuperAdmin = async (
+  { body, correctAnswers }: CreateQuestionDto,
+  app: INestApplication,
+): Promise<OutputQuestion> => {
+  const response = await request(app.getHttpServer())
+    .post('/sa/quiz/questions')
+    .auth('admin', 'qwerty', { type: 'basic' })
+    .send({ body, correctAnswers });
+
+  expect(response.status).toBe(201);
+  expect(response.body.id).toStrictEqual(expect.any(String));
+  expect(response.body.createdAt).toStrictEqual(expect.any(String));
+  return response.body;
+};
+
+export const publishQuestionBySuperAdmin = async (
+  { published, id }: PublishQuestionDto,
+  app: INestApplication,
+): Promise<void> => {
+  const response = await request(app.getHttpServer())
+    .put(`/sa/quiz/questions/${id}/publish`)
+    .auth('admin', 'qwerty', { type: 'basic' })
+    .send({ published });
+
+  expect(response.status).toBe(204);
+};
+
+export const createAndPublishQuesations = async (
+  { login, password },
+  app: INestApplication,
+  quality: number,
+) => {
+  const usersInfo = {};
+
+  for (let i = 0; i < quality; i++) {
+    const payload = {
+      login: `${login}${i + 2}`,
+      email: `email${i + 2}@mail.ru`,
+      password: `${password}${i + 2}`,
+    };
+
+    const createdUser = await createUser(payload, app);
+    usersInfo[`user${i + 2}`] = createdUser;
+    usersInfo[`user${i + 2}`].password = payload.password;
+  }
+
+  return usersInfo;
+};
+
+export const createAndPublishQuestions = async (
+  questions: CreateQuestionDto[],
+  app: INestApplication,
+) => {
+  const usersInfo = {};
+
+  const questionsIds: string[] = [];
+
+  for (let i = 0; i < questions.length; i++) {
+    const result = await createQuestionBySuperAdmin(questions[i], app);
+    questionsIds.push(result.id);
+  }
+
+  for (let i = 0; i < questionsIds.length; i++) {
+    await publishQuestionBySuperAdmin(
+      { published: true, id: questionsIds[i] },
+      app,
+    );
+  }
+
+  return usersInfo;
+};
+
+export const connectUserToGame = async (
+  user,
+  app: INestApplication,
+): Promise<any> => {
+  const response = await request(app.getHttpServer())
+    .post('/pair-game-quiz/pairs/connection')
+    .set('Authorization', `Bearer ${user.tokens.accessTokenInBody}`);
+  return response.body;
+};
+
+export const answerUserToQuestion = async (
+  user,
+  answer,
+  app: INestApplication,
+): Promise<any> => {
+  const response = await request(app.getHttpServer())
+    .post('/pair-game-quiz/pairs/my-current/answers')
+    .set('Authorization', `Bearer ${user.tokens.accessTokenInBody}`)
+    .send({ answer });
 
   return response.body;
 };

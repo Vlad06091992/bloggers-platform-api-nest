@@ -10,7 +10,12 @@ export type ParamsValues =
   | 'searchEmailTerm'
   | 'searchNameTerm';
 
-export type QueryParams = Partial<Record<ParamsValues, string>>;
+export type RequiredParamsValuesForMyGames = Omit<
+  Record<ParamsValues, string>,
+  'searchNameTerm' | 'sortDirection' | 'searchLoginTerm'
+> & {
+  sortDirection: SortDirection;
+};
 
 export type RequiredParamsValuesForUsers = Omit<
   Record<ParamsValues, string>,

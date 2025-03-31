@@ -39,7 +39,7 @@ export class TypeOrmConfigService implements TypeOrmOptionsFactory {
           database: this.configService.get<string>('DB_NAME'),
           autoLoadEntities: true,
           synchronize: true,
-          logging: false,
+          logging: true,
         };
       default:
         return {

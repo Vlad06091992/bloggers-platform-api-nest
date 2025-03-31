@@ -6,6 +6,12 @@ import { ForbiddenException } from '@nestjs/common';
 import { QuizQuestionRepository } from 'src/features/quizQuestions/infrastructure/quiz-question-repository';
 import { QuizQuestionsEntity } from 'src/features/quizQuestions/entity/quiz-questions.entity';
 import { AnswersForGameEntity } from 'src/features/quiz/entities/answers-for-game.entity';
+import { GameResultEntity } from 'src/features/quiz/entities/game_result.entity';
+
+const getOtherPlayerId = (game, playerId: string) => {
+  const { player1id, player2id } = game;
+  return playerId === player1id ? player2id : player1id;
+};
 
 export class AnswerCommand {
   constructor(
@@ -79,6 +85,10 @@ export class AnswerHandler implements ICommandHandler<AnswerCommand> {
       throw new ForbiddenException();
     }
 
+    const otherPlayerId = getOtherPlayerId(game, player!.id);
+
+    const otherPlayer = await this.quizRepository.findPlayerById(otherPlayerId);
+
     const answeredQuestionCount =
       await this.quizRepository.getUserAnsweredQuestionCount(
         player?.id,
@@ -88,13 +98,6 @@ export class AnswerHandler implements ICommandHandler<AnswerCommand> {
     if (!player || answeredQuestionCount === 5) {
       throw new ForbiddenException();
     }
-
-    const otherPlayer = (game, playerId: string) => {
-      const { player1id, player2id } = game;
-      return playerId === player1id ? player2id : player1id;
-    };
-
-    const otherPlayerId = otherPlayer(game, player.id);
 
     const question = await this.quizRepository.getQuestionByGameIdAndPosition(
       game.id,
@@ -149,9 +152,32 @@ export class AnswerHandler implements ICommandHandler<AnswerCommand> {
       }
 
       if (res) {
-        const player = await this.quizRepository.findPlayerById(res.playerId);
-        await this.quizRepository.updatePlayerScore(player!);
+        const pl = [otherPlayer, player].find((p) => p!.id === res?.playerId);
+        await this.quizRepository.updatePlayerScore(pl!);
       }
+
+      let loser;
+      let winner;
+
+      player.score > otherPlayer!.score
+        ? ((winner = player), (loser = otherPlayer))
+        : otherPlayer!.score > player.score
+          ? ((loser = player), (winner = otherPlayer))
+          : null;
+
+      debugger;
+
+      const result = new GameResultEntity(
+        generateUuidV4(),
+        game,
+        winner || null,
+        winner?.user || null,
+        loser || null,
+        loser?.user || null,
+        !winner,
+      );
+
+      await this.quizRepository.addGameStatistic(result);
 
       await this.quizRepository.finishedGame(game);
     }

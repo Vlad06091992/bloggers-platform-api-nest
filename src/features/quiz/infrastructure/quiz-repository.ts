@@ -5,6 +5,7 @@ import { GameEntity } from 'src/features/quiz/entities/game.entity';
 import { PlayerEntity } from 'src/features/quiz/entities/player.entity';
 import { QuestionsForGameEntity } from 'src/features/quiz/entities/questions-for-game.entity';
 import { AnswersForGameEntity } from 'src/features/quiz/entities/answers-for-game.entity';
+import { GameResultEntity } from 'src/features/quiz/entities/game_result.entity';
 
 @Injectable()
 export class QuizRepository {
@@ -18,6 +19,8 @@ export class QuizRepository {
     protected questionsForGameEntityRepository: Repository<QuestionsForGameEntity>,
     @InjectRepository(AnswersForGameEntity)
     protected answersForGameEntityRepository: Repository<AnswersForGameEntity>,
+    @InjectRepository(GameResultEntity)
+    protected gameResultRepository: Repository<GameResultEntity>,
   ) {}
 
   async createPlayer(player: PlayerEntity) {
@@ -36,7 +39,6 @@ export class QuizRepository {
     if (!game?.player2) {
       game!.player2 = { id: player.id } as PlayerEntity;
       game!.status = 'Active';
-      game!.startGameDate = new Date();
       await this.gameRepo.save(game!);
     }
 
@@ -48,6 +50,58 @@ export class QuizRepository {
     game!.status = 'Finished';
     game!.finishGameDate = new Date();
     await this.gameRepo.save(game!);
+  }
+
+  async addGameStatistic(gameResult: GameResultEntity): Promise<any> {
+    const result = await this.gameResultRepository.insert(gameResult);
+  }
+
+  async getWinsCount(userId: string): Promise<any> {
+    return await this.gameResultRepository
+      .createQueryBuilder('r')
+      .where('r.winnerUserId =:userId', { userId })
+      .getCount();
+  }
+
+  async getLoseCount(userId: string): Promise<any> {
+    return await this.gameResultRepository
+      .createQueryBuilder('r')
+      .where('r.loserUserId =:userId', { userId })
+      .getCount();
+  }
+
+  // async getDrawCount(userId: string): Promise<any> {
+  //   const result = await this.gameRepo('g')
+  //     .createQueryBuilder('r')
+  //     .where('r.winnerUserId =:userId', { userId })
+  //     .getCount();
+  // }
+
+  async getDrawCount(userId: string | undefined) {
+    if (!userId) {
+      return null;
+    } else {
+      const res = await this.gameRepo.query(
+        `
+        SELECT
+      COUNT(DISTINCT ("g"."id")) AS "cnt"
+      FROM
+      "Game" "g"
+      LEFT JOIN "Player" "player1" ON "player1"."id" = "g"."player1Id"
+      LEFT JOIN "Player" "player2" ON "player2"."id" = "g"."player2Id"
+      LEFT JOIN "GameResult" "r" ON "r"."gameId" = "g"."id"
+      WHERE
+      r."isDraw" = TRUE
+      AND (
+        PLAYER1."userId" = $1
+      OR PLAYER2."userId" = $1
+      )
+    `,
+        [userId],
+      );
+
+      return +res[0].cnt;
+    }
   }
 
   async findActivePlayerByUserId(userId: string | undefined) {
@@ -69,6 +123,43 @@ export class QuizRepository {
     return await this.playerRepo.findOne({
       where: { user: { id: userId } },
     });
+  }
+
+  async findLastPlayerByUserId(userId: string | undefined) {
+    if (!userId) return null;
+    return await this.playerRepo
+      .createQueryBuilder('p')
+      .where('p.userId =:userId', { userId })
+      .leftJoinAndSelect('p.user', 'user')
+      .orderBy('p."createdAt"', 'DESC')
+      .getOne();
+  }
+
+  async findGamesByUserId(userId: string | undefined, params) {
+    if (!userId) return null;
+    let { pageNumber, pageSize, sortBy, sortDirection } = params;
+
+    if (sortBy === 'pairCreatedDate') sortBy = 'createdAt';
+    const skip = (+pageNumber - 1) * +pageSize;
+    return (await this.gameRepo
+      .createQueryBuilder('g')
+      .leftJoinAndSelect('g.player1', 'player1')
+      .leftJoinAndSelect('g.questions', 'questions')
+      .leftJoinAndSelect('questions.question', 'qq1')
+      .leftJoinAndSelect('g.player2', 'player2')
+      .leftJoinAndSelect('player1.user', 'user1')
+      .leftJoinAndSelect('player2.user', 'user2')
+      .leftJoinAndSelect('player2.answers', 'answers2')
+      .leftJoinAndSelect('player1.answers', 'answers1')
+      .leftJoinAndSelect('answers1.question', 'question1')
+      .leftJoinAndSelect('answers2.question', 'question2')
+      .where('user1.id =:userId', { userId })
+      .orWhere('user2.id =:userId', { userId })
+      .orderBy(`g.${sortBy}`, sortDirection)
+      .addOrderBy('g.createdAt', 'DESC') //
+      .skip(+skip)
+      .take(+pageSize)
+      .getManyAndCount()) as any;
   }
 
   async findGameByPlayerId(
@@ -116,6 +207,53 @@ export class QuizRepository {
     }
   }
 
+  async findGamesCountByuserId(userId: string | undefined) {
+    if (!userId) {
+      return null;
+    } else {
+      const res = await this.gameRepo
+        .createQueryBuilder('g')
+        .leftJoinAndSelect('g.player1', 'player1')
+        .leftJoinAndSelect('g.player2', 'player2')
+        .where('player1."userId" = :userId OR player2."userId" = :userId', {
+          userId,
+        })
+        .getCount();
+      return res;
+    }
+  }
+
+  async findWinsCountBy(userId: string | undefined) {
+    if (!userId) {
+      return null;
+    } else {
+      const res = await this.gameRepo
+        .createQueryBuilder('g')
+        .leftJoinAndSelect('g.player1', 'player1')
+        .leftJoinAndSelect('g.player2', 'player2')
+        .where('player1."userId" = :userId OR player2."userId" = :userId', {
+          userId,
+        })
+        .getCount();
+      return res;
+    }
+  }
+
+  async findScoreCountByUserId(userId: string | undefined) {
+    if (!userId) {
+      return null;
+    } else {
+      const res = await this.playerRepo
+        .createQueryBuilder('p')
+        .where('p."userId" = :userId', {
+          userId,
+        })
+        .select('SUM(score)', 'sumScore')
+        .getRawOne();
+      return +res.sumScore;
+    }
+  }
+
   async setQuestionsForGame(questions: Array<QuestionsForGameEntity>) {
     await this.questionsForGameEntityRepository.insert(questions);
   }
@@ -149,9 +287,12 @@ export class QuizRepository {
       .createQueryBuilder('qg')
       .where('qg.gameId =:gameId', { gameId })
       .leftJoinAndSelect('qg.question', 'qq')
-      .select(['qq.id as id', 'qq.body as body'])
+      .select(['qq.id as id', 'qq.body as body', 'qg.position as position'])
       .getRawMany();
-    return res.sort((a, b) => a.position - b.position);
+
+    return res
+      .sort((a, b) => a.position - b.position)
+      .map((el) => ({ id: el.id, body: el.body }));
   }
 
   async setGameForPlayer(player: PlayerEntity, game: GameEntity) {

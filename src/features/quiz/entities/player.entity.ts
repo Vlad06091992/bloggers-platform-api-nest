@@ -1,6 +1,14 @@
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  OneToMany,
+  PrimaryColumn,
+} from 'typeorm';
 import { UsersEntity } from '../../users/entities/users.entity';
 import { GameEntity } from '../../quiz/entities/game.entity';
+import { AnswersForGameEntity } from '../entities/answers-for-game.entity';
 
 @Entity({ name: 'Player' })
 export class PlayerEntity {
@@ -9,6 +17,15 @@ export class PlayerEntity {
 
   @ManyToOne(() => UsersEntity, (u) => u.id)
   user: UsersEntity;
+
+  @OneToMany(
+    () => AnswersForGameEntity,
+    (answersForGameEntity) => {
+      return answersForGameEntity.player;
+    },
+    { cascade: true, onDelete: 'CASCADE' },
+  )
+  answers: AnswersForGameEntity[];
 
   @ManyToOne(() => GameEntity, (g) => g.id)
   @JoinColumn()
