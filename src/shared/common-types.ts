@@ -1,6 +1,15 @@
 export type SortDirection = 'ASC' | 'DESC';
 export type PublishedStatus = 'all' | 'published' | 'notPublished';
 
+export type GameStats =
+    | "winsCount"
+    | "lossesCount"
+    | "drawsCount"
+    | "gamesCount"
+    | "sumScore"
+    | "avgScore";
+
+
 export type ParamsValues =
   | 'sortBy'
   | 'sortDirection'
@@ -9,6 +18,19 @@ export type ParamsValues =
   | 'searchLoginTerm'
   | 'searchEmailTerm'
   | 'searchNameTerm';
+
+export type RequiredParamsValuesForTopUsers = Omit<
+  Record<ParamsValues, string>,
+  'searchNameTerm' | 'sortDirection' | 'searchLoginTerm' | 'sortBy' | 'searchEmailTerm'
+> & {
+  sort: string;
+} &
+    {
+  validSortParams: {[key:number]:{
+    value:GameStats,
+      direction:'ASC' | 'DESC'
+    }};
+}
 
 export type RequiredParamsValuesForMyGames = Omit<
   Record<ParamsValues, string>,

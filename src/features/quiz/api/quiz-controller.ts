@@ -15,10 +15,12 @@ import { AnswerCommand } from 'src/features/quiz/application/use-cases/answer';
 import { GetGameExtendedInfoCommand } from 'src/features/quiz/application/use-cases/get-game-extended-info';
 import { QuizRepository } from 'src/features/quiz/infrastructure/quiz-repository';
 import { GetIdFromParams } from 'src/infrastructure/decorators/getIdFromParams';
-import { RequiredParamsValuesForMyGames } from 'src/shared/common-types';
+import {RequiredParamsValuesForMyGames, RequiredParamsValuesForTopUsers} from 'src/shared/common-types';
 import { getValidQueryParamsForMyGames } from 'src/infrastructure/decorators/getValidQueryParamsForMyGames';
 import { GetMyGamesExtendedInfoCommand } from 'src/features/quiz/application/use-cases/get-my-games';
 import { StatisticCommand } from 'src/features/quiz/application/use-cases/statistics';
+import {TopCommand} from "../application/use-cases/top";
+import {getValidQueryParamsForTopUsers} from "../../../infrastructure/decorators/getValidQueryParamsForTopUsers";
 
 @Controller('/pair-game-quiz')
 export class QuizController {
@@ -64,32 +66,16 @@ export class QuizController {
   async myStatistics(
     @getUserAfterJwtAuthGuard() user: { userId: string; userLogin: string },
   ) {
-    /*
-    - sumScore: общая сумма набранных очков игроком или командой. Это может быть сумма всех очков, набранных за определенный период времени или за все игры, в которых они участвовали.
-
-    - avgScores: среднее количество очков, набранных за игру. Это значение может быть рассчитано как отношение sumScore к gamesCount, то есть общая сумма очков делится на количество игр.
-
-    - gamesCount: количество игр, в которых игрок или команда приняли участие.
-
-    - winsCount: количество побед, одержанных игроком или командой.
-
-    - lossesCount: количество поражений, которые потерпел игрок или команда.
-
-    - drawsCount: количество игр, которые закончились вничью для игрока или команды.
-  */
-
-    console.log(user.userId);
-
     return await this.commandBus.execute(new StatisticCommand(user.userId));
+  }
 
-    return {
-      sumScore: 0,
-      avgScores: 0,
-      gamesCount: 0,
-      winsCount: 0,
-      lossesCount: 0,
-      drawsCount: 0,
-    };
+  @HttpCode(200)
+  @Get('/users/top')
+  async top(
+        @getValidQueryParamsForTopUsers() params: RequiredParamsValuesForTopUsers,
+  ) {
+    debugger
+    return await this.commandBus.execute(new TopCommand(params));
   }
 
   @UseGuards(JwtAuthGuard)
