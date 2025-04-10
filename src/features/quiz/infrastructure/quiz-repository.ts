@@ -57,6 +57,12 @@ export class QuizRepository {
         await this.gameRepo.save(game!);
     }
 
+        async setDatePlayerCompletedAllQuestions(gameA: any): Promise<any> {
+        const game = await this.gameRepo.findOne({where: {id: gameA!.id}});
+        game!.datePlayerCompletedAllQuestions = new Date();
+        await this.gameRepo.save(game!);
+    }
+
     async addGameStatistic(gameResult: GameResultEntity): Promise<any> {
         const result = await this.gameResultRepository.insert(gameResult);
     }
@@ -199,6 +205,7 @@ export class QuizRepository {
                     'g.player1Id as player1Id',
                     'g.player2Id as player2Id',
                     'g.status as status',
+                    'g.datePlayerCompletedAllQuestions as "datePlayerCompletedAllQuestions"',
                 ])
                 .where("g.status = 'Active'")
                 .andWhere('g."player1Id" = :playerId OR g."player2Id" = :playerId', {
