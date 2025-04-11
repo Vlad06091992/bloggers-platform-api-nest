@@ -15,12 +15,15 @@ import { AnswerCommand } from 'src/features/quiz/application/use-cases/answer';
 import { GetGameExtendedInfoCommand } from 'src/features/quiz/application/use-cases/get-game-extended-info';
 import { QuizRepository } from 'src/features/quiz/infrastructure/quiz-repository';
 import { GetIdFromParams } from 'src/infrastructure/decorators/getIdFromParams';
-import {RequiredParamsValuesForMyGames, RequiredParamsValuesForTopUsers} from 'src/shared/common-types';
+import {
+  RequiredParamsValuesForMyGames,
+  RequiredParamsValuesForTopUsers,
+} from 'src/shared/common-types';
 import { getValidQueryParamsForMyGames } from 'src/infrastructure/decorators/getValidQueryParamsForMyGames';
 import { GetMyGamesExtendedInfoCommand } from 'src/features/quiz/application/use-cases/get-my-games';
 import { StatisticCommand } from 'src/features/quiz/application/use-cases/statistics';
-import {TopCommand} from "../application/use-cases/top";
-import {getValidQueryParamsForTopUsers} from "../../../infrastructure/decorators/getValidQueryParamsForTopUsers";
+import { TopCommand } from '../application/use-cases/top';
+import { getValidQueryParamsForTopUsers } from '../../../infrastructure/decorators/getValidQueryParamsForTopUsers';
 
 @Controller('/pair-game-quiz')
 export class QuizController {
@@ -72,9 +75,8 @@ export class QuizController {
   @HttpCode(200)
   @Get('/users/top')
   async top(
-        @getValidQueryParamsForTopUsers() params: RequiredParamsValuesForTopUsers,
+    @getValidQueryParamsForTopUsers() params: RequiredParamsValuesForTopUsers,
   ) {
-    debugger
     return await this.commandBus.execute(new TopCommand(params));
   }
 

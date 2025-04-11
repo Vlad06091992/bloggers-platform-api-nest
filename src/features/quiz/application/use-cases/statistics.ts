@@ -16,8 +16,6 @@ export class StatisticHandler implements ICommandHandler<StatisticCommand> {
     const lossesCount = await this.quizRepository.getLoseCount(userId);
     const drawsCount = await this.quizRepository.getDrawCount(userId);
 
-    debugger;
-
     /*
 - sumScore: общая сумма набранных очков игроком или командой. Это может быть сумма всех очков, набранных за определенный период времени или за все игры, в которых они участвовали.
 

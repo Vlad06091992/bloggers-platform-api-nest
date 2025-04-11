@@ -50,13 +50,11 @@ export class GameEntity {
   })
   finishGameDate: Date;
 
-
-  @Column({
-    type: 'timestamp',
-    nullable: true,
-  })
-  datePlayerCompletedAllQuestions: Date;
-
+  // @Column({
+  //   type: 'timestamp',
+  //   nullable: true,
+  // })
+  // datePlayerCompletedAllQuestions: Date;
 
   @Column({ default: 'active' })
   status: string;

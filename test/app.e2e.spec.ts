@@ -1,24 +1,24 @@
-import {Test, TestingModule} from '@nestjs/testing';
-import {INestApplication} from '@nestjs/common';
+import { Test, TestingModule } from '@nestjs/testing';
+import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
-import {AppModule} from 'src/app.module';
-import {writeFile} from 'fs/promises';
-import {applyAppSettings} from 'src/settings/apply-app-settings';
+import { AppModule } from 'src/app.module';
+import { writeFile } from 'fs/promises';
+import { applyAppSettings } from 'src/settings/apply-app-settings';
 import {
-    answerUserToQuestion,
-    connectUserToGame,
-    createAndPublishQuestions,
-    createBlogBySuperAdmin,
-    createCommentForPostByUser,
-    createPostBySuperAdmin,
-    createUsers,
-    getAllPostsWithPaginationAndSorting,
-    getCommentById,
-    getCommentsForPostByUser,
-    getPostById,
-    loginUsersInSystem,
-    setReactionOnCommentByUser,
-    setReactionOnPostByUser,
+  answerUserToQuestion,
+  connectUserToGame,
+  createAndPublishQuestions,
+  createBlogBySuperAdmin,
+  createCommentForPostByUser,
+  createPostBySuperAdmin,
+  createUsers,
+  getAllPostsWithPaginationAndSorting,
+  getCommentById,
+  getCommentsForPostByUser,
+  getPostById,
+  loginUsersInSystem,
+  setReactionOnCommentByUser,
+  setReactionOnPostByUser,
 } from './utils/utils';
 
 jest.setTimeout(120000);
@@ -614,603 +614,613 @@ jest.setTimeout(120000);
 // });
 
 describe('quiz (e2e)', () => {
-    let app: INestApplication;
-
-    beforeAll(async () => {
-        const moduleFixture: TestingModule = await Test.createTestingModule({
-            imports: [AppModule],
-        }).compile();
-
-        app = moduleFixture.createNestApplication();
-        applyAppSettings(app);
-        await app.init();
-
-        await request(app.getHttpServer()).delete('/testing/all-data');
-
-        async function clearFile() {
-            try {
-                await writeFile('postid.txt', '', 'utf8'); // Записываем пустую строку в файл
-                console.log('Файл успешно очищен.');
-            } catch (err) {
-                console.error('Произошла ошибка при очистке файла:', err);
-            }
-        }
-
-        // Вызов функции
-        await clearFile();
-    });
-
-    afterAll(async () => {
-        if (app) {
-            await app.close();
-        }
-    });
-
-    const createUserDto = {
-        login: 'user',
-        password: 'qwerty',
-        email: 'vlad1@mail.ru',
-    };
-
-    it('data', async () => {
-        const createdUsers = await createUsers(createUserDto, app, 10);
-        const loginedUsers = (await loginUsersInSystem(createdUsers, app)) as any;
-
-        // Асинхронная функция для записи данных
-        async function writeToFile(data) {
-            try {
-                await writeFile('postid.txt', data, 'utf8');
-                console.log('Данные успешно записаны в файл.');
-            } catch (err) {
-                console.error('Произошла ошибка при записи в файл:', err);
-            }
-        }
-
-        const allQuestionsForGame = [
-            {
-                body: 'Какую планету называют красной планетой?',
-                correctAnswers: ['Марс'],
-            },
-            {
-                body: 'Сколько дней в неделе?',
-                correctAnswers: ['7'],
-            },
-            {
-                body: 'Как называется самый большой океан на Земле?',
-                correctAnswers: ['Тихий океан'],
-            },
-            {
-                body: 'Какая страна известна своими тюльпанами и ветряными мельницами?',
-                correctAnswers: ['Нидерланды'],
-            },
-            {
-                body: 'Какой прибор измеряет температуру?',
-                correctAnswers: ['Термометр'],
-            },
-            {
-                body: 'Какая геометрическая фигура имеет четыре равные стороны и четыре угла?',
-                correctAnswers: ['Квадрат'],
-            },
-            {
-                body: 'Как называют собрание книг, периодических изданий и других источников информации?',
-                correctAnswers: ['Библиотека'],
-            },
-            {
-                body: 'Кто написал "Войну и мир"?',
-                correctAnswers: ['Лев Толстой'],
-            },
-            {
-                body: 'Какой орган человеческого тела помимо кожи считается самым большим?',
-                correctAnswers: ['Печень'],
-            },
-            {
-                body: 'Кто первым ступил на Луну?',
-                correctAnswers: ['Нил Армстронг'],
-            },
-            {
-                body: "Какой химический элемент обозначается символом 'O'?",
-                correctAnswers: ['Кислород'],
-            },
-            {
-                body: 'Что падает осенью с деревьев в большом количестве?',
-                correctAnswers: ['Листья'],
-            },
-            {
-                body: "Каково значение 'пи' приблизительно?",
-                correctAnswers: ['3.14'],
-            },
-            {
-                body: 'Какая самая большая кошка в мире?',
-                correctAnswers: ['Тигр'],
-            },
-            {
-                body: 'Какой цвет получится, если смешать желтый и синий?',
-                correctAnswers: ['Зеленый'],
-            },
-            {
-                body: 'Какое млекопитающее способно летать?',
-                correctAnswers: ['Летучая мышь'],
-            },
-            {
-                body: 'Кто является автором картины "Мона Лиза"?',
-                correctAnswers: ['Леонардо да Винчи'],
-            },
-            {
-                body: 'Какая планета известна своими кольцами?',
-                correctAnswers: ['Сатурн'],
-            },
-            {
-                body: 'Какой металл известен как самый легкий?',
-                correctAnswers: ['Литий'],
-            },
-            {
-                body: 'Какой музыкальный инструмент является струнным и имеет смычок?',
-                correctAnswers: ['Скрипка'],
-            },
-        ];
-
-        function findCorrectAnswer({body}) {
-            const res = allQuestionsForGame.find((el) => {
-                return el.body === body;
-            })?.correctAnswers[0];
-            return res;
-        }
-
-        await createAndPublishQuestions(allQuestionsForGame, app);
-
-        //первая игра юзер2/юзер3
-
-        await connectUserToGame(loginedUsers.user2, app);
-        const game1 = await connectUserToGame(loginedUsers.user3, app);
-
-        const questions = game1.questions;
-        const correctAnswer1 = findCorrectAnswer(questions[0]);
-
-        //юзер2 отвечает корректно на первый вопрос
-        await answerUserToQuestion(loginedUsers.user2, correctAnswer1, app);
-        //юзер3 отвечает не корректно на первый вопрос
-        await answerUserToQuestion(loginedUsers.user3, 'неправильно', app);
-debugger
-        const correctAnswer2 = findCorrectAnswer(questions[1]);
-
-        //юзер2 отвечает корректно на второй вопрос
-        await answerUserToQuestion(loginedUsers.user2, correctAnswer2, app);
-        //юзер3 отвечает корректно на второй вопрос
-        await answerUserToQuestion(loginedUsers.user3, correctAnswer2, app);
-debugger
-        const correctAnswer3 = findCorrectAnswer(questions[2]);
-
-        //юзер2 отвечает корректно на третий вопрос
-        await answerUserToQuestion(loginedUsers.user2, correctAnswer3, app);
-        //юзер3 отвечает корректно на третий вопрос
-        // await answerUserToQuestion(loginedUsers.user3, correctAnswer3, app);
-
-        const correctAnswer4 = findCorrectAnswer(questions[3]);
-
-        //юзер2 отвечает корректно на четвертый вопрос
-        await answerUserToQuestion(loginedUsers.user2, correctAnswer4, app);
-        //юзер3 отвечает корректно на четвертый вопрос
-        // await answerUserToQuestion(loginedUsers.user3, correctAnswer4, app);
-
-        const correctAnswer5 = findCorrectAnswer(questions[4]);
-
-        //юзер2 отвечает корректно на пятый вопрос
-        await answerUserToQuestion(loginedUsers.user2, correctAnswer5, app);
-
-
-//     setTimeout(async ()=>{
-//       debugger
-//          //юзер3 отвечает корректно на пятый вопрос
-//     await answerUserToQuestion(loginedUsers.user3, correctAnswer5, app);
-//
-//           // Данные, которые вы хотите записать в файл
-//     const bearer = `bearer 1 юзера: ${loginedUsers.user2.tokens.accessTokenInBody}, \`id игры: ${game1.id}\``;
-// debugger
-//     // Вызов функции
-//     await writeToFile(bearer);
-//     // expect(1).toBe(1);
-//
-//     },15000)
-
-        const promise = new Promise((resolve, reject) => {
-            setTimeout(async () => {
-                //юзер3 отвечает корректно на пятый вопрос
-                await answerUserToQuestion(loginedUsers.user3, correctAnswer5, app);
-
-                // Данные, которые вы хотите записать в файл
-                const bearer = `bearer 1 юзера: ${loginedUsers.user2.tokens.accessTokenInBody}, \`id игры: ${game1.id}\``;
-                await writeToFile(bearer);
-                debugger
-                resolve(true)
-            }, 15000)
-        })
-
-        const res = await promise
-
-        debugger;
-        /*
-            //-----------------------------------------------------------------------------
-            //вторая игра юзер2/юзер4
-            await connectUserToGame(loginedUsers.user4, app);
-            const game2 = await connectUserToGame(loginedUsers.user2, app);
-            const questions2 = game2.questions;
-            const correctAnswer2_1 = findCorrectAnswer(questions[0]);
-
-            //юзер2 отвечает корректно на первый вопрос
-            await answerUserToQuestion(loginedUsers.user2, correctAnswer2_1, app);
-            //юзер4 отвечает не корректно на первый вопрос
-            await answerUserToQuestion(loginedUsers.user4, '', app);
-
-            const correctAnswer2_2 = findCorrectAnswer(questions2[1]);
-
-            //юзер2 отвечает корректно на второй вопрос
-            await answerUserToQuestion(loginedUsers.user2, correctAnswer2_2, app);
-            //юзер4 отвечает некорректно на второй вопрос
-            await answerUserToQuestion(loginedUsers.user4, '', app);
-
-            const correctAnswer2_3 = findCorrectAnswer(questions2[2]);
-
-            //юзер2 отвечает корректно на третий вопрос
-            await answerUserToQuestion(loginedUsers.user2, correctAnswer2_3, app);
-            //юзер4 отвечает корректно на третий вопрос
-            await answerUserToQuestion(loginedUsers.user4, correctAnswer2_3, app);
-
-            const correctAnswer2_4 = findCorrectAnswer(questions2[3]);
-
-            //юзер2 отвечает корректно на четвертый вопрос
-            await answerUserToQuestion(loginedUsers.user2, correctAnswer2_4, app);
-            //юзер4 отвечает корректно на четвертый вопрос
-            await answerUserToQuestion(loginedUsers.user4, correctAnswer2_4, app);
-
-            const correctAnswer2_5 = findCorrectAnswer(questions2[4]);
-
-            //юзер2 отвечает корректно на пятый вопрос
-            await answerUserToQuestion(loginedUsers.user2, correctAnswer2_5, app);
-            //юзер4 отвечает корректно на пятый вопрос
-            await answerUserToQuestion(loginedUsers.user4, correctAnswer2_5, app);
-
-            debugger;
-
-            //-----------------------------------------------------------------------------
-            //третья игра юзер2/юзер5
-            await connectUserToGame(loginedUsers.user5, app);
-            const game3 = await connectUserToGame(loginedUsers.user2, app);
-            debugger;
-            const questions3 = game3.questions;
-            const correctAnswer3_1 = findCorrectAnswer(questions3[0]);
-
-            //юзер2 отвечает корректно на первый вопрос
-            await answerUserToQuestion(loginedUsers.user2, correctAnswer3_1, app);
-            //юзер4 отвечает не корректно на первый вопрос
-            await answerUserToQuestion(loginedUsers.user5, '', app);
-
-            const correctAnswer3_2 = findCorrectAnswer(questions3[1]);
-
-            //юзер2 отвечает корректно на второй вопрос
-            await answerUserToQuestion(loginedUsers.user2, correctAnswer3_2, app);
-            //юзер4 отвечает некорректно на второй вопрос
-            await answerUserToQuestion(loginedUsers.user5, '', app);
-
-            const correctAnswer3_3 = findCorrectAnswer(questions3[2]);
-
-            //юзер2 отвечает корректно на третий вопрос
-            await answerUserToQuestion(loginedUsers.user2, correctAnswer3_3, app);
-            //юзер4 отвечает корректно на третий вопрос
-            await answerUserToQuestion(loginedUsers.user5, correctAnswer3_3, app);
-
-            const correctAnswer3_4 = findCorrectAnswer(questions3[3]);
-
-            //юзер2 отвечает корректно на четвертый вопрос
-            await answerUserToQuestion(loginedUsers.user2, '', app);
-            //юзер4 отвечает корректно на четвертый вопрос
-            await answerUserToQuestion(loginedUsers.user5, '', app);
-
-            const correctAnswer3_5 = findCorrectAnswer(questions3[4]);
-
-            //юзер2 отвечает корректно на пятый вопрос
-            await answerUserToQuestion(loginedUsers.user2, '', app);
-            //юзер4 отвечает корректно на пятый вопрос
-            await answerUserToQuestion(loginedUsers.user5, correctAnswer3_5, app);
-
-            //-----------------------------------------------------------------------------
-            //четвертая игра юзер2/юзер3
-            await connectUserToGame(loginedUsers.user2, app);
-            const game4 = await connectUserToGame(loginedUsers.user3, app);
-            debugger;
-            const questions4 = game4.questions;
-            const correctAnswer4_1 = findCorrectAnswer(questions4[0]);
-
-            //юзер2 отвечает корректно на первый вопрос
-            await answerUserToQuestion(loginedUsers.user2, correctAnswer4_1, app);
-            //юзер4 отвечает не корректно на первый вопрос
-            await answerUserToQuestion(loginedUsers.user3, '', app);
-
-            const correctAnswer4_2 = findCorrectAnswer(questions4[1]);
-
-            //юзер2 отвечает корректно на второй вопрос
-            await answerUserToQuestion(loginedUsers.user2, correctAnswer4_2, app);
-            //юзер4 отвечает некорректно на второй вопрос
-            await answerUserToQuestion(loginedUsers.user3, '', app);
-
-            const correctAnswer4_3 = findCorrectAnswer(questions4[2]);
-
-            //юзер2 отвечает корректно на третий вопрос
-            await answerUserToQuestion(loginedUsers.user2, '', app);
-            //юзер4 отвечает корректно на третий вопрос
-            await answerUserToQuestion(loginedUsers.user3, correctAnswer4_3, app);
-
-            const correctAnswer4_4 = findCorrectAnswer(questions4[3]);
-
-            //юзер2 отвечает корректно на четвертый вопрос
-            await answerUserToQuestion(loginedUsers.user2, '', app);
-            //юзер4 отвечает корректно на четвертый вопрос
-            await answerUserToQuestion(loginedUsers.user3, correctAnswer4_4, app);
-
-            const correctAnswer4_5 = findCorrectAnswer(questions4[4]);
-
-            //юзер2 отвечает корректно на пятый вопрос
-            await answerUserToQuestion(loginedUsers.user2, '', app);
-            //юзер4 отвечает корректно на пятый вопрос
-            await answerUserToQuestion(loginedUsers.user3, correctAnswer4_5, app);
-
-            //-----------------------------------------------------------------------------
-            //пятая игра юзер2/юзер4
-            await connectUserToGame(loginedUsers.user2, app);
-            const game5 = await connectUserToGame(loginedUsers.user4, app);
-            debugger;
-            const questions5 = game5.questions;
-            const correctAnswer5_1 = findCorrectAnswer(questions5[0]);
-
-            //юзер2 отвечает корректно на первый вопрос
-            await answerUserToQuestion(loginedUsers.user2, correctAnswer5_1, app);
-            //юзер4 отвечает не корректно на первый вопрос
-            await answerUserToQuestion(loginedUsers.user4, correctAnswer5_1, app);
-
-            const correctAnswer5_2 = findCorrectAnswer(questions5[1]);
-
-            //юзер2 отвечает корректно на второй вопрос
-            await answerUserToQuestion(loginedUsers.user2, correctAnswer5_2, app);
-            //юзер4 отвечает некорректно на второй вопрос
-            await answerUserToQuestion(loginedUsers.user4, correctAnswer5_2, app);
-
-            const correctAnswer5_3 = findCorrectAnswer(questions5[2]);
-
-            //юзер2 отвечает корректно на третий вопрос
-            await answerUserToQuestion(loginedUsers.user2, correctAnswer5_3, app);
-            //юзер4 отвечает корректно на третий вопрос
-            await answerUserToQuestion(loginedUsers.user4, correctAnswer5_3, app);
-
-            const correctAnswer5_4 = findCorrectAnswer(questions5[3]);
-
-            // юзер2 отвечает корректно на четвертый вопрос
-            await answerUserToQuestion(loginedUsers.user2, correctAnswer5_4, app);
-            // юзер4 отвечает корректно на четвертый вопрос
-            await answerUserToQuestion(loginedUsers.user4, correctAnswer5_4, app);
-
-            const correctAnswer5_5 = findCorrectAnswer(questions5[4]);
-
-            //юзер2 отвечает корректно на пятый вопрос
-            await answerUserToQuestion(loginedUsers.user2, correctAnswer5_5, app);
-            //юзер4 отвечает корректно на пятый вопрос
-            await answerUserToQuestion(loginedUsers.user4, correctAnswer5_5, app);
-
-
-             //-----------------------------------------------------------------------------
-            //шестая игра юзер3/юзер5
-            await connectUserToGame(loginedUsers.user3, app);
-            const game6 = await connectUserToGame(loginedUsers.user5, app);
-            debugger;
-            const questions6 = game6.questions;
-            const correctAnswer6_1 = findCorrectAnswer(questions6[0]);
-
-            //юзер3 отвечает корректно на первый вопрос
-            await answerUserToQuestion(loginedUsers.user3, correctAnswer6_1, app);
-            //юзер5 отвечает не корректно на первый вопрос
-            await answerUserToQuestion(loginedUsers.user5, '', app);
-
-            const correctAnswer6_2 = findCorrectAnswer(questions6[1]);
-
-            //юзер3 отвечает корректно на второй вопрос
-            await answerUserToQuestion(loginedUsers.user3, correctAnswer6_2, app);
-            //юзер5 отвечает некорректно на второй вопрос
-            await answerUserToQuestion(loginedUsers.user5, correctAnswer6_2, app);
-
-            const correctAnswer6_3 = findCorrectAnswer(questions6[2]);
-
-            //юзер3 отвечает корректно на третий вопрос
-            await answerUserToQuestion(loginedUsers.user3, correctAnswer6_3, app);
-            //юзер5 отвечает корректно на третий вопрос
-            await answerUserToQuestion(loginedUsers.user5, correctAnswer6_3, app);
-
-            const correctAnswer6_4 = findCorrectAnswer(questions6[3]);
-
-            // юзер3 отвечает корректно на четвертый вопрос
-            await answerUserToQuestion(loginedUsers.user3, correctAnswer6_4, app);
-            // юзер5 отвечает корректно на четвертый вопрос
-            await answerUserToQuestion(loginedUsers.user5, correctAnswer6_4, app);
-
-            const correctAnswer6_5 = findCorrectAnswer(questions6[4]);
-
-            //юзер3 отвечает корректно на пятый вопрос
-            await answerUserToQuestion(loginedUsers.user3, correctAnswer6_5, app);
-            //юзер5 отвечает корректно на пятый вопрос
-            await answerUserToQuestion(loginedUsers.user5, correctAnswer6_5, app);
-
-
-            //-----------------------------------------------------------------------------
-            //седьмая игра юзер4/юзер2
-            await connectUserToGame(loginedUsers.user4, app);
-            const game7 = await connectUserToGame(loginedUsers.user2, app);
-            debugger;
-            const questions7 = game7.questions;
-            const correctAnswer7_1 = findCorrectAnswer(questions7[0]);
-
-            //юзер4 отвечает корректно на первый вопрос
-            await answerUserToQuestion(loginedUsers.user4, correctAnswer7_1, app);
-            //юзер2 отвечает не корректно на первый вопрос
-            await answerUserToQuestion(loginedUsers.user2, '', app);
-
-            const correctAnswer7_2 = findCorrectAnswer(questions7[1]);
-
-            //юзер4 отвечает корректно на второй вопрос
-            await answerUserToQuestion(loginedUsers.user4, correctAnswer7_2, app);
-            //юзер2 отвечает некорректно на второй вопрос
-            await answerUserToQuestion(loginedUsers.user2, '', app);
-
-            const correctAnswer7_3 = findCorrectAnswer(questions7[2]);
-
-            //юзер4 отвечает корректно на третий вопрос
-            await answerUserToQuestion(loginedUsers.user4, correctAnswer7_3, app);
-            //юзер2 отвечает корректно на третий вопрос
-            await answerUserToQuestion(loginedUsers.user2, '', app);
-
-            const correctAnswer7_4 = findCorrectAnswer(questions7[3]);
-
-            // юзер4 отвечает корректно на четвертый вопрос
-            await answerUserToQuestion(loginedUsers.user4, correctAnswer7_4, app);
-            // юзер2 отвечает корректно на четвертый вопрос
-            await answerUserToQuestion(loginedUsers.user2, correctAnswer7_4, app);
-
-            const correctAnswer7_5 = findCorrectAnswer(questions7[4]);
-
-            //юзер4 отвечает корректно на пятый вопрос
-            await answerUserToQuestion(loginedUsers.user4, correctAnswer7_5, app);
-            //юзер2 отвечает корректно на пятый вопрос
-            await answerUserToQuestion(loginedUsers.user2, correctAnswer7_5, app);
-
-
-            //-----------------------------------------------------------------------------
-            //восьмая игра юзер6/юзер7
-            await connectUserToGame(loginedUsers.user6, app);
-            const game8 = await connectUserToGame(loginedUsers.user7, app);
-            debugger;
-            const questions8 = game8.questions;
-            const correctAnswer8_1 = findCorrectAnswer(questions8[0]);
-
-            //юзер6 отвечает корректно на первый вопрос
-            await answerUserToQuestion(loginedUsers.user6, correctAnswer8_1, app);
-            //юзер7 отвечает не корректно на первый вопрос
-            await answerUserToQuestion(loginedUsers.user7, '', app);
-
-            const correctAnswer8_2 = findCorrectAnswer(questions8[1]);
-
-            //юзер6 отвечает корректно на второй вопрос
-            await answerUserToQuestion(loginedUsers.user6, correctAnswer8_2, app);
-            //юзер7 отвечает некорректно на второй вопрос
-            await answerUserToQuestion(loginedUsers.user7, '', app);
-
-            const correctAnswer8_3 = findCorrectAnswer(questions8[2]);
-
-            //юзер6 отвечает корректно на третий вопрос
-            await answerUserToQuestion(loginedUsers.user6, correctAnswer8_3, app);
-            //юзер7 отвечает корректно на третий вопрос
-            await answerUserToQuestion(loginedUsers.user7, '', app);
-
-            const correctAnswer8_4 = findCorrectAnswer(questions8[3]);
-
-            // юзер6 отвечает корректно на четвертый вопрос
-            await answerUserToQuestion(loginedUsers.user6, correctAnswer8_4, app);
-            // юзер7 отвечает корректно на четвертый вопрос
-            await answerUserToQuestion(loginedUsers.user7, correctAnswer8_4, app);
-
-            const correctAnswer8_5 = findCorrectAnswer(questions7[4]);
-
-            //юзер6 отвечает корректно на пятый вопрос
-            await answerUserToQuestion(loginedUsers.user6, correctAnswer8_5, app);
-            //юзер7 отвечает корректно на пятый вопрос
-            await answerUserToQuestion(loginedUsers.user7, correctAnswer8_5, app);
-
-
-              //-----------------------------------------------------------------------------
-            //девятая игра юзер2/юзер7
-            await connectUserToGame(loginedUsers.user2, app);
-            const game9 = await connectUserToGame(loginedUsers.user7, app);
-            debugger;
-            const questions9 = game9.questions;
-            const correctAnswer9_1 = findCorrectAnswer(questions9[0]);
-
-            //юзер2 отвечает корректно на первый вопрос
-            await answerUserToQuestion(loginedUsers.user2, '', app);
-            //юзер7 отвечает не корректно на первый вопрос
-            await answerUserToQuestion(loginedUsers.user7, correctAnswer9_1, app);
-
-            const correctAnswer9_2 = findCorrectAnswer(questions9[1]);
-
-            //юзер2 отвечает корректно на второй вопрос
-            await answerUserToQuestion(loginedUsers.user2, '', app);
-            //юзер7 отвечает некорректно на второй вопрос
-            await answerUserToQuestion(loginedUsers.user7, correctAnswer9_2, app);
-
-            const correctAnswer9_3 = findCorrectAnswer(questions8[2]);
-
-            //юзер2 отвечает корректно на третий вопрос
-            await answerUserToQuestion(loginedUsers.user2, '', app);
-            //юзер7 отвечает корректно на третий вопрос
-            await answerUserToQuestion(loginedUsers.user7, correctAnswer9_3, app);
-
-            const correctAnswer9_4 = findCorrectAnswer(questions9[3]);
-
-            // юзер2 отвечает корректно на четвертый вопрос
-            await answerUserToQuestion(loginedUsers.user2, correctAnswer9_4, app);
-            // юзер7 отвечает корректно на четвертый вопрос
-            await answerUserToQuestion(loginedUsers.user7, correctAnswer9_4, app);
-
-            const correctAnswer9_5 = findCorrectAnswer(questions7[4]);
-
-            //юзер2 отвечает корректно на пятый вопрос
-            await answerUserToQuestion(loginedUsers.user2, correctAnswer9_5, app);
-            //юзер7 отвечает корректно на пятый вопрос
-            await answerUserToQuestion(loginedUsers.user7, correctAnswer9_5, app);
-
-
-               //-----------------------------------------------------------------------------
-            //десятая игра юзер3/юзер6
-            await connectUserToGame(loginedUsers.user3, app);
-            const game10 = await connectUserToGame(loginedUsers.user6, app);
-            debugger;
-            const questions10 = game10.questions;
-            const correctAnswer10_1 = findCorrectAnswer(questions10[0]);
-
-            //юзер3 отвечает корректно на первый вопрос
-            await answerUserToQuestion(loginedUsers.user3, correctAnswer10_1, app);
-            //юзер6 отвечает не корректно на первый вопрос
-            await answerUserToQuestion(loginedUsers.user6, correctAnswer10_1, app);
-
-            const correctAnswer10_2 = findCorrectAnswer(questions10[1]);
-
-            //юзер3 отвечает корректно на второй вопрос
-            await answerUserToQuestion(loginedUsers.user3, '', app);
-            //юзер6 отвечает некорректно на второй вопрос
-            await answerUserToQuestion(loginedUsers.user6, correctAnswer10_2, app);
-
-            const correctAnswer10_3 = findCorrectAnswer(questions8[2]);
-
-            //юзер3 отвечает корректно на третий вопрос
-            await answerUserToQuestion(loginedUsers.user3, '', app);
-            //юзер6 отвечает корректно на третий вопрос
-            await answerUserToQuestion(loginedUsers.user6, correctAnswer10_3, app);
-
-            const correctAnswer10_4 = findCorrectAnswer(questions10[3]);
-
-            // юзер3 отвечает корректно на четвертый вопрос
-            await answerUserToQuestion(loginedUsers.user3, correctAnswer10_4, app);
-            // юзер6 отвечает корректно на четвертый вопрос
-            await answerUserToQuestion(loginedUsers.user6, '', app);
-
-            const correctAnswer10_5 = findCorrectAnswer(questions10[4]);
-
-            //юзер3 отвечает корректно на пятый вопрос
-            await answerUserToQuestion(loginedUsers.user3, correctAnswer10_5, app);
-            //юзер6 отвечает корректно на пятый вопрос
-            await answerUserToQuestion(loginedUsers.user6, correctAnswer10_5, app);
-        */
-
+  let app: INestApplication;
+
+  beforeAll(async () => {
+    const moduleFixture: TestingModule = await Test.createTestingModule({
+      imports: [AppModule],
+    }).compile();
+
+    app = moduleFixture.createNestApplication();
+    applyAppSettings(app);
+    await app.init();
+
+    await request(app.getHttpServer()).delete('/testing/all-data');
+
+    async function clearFile() {
+      try {
+        await writeFile('postid.txt', '', 'utf8'); // Записываем пустую строку в файл
+        console.log('Файл успешно очищен.');
+      } catch (err) {
+        console.error('Произошла ошибка при очистке файла:', err);
+      }
+    }
+
+    // Вызов функции
+    await clearFile();
+  });
+
+  // afterAll(async () => {
+  //   if (app) {
+  //     await app.close();
+  //   }
+  // });
+
+  const createUserDto = {
+    login: 'user',
+    password: 'qwerty',
+    email: 'vlad1@mail.ru',
+  };
+
+  it('data', async () => {
+    const createdUsers = await createUsers(createUserDto, app, 10);
+    const loginedUsers = (await loginUsersInSystem(createdUsers, app)) as any;
+
+    // Асинхронная функция для записи данных
+    async function writeToFile(data) {
+      try {
+        await writeFile('postid.txt', data, 'utf8');
+        console.log('Данные успешно записаны в файл.');
+      } catch (err) {
+        console.error('Произошла ошибка при записи в файл:', err);
+      }
+    }
+
+    const allQuestionsForGame = [
+      {
+        body: 'Какую планету называют красной планетой?',
+        correctAnswers: ['Марс'],
+      },
+      {
+        body: 'Сколько дней в неделе?',
+        correctAnswers: ['7'],
+      },
+      {
+        body: 'Как называется самый большой океан на Земле?',
+        correctAnswers: ['Тихий океан'],
+      },
+      {
+        body: 'Какая страна известна своими тюльпанами и ветряными мельницами?',
+        correctAnswers: ['Нидерланды'],
+      },
+      {
+        body: 'Какой прибор измеряет температуру?',
+        correctAnswers: ['Термометр'],
+      },
+      {
+        body: 'Какая геометрическая фигура имеет четыре равные стороны и четыре угла?',
+        correctAnswers: ['Квадрат'],
+      },
+      {
+        body: 'Как называют собрание книг, периодических изданий и других источников информации?',
+        correctAnswers: ['Библиотека'],
+      },
+      {
+        body: 'Кто написал "Войну и мир"?',
+        correctAnswers: ['Лев Толстой'],
+      },
+      {
+        body: 'Какой орган человеческого тела помимо кожи считается самым большим?',
+        correctAnswers: ['Печень'],
+      },
+      {
+        body: 'Кто первым ступил на Луну?',
+        correctAnswers: ['Нил Армстронг'],
+      },
+      {
+        body: "Какой химический элемент обозначается символом 'O'?",
+        correctAnswers: ['Кислород'],
+      },
+      {
+        body: 'Что падает осенью с деревьев в большом количестве?',
+        correctAnswers: ['Листья'],
+      },
+      {
+        body: "Каково значение 'пи' приблизительно?",
+        correctAnswers: ['3.14'],
+      },
+      {
+        body: 'Какая самая большая кошка в мире?',
+        correctAnswers: ['Тигр'],
+      },
+      {
+        body: 'Какой цвет получится, если смешать желтый и синий?',
+        correctAnswers: ['Зеленый'],
+      },
+      {
+        body: 'Какое млекопитающее способно летать?',
+        correctAnswers: ['Летучая мышь'],
+      },
+      {
+        body: 'Кто является автором картины "Мона Лиза"?',
+        correctAnswers: ['Леонардо да Винчи'],
+      },
+      {
+        body: 'Какая планета известна своими кольцами?',
+        correctAnswers: ['Сатурн'],
+      },
+      {
+        body: 'Какой металл известен как самый легкий?',
+        correctAnswers: ['Литий'],
+      },
+      {
+        body: 'Какой музыкальный инструмент является струнным и имеет смычок?',
+        correctAnswers: ['Скрипка'],
+      },
+    ];
+
+    function findCorrectAnswer({ body }) {
+      const res = allQuestionsForGame.find((el) => {
+        return el.body === body;
+      })?.correctAnswers[0];
+      return res;
+    }
+
+    await createAndPublishQuestions(allQuestionsForGame, app);
+
+    //первая игра юзер2/юзер3
+
+    await connectUserToGame(loginedUsers.user2, app);
+    const game1 = await connectUserToGame(loginedUsers.user3, app);
+
+    const questions = game1.questions;
+    const correctAnswer1 = findCorrectAnswer(questions[0]);
+
+    //юзер2 отвечает корректно на первый вопрос
+    await answerUserToQuestion(loginedUsers.user2, correctAnswer1, app);
+    //юзер3 отвечает не корректно на первый вопрос
+    await answerUserToQuestion(loginedUsers.user3, 'неправильно', app);
+    const correctAnswer2 = findCorrectAnswer(questions[1]);
+
+    //юзер2 отвечает корректно на второй вопрос
+    await answerUserToQuestion(loginedUsers.user2, correctAnswer2, app);
+    //юзер3 отвечает корректно на второй вопрос
+    await answerUserToQuestion(loginedUsers.user3, correctAnswer2, app);
+    const correctAnswer3 = findCorrectAnswer(questions[2]);
+
+    //юзер2 отвечает корректно на третий вопрос
+    await answerUserToQuestion(loginedUsers.user2, correctAnswer3, app);
+    //юзер3 отвечает корректно на третий вопрос
+    await answerUserToQuestion(loginedUsers.user3, correctAnswer3, app);
+
+    const correctAnswer4 = findCorrectAnswer(questions[3]);
+
+    //юзер2 отвечает корректно на четвертый вопрос
+    await answerUserToQuestion(loginedUsers.user2, correctAnswer4, app);
+    //юзер3 отвечает корректно на четвертый вопрос
+    await answerUserToQuestion(loginedUsers.user3, correctAnswer4, app);
+
+    const correctAnswer5 = findCorrectAnswer(questions[4]);
+
+    //юзер2 отвечает корректно на пятый вопрос
+    await answerUserToQuestion(loginedUsers.user2, correctAnswer5, app);
+    //     //юзер3 отвечает корректно на пятый вопрос
+    await answerUserToQuestion(loginedUsers.user3, correctAnswer5, app);
+
+    //     setTimeout(async ()=>{
+    //
+    //          //юзер3 отвечает корректно на пятый вопрос
+    //     await answerUserToQuestion(loginedUsers.user3, correctAnswer5, app);
+    //
+    //           // Данные, которые вы хотите записать в файл
+    //     const bearer = `bearer 1 юзера: ${loginedUsers.user2.tokens.accessTokenInBody}, \`id игры: ${game1.id}\``;
+    //
+    //     // Вызов функции
+    //     await writeToFile(bearer);
+    //     // expect(1).toBe(1);
+    //
+    //     },15000)
+
+    const promise1 = new Promise((resolve, reject) => {
+      setTimeout(async () => {
+        //юзер3 отвечает корректно на пятый вопрос
+        await answerUserToQuestion(loginedUsers.user3, correctAnswer5, app);
 
         // // Данные, которые вы хотите записать в файл
         // const bearer = `bearer 1 юзера: ${loginedUsers.user2.tokens.accessTokenInBody}, \`id игры: ${game1.id}\``;
-        //
-        // // Вызов функции
         // await writeToFile(bearer);
-        // expect(1).toBe(1);
+        // ;
+        resolve(true);
+      }, 15000);
     });
+
+    await promise1;
+
+    // const promise = new Promise((resolve, reject) => {
+    //   setTimeout(async () => {
+    //     //юзер3 отвечает корректно на пятый вопрос
+    //     await answerUserToQuestion(loginedUsers.user3, correctAnswer5, app);
+    //
+    //     // Данные, которые вы хотите записать в файл
+    //     const bearer = `bearer 1 юзера: ${loginedUsers.user2.tokens.accessTokenInBody}, \`id игры: ${game1.id}\``;
+    //     await writeToFile(bearer);
+    //     ;
+    //     resolve(true);
+    //   }, 12000);
+    // });
+    //
+    // await promise;
+    /*
+      //-----------------------------------------------------------------------------
+      //вторая игра юзер2/юзер4
+      await connectUserToGame(loginedUsers.user4, app);
+      const game2 = await connectUserToGame(loginedUsers.user2, app);
+      const questions2 = game2.questions;
+      const correctAnswer2_1 = findCorrectAnswer(questions[0]);
+
+      //юзер2 отвечает корректно на первый вопрос
+      await answerUserToQuestion(loginedUsers.user2, correctAnswer2_1, app);
+      //юзер4 отвечает не корректно на первый вопрос
+      await answerUserToQuestion(loginedUsers.user4, '', app);
+
+      const correctAnswer2_2 = findCorrectAnswer(questions2[1]);
+
+      //юзер2 отвечает корректно на второй вопрос
+      await answerUserToQuestion(loginedUsers.user2, correctAnswer2_2, app);
+      //юзер4 отвечает некорректно на второй вопрос
+      await answerUserToQuestion(loginedUsers.user4, '', app);
+
+      const correctAnswer2_3 = findCorrectAnswer(questions2[2]);
+
+      //юзер2 отвечает корректно на третий вопрос
+      await answerUserToQuestion(loginedUsers.user2, correctAnswer2_3, app);
+      //юзер4 отвечает корректно на третий вопрос
+      await answerUserToQuestion(loginedUsers.user4, correctAnswer2_3, app);
+
+      const correctAnswer2_4 = findCorrectAnswer(questions2[3]);
+
+      //юзер2 отвечает корректно на четвертый вопрос
+      await answerUserToQuestion(loginedUsers.user2, correctAnswer2_4, app);
+      //юзер4 отвечает корректно на четвертый вопрос
+      await answerUserToQuestion(loginedUsers.user4, correctAnswer2_4, app);
+
+      const correctAnswer2_5 = findCorrectAnswer(questions2[4]);
+
+      //юзер2 отвечает корректно на пятый вопрос
+      await answerUserToQuestion(loginedUsers.user2, correctAnswer2_5, app);
+      //юзер4 отвечает корректно на пятый вопрос
+      await answerUserToQuestion(loginedUsers.user4, correctAnswer2_5, app);
+
+
+              //-----------------------------------------------------------------------------
+              //третья игра юзер2/юзер5
+              await connectUserToGame(loginedUsers.user5, app);
+              const game3 = await connectUserToGame(loginedUsers.user2, app);
+              ;
+              const questions3 = game3.questions;
+              const correctAnswer3_1 = findCorrectAnswer(questions3[0]);
+
+              //юзер2 отвечает корректно на первый вопрос
+              await answerUserToQuestion(loginedUsers.user2, correctAnswer3_1, app);
+              //юзер4 отвечает не корректно на первый вопрос
+              await answerUserToQuestion(loginedUsers.user5, '', app);
+
+              const correctAnswer3_2 = findCorrectAnswer(questions3[1]);
+
+              //юзер2 отвечает корректно на второй вопрос
+              await answerUserToQuestion(loginedUsers.user2, correctAnswer3_2, app);
+              //юзер4 отвечает некорректно на второй вопрос
+              await answerUserToQuestion(loginedUsers.user5, '', app);
+
+              const correctAnswer3_3 = findCorrectAnswer(questions3[2]);
+
+              //юзер2 отвечает корректно на третий вопрос
+              await answerUserToQuestion(loginedUsers.user2, correctAnswer3_3, app);
+              //юзер4 отвечает корректно на третий вопрос
+              await answerUserToQuestion(loginedUsers.user5, correctAnswer3_3, app);
+
+              const correctAnswer3_4 = findCorrectAnswer(questions3[3]);
+
+              //юзер2 отвечает корректно на четвертый вопрос
+              await answerUserToQuestion(loginedUsers.user2, '', app);
+              //юзер4 отвечает корректно на четвертый вопрос
+              await answerUserToQuestion(loginedUsers.user5, '', app);
+
+              const correctAnswer3_5 = findCorrectAnswer(questions3[4]);
+
+              //юзер2 отвечает корректно на пятый вопрос
+              await answerUserToQuestion(loginedUsers.user2, '', app);
+              //юзер4 отвечает корректно на пятый вопрос
+              await answerUserToQuestion(loginedUsers.user5, correctAnswer3_5, app);
+
+              //-----------------------------------------------------------------------------
+              //четвертая игра юзер2/юзер3
+              await connectUserToGame(loginedUsers.user2, app);
+              const game4 = await connectUserToGame(loginedUsers.user3, app);
+              ;
+              const questions4 = game4.questions;
+              const correctAnswer4_1 = findCorrectAnswer(questions4[0]);
+
+              //юзер2 отвечает корректно на первый вопрос
+              await answerUserToQuestion(loginedUsers.user2, correctAnswer4_1, app);
+              //юзер4 отвечает не корректно на первый вопрос
+              await answerUserToQuestion(loginedUsers.user3, '', app);
+
+              const correctAnswer4_2 = findCorrectAnswer(questions4[1]);
+
+              //юзер2 отвечает корректно на второй вопрос
+              await answerUserToQuestion(loginedUsers.user2, correctAnswer4_2, app);
+              //юзер4 отвечает некорректно на второй вопрос
+              await answerUserToQuestion(loginedUsers.user3, '', app);
+
+              const correctAnswer4_3 = findCorrectAnswer(questions4[2]);
+
+              //юзер2 отвечает корректно на третий вопрос
+              await answerUserToQuestion(loginedUsers.user2, '', app);
+              //юзер4 отвечает корректно на третий вопрос
+              await answerUserToQuestion(loginedUsers.user3, correctAnswer4_3, app);
+
+              const correctAnswer4_4 = findCorrectAnswer(questions4[3]);
+
+              //юзер2 отвечает корректно на четвертый вопрос
+              await answerUserToQuestion(loginedUsers.user2, '', app);
+              //юзер4 отвечает корректно на четвертый вопрос
+              await answerUserToQuestion(loginedUsers.user3, correctAnswer4_4, app);
+
+              const correctAnswer4_5 = findCorrectAnswer(questions4[4]);
+
+              //юзер2 отвечает корректно на пятый вопрос
+              await answerUserToQuestion(loginedUsers.user2, '', app);
+              //юзер4 отвечает корректно на пятый вопрос
+              await answerUserToQuestion(loginedUsers.user3, correctAnswer4_5, app);
+
+              //-----------------------------------------------------------------------------
+              //пятая игра юзер2/юзер4
+              await connectUserToGame(loginedUsers.user2, app);
+              const game5 = await connectUserToGame(loginedUsers.user4, app);
+              ;
+              const questions5 = game5.questions;
+              const correctAnswer5_1 = findCorrectAnswer(questions5[0]);
+
+              //юзер2 отвечает корректно на первый вопрос
+              await answerUserToQuestion(loginedUsers.user2, correctAnswer5_1, app);
+              //юзер4 отвечает не корректно на первый вопрос
+              await answerUserToQuestion(loginedUsers.user4, correctAnswer5_1, app);
+
+              const correctAnswer5_2 = findCorrectAnswer(questions5[1]);
+
+              //юзер2 отвечает корректно на второй вопрос
+              await answerUserToQuestion(loginedUsers.user2, correctAnswer5_2, app);
+              //юзер4 отвечает некорректно на второй вопрос
+              await answerUserToQuestion(loginedUsers.user4, correctAnswer5_2, app);
+
+              const correctAnswer5_3 = findCorrectAnswer(questions5[2]);
+
+              //юзер2 отвечает корректно на третий вопрос
+              await answerUserToQuestion(loginedUsers.user2, correctAnswer5_3, app);
+              //юзер4 отвечает корректно на третий вопрос
+              await answerUserToQuestion(loginedUsers.user4, correctAnswer5_3, app);
+
+              const correctAnswer5_4 = findCorrectAnswer(questions5[3]);
+
+              // юзер2 отвечает корректно на четвертый вопрос
+              await answerUserToQuestion(loginedUsers.user2, correctAnswer5_4, app);
+              // юзер4 отвечает корректно на четвертый вопрос
+              await answerUserToQuestion(loginedUsers.user4, correctAnswer5_4, app);
+
+              const correctAnswer5_5 = findCorrectAnswer(questions5[4]);
+
+              //юзер2 отвечает корректно на пятый вопрос
+              await answerUserToQuestion(loginedUsers.user2, correctAnswer5_5, app);
+              //юзер4 отвечает корректно на пятый вопрос
+              await answerUserToQuestion(loginedUsers.user4, correctAnswer5_5, app);
+
+
+               //-----------------------------------------------------------------------------
+              //шестая игра юзер3/юзер5
+              await connectUserToGame(loginedUsers.user3, app);
+              const game6 = await connectUserToGame(loginedUsers.user5, app);
+              ;
+              const questions6 = game6.questions;
+              const correctAnswer6_1 = findCorrectAnswer(questions6[0]);
+
+              //юзер3 отвечает корректно на первый вопрос
+              await answerUserToQuestion(loginedUsers.user3, correctAnswer6_1, app);
+              //юзер5 отвечает не корректно на первый вопрос
+              await answerUserToQuestion(loginedUsers.user5, '', app);
+
+              const correctAnswer6_2 = findCorrectAnswer(questions6[1]);
+
+              //юзер3 отвечает корректно на второй вопрос
+              await answerUserToQuestion(loginedUsers.user3, correctAnswer6_2, app);
+              //юзер5 отвечает некорректно на второй вопрос
+              await answerUserToQuestion(loginedUsers.user5, correctAnswer6_2, app);
+
+              const correctAnswer6_3 = findCorrectAnswer(questions6[2]);
+
+              //юзер3 отвечает корректно на третий вопрос
+              await answerUserToQuestion(loginedUsers.user3, correctAnswer6_3, app);
+              //юзер5 отвечает корректно на третий вопрос
+              await answerUserToQuestion(loginedUsers.user5, correctAnswer6_3, app);
+
+              const correctAnswer6_4 = findCorrectAnswer(questions6[3]);
+
+              // юзер3 отвечает корректно на четвертый вопрос
+              await answerUserToQuestion(loginedUsers.user3, correctAnswer6_4, app);
+              // юзер5 отвечает корректно на четвертый вопрос
+              await answerUserToQuestion(loginedUsers.user5, correctAnswer6_4, app);
+
+              const correctAnswer6_5 = findCorrectAnswer(questions6[4]);
+
+              //юзер3 отвечает корректно на пятый вопрос
+              await answerUserToQuestion(loginedUsers.user3, correctAnswer6_5, app);
+              //юзер5 отвечает корректно на пятый вопрос
+              await answerUserToQuestion(loginedUsers.user5, correctAnswer6_5, app);
+
+
+              //-----------------------------------------------------------------------------
+              //седьмая игра юзер4/юзер2
+              await connectUserToGame(loginedUsers.user4, app);
+              const game7 = await connectUserToGame(loginedUsers.user2, app);
+              ;
+              const questions7 = game7.questions;
+              const correctAnswer7_1 = findCorrectAnswer(questions7[0]);
+
+              //юзер4 отвечает корректно на первый вопрос
+              await answerUserToQuestion(loginedUsers.user4, correctAnswer7_1, app);
+              //юзер2 отвечает не корректно на первый вопрос
+              await answerUserToQuestion(loginedUsers.user2, '', app);
+
+              const correctAnswer7_2 = findCorrectAnswer(questions7[1]);
+
+              //юзер4 отвечает корректно на второй вопрос
+              await answerUserToQuestion(loginedUsers.user4, correctAnswer7_2, app);
+              //юзер2 отвечает некорректно на второй вопрос
+              await answerUserToQuestion(loginedUsers.user2, '', app);
+
+              const correctAnswer7_3 = findCorrectAnswer(questions7[2]);
+
+              //юзер4 отвечает корректно на третий вопрос
+              await answerUserToQuestion(loginedUsers.user4, correctAnswer7_3, app);
+              //юзер2 отвечает корректно на третий вопрос
+              await answerUserToQuestion(loginedUsers.user2, '', app);
+
+              const correctAnswer7_4 = findCorrectAnswer(questions7[3]);
+
+              // юзер4 отвечает корректно на четвертый вопрос
+              await answerUserToQuestion(loginedUsers.user4, correctAnswer7_4, app);
+              // юзер2 отвечает корректно на четвертый вопрос
+              await answerUserToQuestion(loginedUsers.user2, correctAnswer7_4, app);
+
+              const correctAnswer7_5 = findCorrectAnswer(questions7[4]);
+
+              //юзер4 отвечает корректно на пятый вопрос
+              await answerUserToQuestion(loginedUsers.user4, correctAnswer7_5, app);
+              //юзер2 отвечает корректно на пятый вопрос
+              await answerUserToQuestion(loginedUsers.user2, correctAnswer7_5, app);
+
+
+              //-----------------------------------------------------------------------------
+              //восьмая игра юзер6/юзер7
+              await connectUserToGame(loginedUsers.user6, app);
+              const game8 = await connectUserToGame(loginedUsers.user7, app);
+              ;
+              const questions8 = game8.questions;
+              const correctAnswer8_1 = findCorrectAnswer(questions8[0]);
+
+              //юзер6 отвечает корректно на первый вопрос
+              await answerUserToQuestion(loginedUsers.user6, correctAnswer8_1, app);
+              //юзер7 отвечает не корректно на первый вопрос
+              await answerUserToQuestion(loginedUsers.user7, '', app);
+
+              const correctAnswer8_2 = findCorrectAnswer(questions8[1]);
+
+              //юзер6 отвечает корректно на второй вопрос
+              await answerUserToQuestion(loginedUsers.user6, correctAnswer8_2, app);
+              //юзер7 отвечает некорректно на второй вопрос
+              await answerUserToQuestion(loginedUsers.user7, '', app);
+
+              const correctAnswer8_3 = findCorrectAnswer(questions8[2]);
+
+              //юзер6 отвечает корректно на третий вопрос
+              await answerUserToQuestion(loginedUsers.user6, correctAnswer8_3, app);
+              //юзер7 отвечает корректно на третий вопрос
+              await answerUserToQuestion(loginedUsers.user7, '', app);
+
+              const correctAnswer8_4 = findCorrectAnswer(questions8[3]);
+
+              // юзер6 отвечает корректно на четвертый вопрос
+              await answerUserToQuestion(loginedUsers.user6, correctAnswer8_4, app);
+              // юзер7 отвечает корректно на четвертый вопрос
+              await answerUserToQuestion(loginedUsers.user7, correctAnswer8_4, app);
+
+              const correctAnswer8_5 = findCorrectAnswer(questions7[4]);
+
+              //юзер6 отвечает корректно на пятый вопрос
+              await answerUserToQuestion(loginedUsers.user6, correctAnswer8_5, app);
+              //юзер7 отвечает корректно на пятый вопрос
+              await answerUserToQuestion(loginedUsers.user7, correctAnswer8_5, app);
+
+
+                //-----------------------------------------------------------------------------
+              //девятая игра юзер2/юзер7
+              await connectUserToGame(loginedUsers.user2, app);
+              const game9 = await connectUserToGame(loginedUsers.user7, app);
+              ;
+              const questions9 = game9.questions;
+              const correctAnswer9_1 = findCorrectAnswer(questions9[0]);
+
+              //юзер2 отвечает корректно на первый вопрос
+              await answerUserToQuestion(loginedUsers.user2, '', app);
+              //юзер7 отвечает не корректно на первый вопрос
+              await answerUserToQuestion(loginedUsers.user7, correctAnswer9_1, app);
+
+              const correctAnswer9_2 = findCorrectAnswer(questions9[1]);
+
+              //юзер2 отвечает корректно на второй вопрос
+              await answerUserToQuestion(loginedUsers.user2, '', app);
+              //юзер7 отвечает некорректно на второй вопрос
+              await answerUserToQuestion(loginedUsers.user7, correctAnswer9_2, app);
+
+              const correctAnswer9_3 = findCorrectAnswer(questions8[2]);
+
+              //юзер2 отвечает корректно на третий вопрос
+              await answerUserToQuestion(loginedUsers.user2, '', app);
+              //юзер7 отвечает корректно на третий вопрос
+              await answerUserToQuestion(loginedUsers.user7, correctAnswer9_3, app);
+
+              const correctAnswer9_4 = findCorrectAnswer(questions9[3]);
+
+              // юзер2 отвечает корректно на четвертый вопрос
+              await answerUserToQuestion(loginedUsers.user2, correctAnswer9_4, app);
+              // юзер7 отвечает корректно на четвертый вопрос
+              await answerUserToQuestion(loginedUsers.user7, correctAnswer9_4, app);
+
+              const correctAnswer9_5 = findCorrectAnswer(questions7[4]);
+
+              //юзер2 отвечает корректно на пятый вопрос
+              await answerUserToQuestion(loginedUsers.user2, correctAnswer9_5, app);
+              //юзер7 отвечает корректно на пятый вопрос
+              await answerUserToQuestion(loginedUsers.user7, correctAnswer9_5, app);
+
+
+                 //-----------------------------------------------------------------------------
+              //десятая игра юзер3/юзер6
+              await connectUserToGame(loginedUsers.user3, app);
+              const game10 = await connectUserToGame(loginedUsers.user6, app);
+              ;
+              const questions10 = game10.questions;
+              const correctAnswer10_1 = findCorrectAnswer(questions10[0]);
+
+              //юзер3 отвечает корректно на первый вопрос
+              await answerUserToQuestion(loginedUsers.user3, correctAnswer10_1, app);
+              //юзер6 отвечает не корректно на первый вопрос
+              await answerUserToQuestion(loginedUsers.user6, correctAnswer10_1, app);
+
+              const correctAnswer10_2 = findCorrectAnswer(questions10[1]);
+
+              //юзер3 отвечает корректно на второй вопрос
+              await answerUserToQuestion(loginedUsers.user3, '', app);
+              //юзер6 отвечает некорректно на второй вопрос
+              await answerUserToQuestion(loginedUsers.user6, correctAnswer10_2, app);
+
+              const correctAnswer10_3 = findCorrectAnswer(questions8[2]);
+
+              //юзер3 отвечает корректно на третий вопрос
+              await answerUserToQuestion(loginedUsers.user3, '', app);
+              //юзер6 отвечает корректно на третий вопрос
+              await answerUserToQuestion(loginedUsers.user6, correctAnswer10_3, app);
+
+              const correctAnswer10_4 = findCorrectAnswer(questions10[3]);
+
+              // юзер3 отвечает корректно на четвертый вопрос
+              await answerUserToQuestion(loginedUsers.user3, correctAnswer10_4, app);
+              // юзер6 отвечает корректно на четвертый вопрос
+              await answerUserToQuestion(loginedUsers.user6, '', app);
+
+              const correctAnswer10_5 = findCorrectAnswer(questions10[4]);
+
+              //юзер3 отвечает корректно на пятый вопрос
+              await answerUserToQuestion(loginedUsers.user3, correctAnswer10_5, app);
+              //юзер6 отвечает корректно на пятый вопрос
+              await answerUserToQuestion(loginedUsers.user6, correctAnswer10_5, app);
+          */
+
+    // // Данные, которые вы хотите записать в файл
+    // const bearer = `bearer 1 юзера: ${loginedUsers.user2.tokens.accessTokenInBody}, \`id игры: ${game1.id}\``;
+    //
+    // // Вызов функции
+    // await writeToFile(bearer);
+    // expect(1).toBe(1);
+  });
 });
